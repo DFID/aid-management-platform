@@ -1,0 +1,138 @@
+﻿@model AMP.Models.ProjectMaster
+
+@{
+    ViewBag.Title = "Edit ProjectMaster";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="page-container">
+        <h2>Edit ProjectMaster - @Html.DisplayFor(model => model.ProjectID)</h2>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.ProjectID)
+        <div class="grid-row">
+            <div class="column-half">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Title, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @*@Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })*@
+
+                        @Html.TextAreaFor(model => model.Description, new { id = "ProjectDescription", @class = "form-control", @rows = 2 })
+                        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.BudgetCentreID, "BudgetCentreID", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.BudgetCentreID, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.BudgetCentreID, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Stage, "Stage", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        <p class="form-hint">0 = Pre Pipeline, 3 = Appraisal and Design, 5 = Implementation, 7 = Completion</p>
+
+                        @Html.EditorFor(model => model.Stage, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Stage, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="column-half">
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+
+                        @{
+    List<SelectListItem> listItems = new List<SelectListItem>();
+    listItems.Add(new SelectListItem
+    {
+        Text = "Active",
+        Value = "A"
+    });
+    listItems.Add(new SelectListItem
+    {
+        Text = "Closed",
+        Value = "C"
+    });
+
+
+                @Html.DropDownListFor(model => model.Status, listItems, "-- Select type of status --", new { @class = "form-control", id = "ProjectMaster_Status" })
+                            @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+
+
+                        }
+                    </div>
+                    </div>
+
+
+                @*<div class="form-group"> 
+                    @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Status, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+                    </div>
+                </div>*@
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LastUpdate, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.LastUpdate, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LastUpdate, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.UserID, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.UserID, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.UserID, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+                <div id="SaveMessage" style="display:none">Save Successful</div>
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Save" class="button submit" />
+                        <button id="CancelMaster" name="SubmitButton" class="button" type="button" value="Cancel">Cancel</button>
+                    </div>
+                </div>
+                <div>
+                    @Html.ActionLink("Back to List", "Index")
+                </div>
+            </div>
+
+        </div>
+    </div>
+}
+
+@section Scripts {
+<script type="text/javascript">
+
+    $('#CancelMaster').click(function (e) {
+    location.reload();
+    });
+    </script>
+
+}
+
+

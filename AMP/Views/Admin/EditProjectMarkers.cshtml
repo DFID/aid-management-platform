@@ -1,0 +1,286 @@
+﻿@model AMP.Models.Markers1
+
+@{
+    ViewBag.Title = "EditProjectMarkers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="page-container">
+        <h2>Edit ProjectInfo - @Html.DisplayFor(model => model.ProjectID)</h2>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.ProjectID)
+        <div class="grid-row">
+            <div class="column-half">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.GenderEquality, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+
+                        @{
+                            List<SelectListItem> listItems = new List<SelectListItem>();
+                            listItems.Add(new SelectListItem
+                            {
+                                Text = "Principal",
+                                Value = "PRINCIPAL"
+                            });
+                            listItems.Add(new SelectListItem
+                            {
+                                Text = "Significant",
+                                Value = "SIGNIFICANT"
+                            });
+                            listItems.Add(new SelectListItem
+                            {
+                                Text = "Not Targeted",
+                                Value = "NOTTARGETED"
+                            });
+
+
+                            @Html.DropDownListFor(model => model.GenderEquality, listItems, "-- Select option --", new { @class = "form-control", id = "GenderEquality" })
+                            @Html.ValidationMessageFor(model => model.GenderEquality, "", new { @class = "text-danger" })
+
+
+                        }
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Adaptation, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+
+                        @{
+                            List<SelectListItem> listItems3 = new List<SelectListItem>();
+                            listItems3.Add(new SelectListItem
+                            {
+                                Text = "Principal",
+                                Value = "PRINCIPAL"
+                            });
+                            listItems3.Add(new SelectListItem
+                            {
+                                Text = "Significant",
+                                Value = "SIGNIFICANT"
+                            });
+                            listItems3.Add(new SelectListItem
+                            {
+                                Text = "Not Targeted",
+                                Value = "NOTTARGETED"
+                            });
+
+                            @Html.DropDownListFor(model => model.Adaptation, listItems3, "-- Select option --", new { @class = "form-control", id = "Adaptation" })
+                            @Html.ValidationMessageFor(model => model.Adaptation, "", new { @class = "text-danger" })
+
+                        }
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Mitigation, htmlAttributes: new {@class = "control-label col-md-2"})
+                    <div class="col-md-10">
+
+                        @{
+                            List<SelectListItem> listItems4 = new List<SelectListItem>();
+                            listItems4.Add(new SelectListItem
+                            {
+                                Text = "Principal",
+                                Value = "PRINCIPAL"
+                            });
+                            listItems4.Add(new SelectListItem
+                            {
+                                Text = "Significant",
+                                Value = "SIGNIFICANT"
+                            });
+                            listItems4.Add(new SelectListItem
+                            {
+                                Text = "Not Targeted",
+                                Value = "NOTTARGETED"
+                            });
+
+                            @Html.DropDownListFor(model => model.Mitigation, listItems4, "-- Select option --", new {@class = "form-control", id = "Mitigation"})
+                            @Html.ValidationMessageFor(model => model.Mitigation, "", new {@class = "text-danger"})
+
+                        }
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Biodiversity, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+
+                        @{
+                            List<SelectListItem> listItems5 = new List<SelectListItem>();
+                            listItems5.Add(new SelectListItem
+                            {
+                                Text = "Principal",
+                                Value = "PRINCIPAL"
+                            });
+                            listItems5.Add(new SelectListItem
+                            {
+                                Text = "Significant",
+                                Value = "SIGNIFICANT"
+                            });
+                            listItems5.Add(new SelectListItem
+                            {
+                                Text = "Not Targeted",
+                                Value = "NOTTARGETED"
+                            });
+
+                            @Html.DropDownListFor(model => model.Biodiversity, listItems5, "-- Select option --", new { @class = "form-control", id = "Biodiversity" })
+                            @Html.ValidationMessageFor(model => model.Biodiversity, "", new { @class = "text-danger" })
+
+                        }
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Desertification, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+
+                        @{
+                            List<SelectListItem> listItems6 = new List<SelectListItem>();
+                            listItems6.Add(new SelectListItem
+                            {
+                                Text = "Targeted",
+                                Value = "TARGETED"
+                            });
+                            listItems6.Add(new SelectListItem
+                            {
+                                Text = "Not Targeted",
+                                Value = "NOTTARGETED"
+                            });
+
+
+                            @Html.DropDownListFor(model => model.Desertification, listItems6, "-- Select option --", new { @class = "form-control", id = "Desertification" })
+                            @Html.ValidationMessageFor(model => model.Desertification, "", new { @class = "text-danger" })
+
+                        }
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="column-half">
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.HIVAIDS, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+
+                        @{
+                            List<SelectListItem> listItems2 = new List<SelectListItem>();
+                            listItems2.Add(new SelectListItem
+                            {
+                                Text = "Principal",
+                                Value = "PRINCIPAL"
+                            });
+                            listItems2.Add(new SelectListItem
+                            {
+                                Text = "Significant",
+                                Value = "SIGNIFICANT"
+                            });
+                            listItems2.Add(new SelectListItem
+                            {
+                                Text = "Not Targeted",
+                                Value = "NOTTARGETED"
+                            });
+
+                            @Html.DropDownListFor(model => model.HIVAIDS, listItems2, "-- Select option --", new { @class = "form-control", id = "HIVAIDS" })
+                            @Html.ValidationMessageFor(model => model.HIVAIDS, "", new { @class = "text-danger" })
+
+
+                        }
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Disability, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+
+                        @{
+                            List<SelectListItem> listItemsDisability = new List<SelectListItem>();
+                            listItemsDisability.Add(new SelectListItem
+                            {
+                                Text = "Principal",
+                                Value = "PRINCIPAL"
+                            });
+                            listItemsDisability.Add(new SelectListItem
+                            {
+                                Text = "Significant",
+                                Value = "SIGNIFICANT"
+                            });
+                            listItemsDisability.Add(new SelectListItem
+                            {
+                                Text = "Not Targeted",
+                                Value = "NOTTARGETED"
+                            });
+
+                            @Html.DropDownListFor(model => model.Disability, listItemsDisability, "-- Select option --", new { @class = "form-control", id = "Disability" })
+                            @Html.ValidationMessageFor(model => model.Disability, "", new { @class = "text-danger" })
+                            @Html.LabelFor(model => model.DisabilityPercentage, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <p class="form-hint">If Principal Marker is selected, set percentage to 100</p>
+                            <p class="form-hint">If Not Targeted Marker is selected, set percentage to 0</p>
+                            <p class="form-hint">If Significant Marker is selected, set percentage to user reques (1-99%)</p>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.DisabilityPercentage, new { htmlAttributes = new { @class = "form-control" } })
+                            </div>
+
+                                }
+                            </div>
+                </div>
+
+
+
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Status, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.LastUpdated, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.LastUpdated, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.LastUpdated, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.UserID, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.UserID, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.UserID, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+            <div id="SaveMessage" style="display: none">Save Successful</div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="button submit" />
+                    <button id="CancelMaster" name="SubmitButton" class="button" type="button" value="Cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                            }
+
+@section Scripts {
+    <script type="text/javascript">
+
+    $('#CancelMaster').click(function (e) {
+    location.reload();
+    });
+    </script>
+
+}
+
+

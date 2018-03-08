@@ -1,0 +1,232 @@
+﻿@model AMP.ViewModels.ComponentMarkersVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Component Markers";
+}
+@using AMP.Helpers
+@Html.Partial("~/Views/Shared/_ComponentHeader.cshtml", Model.ComponentHeader)
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    
+    @Html.HiddenFor(model => model.ComponentID)
+    @Html.HiddenFor(model => model.BudgetCentreID, new { @id = "BudgetCentreID" })
+    @Html.HiddenFor(model => model.ComponentHeader.BudgetCentreID, new { @id = "Component_BudgetCentreID" })
+    @Html.HiddenFor(model => model.Approved, new { id = "Approved" })
+    @Html.HiddenFor(model => model.WFCheck.Status, new { @id = "IsActiveWorkflow" })
+    @Html.HiddenFor(model => model.IsPlannedEndDateOver, new { @id = "IsPlanEndDateOver" })
+<div class="page-container secondary">    
+<div class="grid-row">
+    <div class="column-third">
+        <label class="form-label-bold" for="BenefitingCountrydd">Benefitting Location</label>
+        <p class="form-hint">The location benefitting from the funding.</p>
+        @Html.DropDownList("BenefitingCountrydd", String.Empty)
+        
+    </div>
+</div>
+    <div class="grid-row">
+        <div class="column-full">
+            <div class="form-label-bold">Aid Effectiveness</div>
+            <p class="form-hint">These markers are use to report to the Organisation for Economic Co-operation and Development</p>
+        </div>
+    </div>
+    <div class="grid-row">
+        <div class="column-half">
+            <div class="form-label-bold">Is this a programme based approach?</div>
+            <p class="form-hint">Select ‘Yes’ if all these conditions are met:</p>
+            <ul>
+                <li class="form-hint">The host country or organisation is exercising leadership over the programme</li>
+                <li class="form-hint">A single programme and budget framework is used</li>
+                <li class="form-hint">A harmonisation process between donor and co-ordinator exist</li>
+                <li class="form-hint">The programme supports two local systems (design, implementation, financial management, or monitoring and evaluation)</li>
+            </ul>
+            <br/>
+            <div class="grid-row">
+                <div id="PBA">
+                    <div class="status-select">
+                        @foreach (var options in (ViewBag.options))
+                        {
+                        string choice = options;
+                            <div class="column-half">
+                                <label class="block-label" id="label-@options" for="PBA-@options" style="width: 100px">
+                                    @Html.RadioButtonFor(m => m.PBA, choice, new { @id = String.Format("PBA-{0}", options) }) @options
+                                </label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+               @Html.ValidationMessageFor(model => model.PBA)
+               @Html.HiddenFor(model => model.PBA, new { id = "PBA-Hid" })
+            </div>
+
+        <div class="column-half">
+            <div class="form-label-bold">Is this a sector wide approach?</div>
+            <p class="form-hint">Select ‘Yes’ if all these conditions are met:</p>
+            <ul>
+                <li class="form-hint">There is a comprehensive sector policy and strategy</li>
+                <li class="form-hint">An Annual Sector Expenditure Programme and Medium Term Sectoral Expenditure Framework exist</li>
+                <li class="form-hint">Donor coordination and performance monitoring is in place</li>
+                <li class="form-hint">One of the following is true:  donors are committed to greater reliance on government financial and accountability systems, or donors use a common approach for implementation and management</li>
+            </ul>
+            <div class="grid-row">
+                <div id="SWAP">
+                    @foreach (var options in (ViewBag.options))
+                    {
+                        string choice = options;
+                        <div class="column-half">
+                            <label class="block-label" id="label-@options-swa" for="SWAP-@options" style="width: 100px">
+                                @Html.RadioButtonFor(m => m.SWAP, choice, new { @id = String.Format("SWAP-{0}", options) }) @options
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+            @Html.ValidationMessageFor(model => model.SWAP)
+            @Html.HiddenFor(model => model.SWAP, new { id = "SWAP-Hid" })
+        </div>
+        </div>
+
+    @*<div class="grid-row">
+        <div class="column-full">
+            <div class="form-label-bold">Implementing Organisation</div>
+            <p class="form-hint">The implementing Organisations</p>
+            @if (Model.ImplementingOrganisation != null && Model.ImplementingOrganisation.Any())
+            {
+                <table id="ImplementingOrganisation-list" class="table-main" border="1" title="A data table that contains your list of Implementing Organisations.">
+                    <tr>
+                        <th id="ImplementingOrganisationHeader">Supplier ID</th>
+                        <th id="SupplierNameHeader">Supplier Name</th>
+                    </tr>
+                    @if (Model.ImplementingOrganisation != null)
+                    {
+                        var index = 0;
+
+                        foreach (var item in Model.ImplementingOrganisation)
+                        {
+                            <tr>
+                                <td id="ImplementingOrganisation-@index" headers="ImplementingOrganisationHeader">
+                                    @Html.DisplayFor(modelItem => item.SupplierID)
+                                </td>
+                                <td id="Name-@index" headers="SupplierNameHeader">
+                                    @Html.DisplayFor(modelItem => item.SupplierName)
+                                </td>
+                            </tr>
+                            index++;
+                        }
+
+                    }
+                </table>
+            }
+            else
+            {
+                <div>No implementing organisation found.</div>
+            }
+        </div>
+    </div>*@
+    <button id="CreateBtn" class="button sector-control" value="Save" type="submit">
+        Save
+    </button>
+    <div class="PushDown">
+        <div id="SaveMessage" style="display:none">Save Successful</div>
+        <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+    </div>
+    <br/>
+</div>
+}
+<script>
+    //This Javascript will change the DOM, specificly the page the user is on.
+    $("#component-menu-markers").toggleClass("active");
+
+    //This Javascript will change the DOM, specificly the page the user is on.
+    $("#component-tab").toggleClass("active");
+
+    $(document).ready(function() {
+
+        var stage = parseInt(@Model.ProjectStage);
+        var ProjectPastEndDate = @Model.ProjectPastEndDate;
+        var Approved = $("#Approved").val();
+        var IsPDateOver = $("#IsPlanEndDateOver").val();
+     
+        ////If the project is stage 7, all fields should be read only.
+        //if (Approved=="Y" || ProjectPastEndDate == true) {
+        //$("input").prop('disabled', true);
+        //$("textarea").prop('disabled', true);
+        //$("button").prop('disabled', true);
+        //$("#BenefitingCountrydd").prop('disabled', true);
+        //$('#GOMI').prop('disabled', false);
+        //}
+
+        
+        //
+        //If the project is at Archive (stage 8) or has gone beyond the expected end date, all fields should be read only.
+        if (stage === 8 || IsPDateOver==="T")
+        {            
+            $("#BenefitingCountrydd").prop('disabled', true);
+            $("#CreateBtn").prop('disabled', true);
+            $("textarea").prop('disabled', true);
+            $("input").prop('disabled', true);
+        }
+        else 
+        {           
+            $("#BenefitingCountrydd").prop('disabled', false);
+            $("#CreateBtn").prop('disabled', false);
+            if ($('#IsActiveWorkflow').val() == "True") {
+                $("#PBA").prop('disabled', true);
+                $("#SWAP").prop('disabled', true);
+                $('#GOMI').prop('disabled', false);
+            }
+        }
+
+        if ($('#IsActiveWorkflow').val() == "True") {
+            $("#BenefitingCountrydd").prop('disabled', true);
+            $("input").prop('disabled', true);
+            $("button").prop('disabled', true);
+        }
+
+    });
+
+    function AdminBudCentSettings() {
+
+        var budgetCentre = $('#Component_BudgetCentreID').val();
+        if (budgetCentre.substr(0, 2) == "A0" || budgetCentre.substr(0, 2) == "C0" || budgetCentre.substr(0, 2) == "AP") {
+            $("#BenefitingCountrydd").prop('disabled', true);                
+            $(".sector-control").prop('disabled', true);                
+        }
+    }
+
+    //Set the PBA Yes Radio Button
+    var label = document.getElementById("label-Yes");
+    var option = document.getElementById("PBA-Yes");
+    if (option.getAttribute("checked") == "checked")
+    {
+        label.className = "block-label selected";
+    }
+
+    //Set the PBA No Radio Button
+    var label = document.getElementById("label-No");
+    var option = document.getElementById("PBA-No");
+    if (option.getAttribute("checked") == "checked")
+    {
+        label.className = "block-label selected";
+    }
+    
+    //Set the SWA Yes Radio Button
+    var label = document.getElementById("label-Yes-swa");
+    var option = document.getElementById("SWAP-Yes");
+    if (option.getAttribute("checked") == "checked")
+    {
+        label.className = "block-label selected";
+    }
+
+    //Set the SWA No Radio Button
+    var label = document.getElementById("label-No-swa");
+    var option = document.getElementById("SWAP-No");
+    if (option.getAttribute("checked") == "checked")
+    {
+        label.className = "block-label selected";
+    }
+
+</script>

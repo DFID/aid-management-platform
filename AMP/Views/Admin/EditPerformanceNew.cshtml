@@ -1,0 +1,238 @@
+﻿
+@model AMP.ViewModels.EditPerformanceVM
+@using AMP.Helpers
+@{
+    ViewBag.Title = "View";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+   
+}
+
+<script src="~/Scripts/govuk-template.js" type="text/javascript"></script>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.ProjectID)
+
+    <div class="page-container">
+
+   
+            <h2>Project Id - @Model.ProjectID - Edit Performance </h2>
+            <hr />
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+   
+        <div class="grid-row">
+            <div class="column-full"><p class="form-hint">As a general rule, set due to to one year from the last AR, or the project actual start date where there is no AR.  Prompt date will update on save</p></div>
+            
+            <div class="column-third">
+                <fieldset>
+                    <legend class="form-label-bold">AR Required?</legend>
+                    <label for="arrequired-Y" class="block-label">
+                        @Html.RadioButtonFor(m => m.ARRequired, string.Format("Yes"), new { id = "arrequired-Y" })
+                        Yes
+                    </label>
+
+                    <label for="arrequired-N" class="block-label">
+                        @Html.RadioButtonFor(m => m.ARRequired, string.Format("No"), new { id = "arrequired-N" })
+                        No
+                    </label>
+                </fieldset>
+            </div>
+
+            <div class="column-third">
+              
+                @Html.HiddenFor(model => model.ARDueDate)
+                @Html.DateBlock("ARDueDate", "AR Due Date", @Model.ARDueDate, "Date the AR is Due")
+                @Html.ValidationMessageFor(model => model.ARDueDate_Day)
+        
+            </div>
+
+            <div class="column-third">
+                @Html.DateBlock("ARPromptDate", "AR Prompt Date", @Model.ARPromptDate, "Date when a AR prompt is received")
+                @Html.HiddenFor(model => model.ARPromptDate)
+            </div>
+
+            <div class="column-full"><p class="form-hint">If amending to Yes - deleted the text in the justification and reason sections</p></div>           
+        </div>
+        <div class="grid-row">
+            <div class="column-half">
+                <div id="accordion-1">
+                    <div class="accordion-1-toggle">
+                        <div class="title-bar">
+                            <div class="control-bar" style="max-width:inherit" id="AR-Justification">
+                                AR Exemption Justification
+                            </div>
+                            <br />
+                            <span>
+                                @Html.TextAreaFor(model => model.ARExemptJustification, new { id = "ARexemptJustification", @class = "form-control", @rows = 2 })
+                                @Html.HiddenFor(model => model.ARExemptJustification)
+                                @*<textarea> @Model.ARExemptJustification</textarea>*@
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="column-half">
+                <div id="accordion-1">
+                    <div class="accordion-1-toggle">
+                        <div class="title-bar">
+                            <div class="control-bar" style="max-width:inherit" id="AR-Justification">
+                                AR Exemption Reason
+                                @Html.HiddenFor(model => model.HasAR)
+                                
+                            </div>
+                          <br />
+                            @{
+                                if (Model.HasAR == "No")
+                                {
+                                    <span>
+                                        @Html.TextAreaFor(model => model.ARExcemptReason, new { id = "ARexemptReason", @class = "form-control", @rows = 2 })
+                                        @Html.HiddenFor(model => model.ARExcemptReason)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        @Html.DropDownListFor(model => model.ReviewExemptionAR.ExemptionReason, new SelectList(Model.ExemptionReasons.Where(x => x.ExemptionType == "AR"), "ID", "ExemptionReason1"), "-- Select Exemption reasons --", new {@class = "form-control", id = "ReviewExemption_ExemptionReasonAR"})
+                                    </span>
+                                }
+
+                            }
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+            
+
+        <br />
+        
+        <div class="grid-row">
+            <div class="column-full"><p class="form-hint">Set due to to 3 months after the project planned end date, the prompt date will update on save</p></div>
+            
+                                <div class="column-third">
+                                    <fieldset>
+                                        <legend class="form-label-bold">PCR Required?</legend>
+
+                                        <label for="pcrrequired-Y" class="block-label">
+                                            @Html.RadioButtonFor(m => m.PCRRequired, string.Format("Yes"), new { id = "pcrrequired-Y" })
+                                            Yes
+                                        </label>
+
+                                        <label for="pcrrequired-N" class="block-label">
+                                            @Html.RadioButtonFor(m => m.PCRRequired, string.Format("No"), new { id = "pcrrequired-N" })
+                                            No
+                                        </label>
+                                    </fieldset>
+                                </div>
+
+                                <div class="column-third">
+                                    @Html.HiddenFor(model => model.PCRDueDate)
+                                    @Html.DateBlock("PCRDueDate", "PCR Due Date", @Model.PCRDueDate, "Date the PCR is Due")
+                                    @Html.ValidationMessageFor(model => model.PCRDueDate_Day)
+                                    
+                                </div>
+
+                                <div class="column-third">
+                                    @Html.DateBlock("PCRPrompt", "PCR Prompt Date", @Model.PCRPrompt, "Date when a PCR prompt is received")
+                                    @Html.HiddenFor(model => model.PCRPrompt)
+                                </div>
+            <div class="column-full"><p class="form-hint">If amending to yes, clear the justification and reason sections.  DO NOT amend if the project has already had a PCR completed</p></div>
+              </div>
+
+        <div class="grid-row">
+            <div class="column-half">
+                <div id="accordion-1">
+                    <div class="accordion-1-toggle">
+                        <div class="title-bar">
+                            <div class="control-bar" style="max-width:inherit" id="AR-Justification">
+                                PCR Exemption Justification
+                            </div>
+                            <br />
+                            <span>
+                                @Html.TextAreaFor(model => model.PCRExemptJustification, new { id = "PCRexemptJustification", @class = "form-control", @rows = 2 })
+                                @Html.HiddenFor(model => model.PCRExemptJustification)
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="column-half">
+                <div id="accordion-1">
+                    <div class="accordion-1-toggle">
+                        <div class="title-bar">
+                            <div class="control-bar" style="max-width:inherit" id="AR-Justification">
+                                PCR Exemption Reason
+                                @Html.HiddenFor(model => model.HasPCR)
+                            </div>
+                            <br />
+                            @{
+                                if (Model.HasPCR == "No")
+                                {
+                                    <span>
+                                        @Html.TextAreaFor(model => model.PCRExcemptReason, new { id = "PCRexemptReason", @class = "form-control", @rows = 2 })
+                                        @Html.HiddenFor(model => model.PCRExcemptReason)
+                                      
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        @Html.DropDownListFor(model => model.ReviewExemptionPCR.ExemptionReason, new SelectList(Model.ExemptionReasons.Where(x => x.ExemptionType == "PCR"), "ID", "ExemptionReason1"), "-- Select Exemption reasons --", new { @class = "form-control", id = "ReviewExemption_ExemptionReasonPCR" })
+                                        
+                                     </span>
+                                }
+                            }
+                            
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+                            <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+                            <div id="SaveMessage" style="display:none">Save Successful</div>
+
+                            <div class="form-group">
+                                <div class="col-md-offset-2 col-md-10">
+                                    <input type="submit" value="Save" class="button" />
+                                </div>
+                            </div>
+                    
+
+
+        
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+        </div>
+}
+
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#ARPromptDate_Day").prop("readonly", true);
+        $("#ARPromptDate_Month").prop("readonly", true);
+        $("#ARPromptDate_Year").prop("readonly", true);
+
+        $("#PCRPrompt_Day").prop("readonly", true);
+        $("#PCRPrompt_Month").prop("readonly", true);
+        $("#PCRPrompt_Year").prop("readonly", true);
+    })    
+</script>

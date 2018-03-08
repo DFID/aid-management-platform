@@ -1,0 +1,97 @@
+﻿@model AMP.Models.ComponentDate
+
+@{
+    ViewBag.Title = "EditComponentDates";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="page-container">
+        <h2>Edit ComponentDates - @Html.DisplayFor(model => model.ComponentID)</h2>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.ComponentID)
+
+        <div class="grid-row">
+            <div class="column-full">
+                <div class="form-group">
+
+
+                        @Html.LabelFor(model => model.StartDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                        (Financial Start Date)
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.StartDate, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.StartDate, "", new { @class = "text-danger" })
+
+                        </div>
+</div>
+            <div class="form-group">
+                @Html.LabelFor(model => model.EndDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                (Financial End Date)
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.EndDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.OperationalStartDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                (Planned Start Date)
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.OperationalStartDate, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.OperationalStartDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.OperationalEndDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                (Planned End Date)
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.OperationalEndDate, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.OperationalEndDate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.LastUpdate, htmlAttributes: new { @class = "control-label col-md-2" })
+                (Last time database updated after a Save)
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.LastUpdate, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.LastUpdate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.UserID, htmlAttributes: new {@class = "control-label col-md-2"})
+                    (Last user to make changes)
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.UserID, new {htmlAttributes = new {@class = "form-control"}})
+                        @Html.ValidationMessageFor(model => model.UserID, "", new {@class = "text-danger"})
+                    </div>
+                </div>
+
+                <p class="form-hint">
+                    After pressing Save on this page, remember to refresh the Component Details page in AMP, check the data is correct & press Save to commit these changes to ARIES.<br/>
+                </p>
+
+                <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+            <div id="SaveMessage" style="display:none">Save Successful</div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="button submit" />
+                </div>
+            </div>
+            <div>
+                @Html.ActionLink("Back to List", "Index")
+            </div>
+        </div>
+            </div>
+    </div>
+}
+
+

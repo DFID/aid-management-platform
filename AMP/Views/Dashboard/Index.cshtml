@@ -1,0 +1,610 @@
+﻿@using PagedList.Mvc;
+@model AMP.ViewModels.DashboardViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="page-container">
+<div id="WebServiceMessageContainer" style="display: none">
+
+   <span id="arieswebservicemessage" class="LabelAlert">@Model.ARIESWebServiceMessage</span>
+       
+</div>
+    <div id="AddProjectSection" style="display: none">
+        @using (Html.BeginForm())
+        {
+            <div style="float: left">
+                <div class="form-group">
+                    <label class="form-label-bold" for="project-search">Find A Project</label>
+                    <p class="form-hint">Search for Project Number or Text contained in the title of a project</p>
+                    <input id="project-search" type="text" name="Title" placeholder="Search for a Project" style="width: 500px; height: 25px" />
+                    @Html.ValidationMessageFor(model => model.NewProjectID, null, new { id = "ErrorMessage" })
+                </div>
+                <div style="float: left; width:505px">
+                    <button id="AddProject" name="SubmitButton" class="button" type="submit" value="Add Project">Save</button>
+                    <button id="ViewProject" class="bluelightnight" type="button" value="Add Project" onclick="ViewDetails()">View</button>
+                    <button id="FindProjectCancelBtn" class="bluelightnight" onclick=" CreateFunctionCancel()" value="Save" type="button" tabindex="11">Cancel</button>
+                    @*<button id="AdvanceSearchBtn" class="button" onclick="ViewAdvanceSearchDetails()" value="Search Project" type="button" tabindex="11" style="float:right">Advance Search</button>*@
+                    <button id="AdvanceSearchBtn" class="button" onclick="GoAdvanceSearch()" value="" type="button" style="float:right">Advanced Search</button>
+                </div>
+            </div>
+            @Html.HiddenFor(model => model.NewProjectID)
+        }
+        <div style="clear: both"></div>
+    </div>
+    
+    <br />
+
+    <button id="ShowCreate" name="AddProject" class="bluelightnight" onclick="CreateFunction()" value="Add Project" type="button">
+        Find Project
+    </button>
+    <button id="CreateProject" name="CreateProject" class="bluelightnight" onclick="GoCreateProject()" value="" type="button">
+        Create Project
+    </button>
+    <input style="display: none" id="SaveSuccess" name="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+    <div id="SaveMessage" style="display: none">Save Successful</div>
+    @*@Html.ActionLink("Remove Paging", "Index", new { sortOrder = "1", currentFilter = "test", searchString = "test" }, null)*@
+    <input type="hidden" id="userPreference" data-pagingvalue="@ViewBag.PagingOn" />
+    <p id="addprojecttablehint" class="form-hint">Your dashboard will display projects you have added or where you are an active team member in ARIES. You can use Find to search by keyword or ID or the country dashboard</p>
+
+
+    <div id="tab-container" class="tab-container">
+        <ul class='etabs'>
+            <li class='tab'><a href="#tabs1-1" onclick="TabToggle('tabs1-1')"><span id="tab1Header" style="color: black">Dashboard</span></a></li>
+            <li class='tab' style="position: relative;">
+                <a href="#tabs1-2" onclick="TabToggle('tabs1-2')">
+                    <span id="tab2Header">Loading..</span>
+
+                </a>
+                <span id="TaskNotification" class="NotificationIcon">1</span>
+            </li>
+            @*<li class='tab' style="position: relative;">
+        <a href="#tabs1-3" onclick="TabToggle('tabs1-3')">
+            <span id="tab3Header">Loading..</span>
+
+        </a>
+        <span id="AlertNotification" class="NotificationIcon">1</span>
+    </li>*@
+        </ul>
+        <div class="panel-container">
+            <div id="tabs1-1">
+                <span class="form-hint" style="float: left">Click on the header to sort results</span>
+                <table id="project-list" class="table-main" border="1" style="margin-bottom: 0px" title="A data table that contains your list of projects. These projects are related to you either because you have a role in the project or you have added the project because you are interested in it. Each row of the table contains the project ID, Title, Approved Budget, Stage and a link to view the project details.">
+                    <tr>
+                        <th id="ProjectIDHeader"> <a href="~/Dashboard/Index/@ViewBag.IDSortParm">ID</a> </th>
+                        <th id="ProjectTitleHeader">Project Title</th>
+                        <th id="ApprovedBudgetHeader"><a href="~/Dashboard/Index/@ViewBag.ApprovedBudgetParm">Approved Budget</a></th>
+                        <th id="StageDescriptionHeader"><a href="~/Dashboard/Index/@ViewBag.StageParm">Stage</a></th>
+                        <th id="NextReviewDescriptionHeader"><a href="~/Dashboard/Index/@ViewBag.NextReviewParm">Next Review</a></th>
+                        <th id="ActionsHeader">Actions</th>
+                        <th id="PortfolioFlagHeader" style="display: none">Portfolio</th>
+                    </tr>
+                    @{
+                        var index = 0;
+                        foreach (var item in Model.userprojects)
+                        {
+                            <tr>
+                                <td id="ProjectID-@index" headers="ProjectIDHeader">
+                                    @Html.DisplayFor(modelItem => item.ProjectID)
+                                </td>
+                                <td id="ProjectTitle-@index" headers="ProjectTitleHeader">
+                                    @Html.DisplayFor(modelItem => item.TitleShort)
+                                </td>
+                                <td class="figure" id="ApprovedBudget-@index" headers="ApprovedBudgetHeader">
+                                    @Html.DisplayFor(modelItem => item.ApprovedBudget)
+                                </td>
+                                <td id="StageDescription-@index" headers="StageDescriptionHeader">
+                                    @Html.DisplayFor(modelItem => item.Stage1.StageDescription)
+                                </td>
+                                <td id="NextReviewDescription-@index" headers="NextReviewDescriptionHeader">
+                                    @Html.DisplayFor(modelItem => item.NextReview)
+                                </td>
+                                <td id="Actions-@index" headers="ActionsHeader" style="border-right: 0px">
+                                    @Html.ActionLink("Details", "Edit","Project", new { id = item.ProjectID }, new { id = String.Format("Details_{0}", index), title = String.Format("Link to Details page of project {0}", item.ProjectID) }) |<a id="RemoveProject-@index" class="RemoveProject" href="" onclick="RemoveProject(@item.ProjectID)">Remove</a>
+                   
+                                </td>
+                                <td id="PortfolioFlag-@index" headers="PortfolioFlagHeader" style="display: none">
+                                    @Html.HiddenFor(modelItem => item.Portfolio, new { id = "PortfolioFlagCheck-" + @index })
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                    }
+                </table>
+            </div>
+            <div id="tabs1-2" style="display: none">
+                <p id="taskhint" class="form-hint">Tasks which have been sent to you for action.</p>
+                <div id="Tasks" style="margin-left: 10px; margin-right: 10px;">
+                    @*Javascript puts stuff in here*@
+                </div>
+                <br/>
+            </div>
+            @*<div id="tabs1-3" style="display: none">
+                
+                <div id="Alerts" style="margin-left: 10px; margin-right: 10px;">
+                    
+                </div>
+                <br />
+            </div>*@
+        </div>
+        <div id="pagingSection" class="grid-row">
+            <div class="column-full">
+                <div style="float:left; margin-right: 5px;">@Html.PagedListPager(Model.userprojects, page => Url.Action("Index", new { sortOrder = ViewBag.CurrentSort, page, currentFilter = ViewBag.CurrentFilter }))</div>
+                <div style="float: left; ">
+                    <button style="margin-top:25px;display:none" id="pagingPreference" class="bluelightnight" onclick="SetPagingPreference()" type="button">Disable Paging</button>
+                </div>
+            </div>
+        </div>
+        @*Use this to debug cookies*@
+        @*<button type="button" onclick="setCookie()">Create Cookie</button>
+
+            <button type="button" onclick="CheckCookie()">Check for Cookie</button>
+
+            <button type="button" onclick="deleteCookie()">Delete Cookie</button>*@
+    </div>
+
+
+
+</div>
+
+
+
+
+            @section Scripts {
+                @Scripts.Render("~/bundles/jqueryval")
+                @Scripts.Render("~/bundles/typeahead")
+                @Scripts.Render("~/bundles/datetimepicker")
+
+                <script type="text/javascript">
+    function TabToggle(tab) {
+        if (tab == 'tabs1-1') {
+            $('#tabs1-1').show();
+            $('#tabs1-2').hide();
+            $('#tabs1-3').hide();
+            $('#pagingSection').show();
+            $('#tab1Header').css('color', 'black');
+            $('#tab2Header').css('color', 'darkgrey');
+            $('#tab3Header').css('color', 'darkgrey');
+        } else if (tab == 'tabs1-2') {
+            $('#pagingSection').hide();
+            $('#tabs1-2').show();
+            $('#tabs1-1').hide();
+            $('#tabs1-3').hide();
+            $('#tab2Header').css('color', 'black');
+            $('#tab1Header').css('color', 'darkgrey');
+            $('#tab3Header').css('color', 'darkgrey');
+
+            
+            $.post("@Url.Action("Logger", "Project")", { action: "Tasks" }, function (data) {
+
+                console.log("Logger called");
+            });
+        }
+        @*else if (tab == 'tabs1-3') {
+            $('#pagingSection').hide();
+            $('#tabs1-3').show();
+            $('#tabs1-1').hide();
+            $('#tabs1-2').hide();
+            $('#tab3Header').css('color', 'black');
+            $('#tab2Header').css('color', 'darkgrey');
+            $('#tab1Header').css('color', 'darkgrey');
+
+            
+            $.post("@Url.Action("Logger", "Project")", {action: "Alerts" }, function (data) {
+
+                console.log("Logger called");
+            });
+        }*@
+    }
+
+
+
+    //This bit of script hides the Web Service Messages Div if there is no return message from the web service.
+    if (document.getElementById("arieswebservicemessage").innerHTML === "") {
+        document.getElementById("WebServiceMessageContainer").style.display = "none";
+        
+    } else {
+        document.getElementById("WebServiceMessageContainer").style.display = "block";
+    }
+
+
+    var projects = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('Title'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        limit: 20,
+        prefetch: {
+            //url: './ProjectLookUp',
+            url: "@Url.Action("ProjectLookUp", "Project")",
+            ttl: 36000000 //10 Hour (in milliseconds)
+
+        }
+    });
+
+    // kicks off the loading/processing of `local` and `prefetch`
+    projects.initialize();
+
+    // passing in `null` for the `options` arguments will result in the default
+    // options being used
+    $('#project-search').typeahead({ highlight: true }, {
+        name: 'projects',
+        displayKey: 'Title',
+        // `ttAdapter` wraps the suggestion engine in an adapter that
+        // is compatible with the typeahead jQuery plugin
+        source: projects.ttAdapter(),
+        limit: 20
+    }).bind('typeahead:selected', function(obj, datum) {
+        changeTypeahead(obj, datum);
+    }).bind('typeahead:autocompleted', function(obj, datum) {
+        changeTypeahead(obj, datum)
+    });
+
+    function changeTypeahead(obj, datum) {
+        $('input#NewProjectID').val(datum.ProjectID);
+    };
+
+
+    // Functions to hide and show sections.
+    function ViewAdvanceSearchDetails() {
+        $('#SearchProjectSection').toggle();
+        CreateFunction();
+    }
+
+    function CancelAdvanceSearch() {
+        $('#SearchProjectSection').toggle();
+    }
+
+    function CreateFunction() {
+        $("#AddProjectSection").toggle();
+        $("#ShowCreate").toggle();
+        $("#addprojectHint").toggle();
+
+        //if ($('#SearchProjectSection').css('visibility') === 'hidden') {
+        //    $('#SearchProjectSection').show();
+        //}
+        //else {
+        //    $('#SearchProjectSection').hide();
+        //}
+    }
+
+    function CreateFunctionCancel() {
+
+        $("#AddProjectSection").toggle();
+        $("#ShowCreate").toggle();
+        $("#addprojectHint").toggle();
+    }
+
+    //If the save fails leave form visible
+    if ($("#SaveSuccess").val() == "0") {
+        $("#AddProjectSection").toggle();
+        $("#ShowCreate").toggle();
+        $("#addprojectHint").toggle();
+    }
+
+    function RemoveProject(ProjectID) {
+
+
+        //$.post("./Index", { id: ProjectID }, function(data) {
+        $.post("@Url.Action("Index", "Dashboard")", { id: ProjectID }, function(data) {
+            window.location.href = "@Url.Content("~/Dashboard")";
+        });
+    }
+
+    function SetPagingPreference() {
+        var preference = "";
+        if ($("#pagingPreference").html() == "Disable Paging")
+            preference = "F";
+        else if ($("#pagingPreference").html() == "Enable Paging")
+            preference = "T";
+        $.post("@Url.Action("SetPagingPreference", "Dashboard")", { pagingEnabled: preference }, function(data) {
+            window.location.href = "@Url.Content("~/Dashboard")";
+        });
+
+        //window.location.href="";
+    }
+
+    function ViewDetails() {
+        var x = document.getElementById("NewProjectID").value;
+        //alert(x);
+        if (x != "") {
+            //  window.location.replace("./Edit/" + document.getElementById("NewProjectID").value);
+
+            var url = "@Url.Action("Edit", "Project")";
+            window.location.replace(url + "/" + document.getElementById("NewProjectID").value);
+
+
+            // window.location.replace("./Edit?id=" + document.getElementById("NewProjectID").value);
+        } else {
+            alert("Please select a project");
+        }
+    }
+
+    //Show Delete button only for portfolio projects
+
+
+    //Get all TD's
+    var table = document.getElementById("project-list");
+
+    var today;
+    today = new Date();
+    today = Date.parse(today);
+
+
+    //Loop through every cell in the table
+    // Note The last row of each table would not colour code. Added 1 to table.rows[i+1]
+    for (var i = 0, row; row = table.rows[i + 1]; i++) {
+        try {
+
+            var PortfolioFlag = document.getElementById("PortfolioFlagCheck-" + i).value.toString();
+
+            if (PortfolioFlag == "False") {
+                // alert("It was false");
+                document.getElementById("RemoveProject-" + i).style.display = "none";
+            }
+
+            //Review date in dd/mm/yyyy format but javascript wants it in mm/dd/yyyy format
+            var reviewDateArray = row.cells[4].innerHTML.split("/");
+            reviewDateinmmddyyyy = new Date(reviewDateArray[2], reviewDateArray[1] - 1, reviewDateArray[0]);
+
+            var reviewdate = Date.parse(reviewDateinmmddyyyy);
+
+            //Colour review dates
+            if (reviewdate < today) {
+                row.cells[4].style.color = "Red";
+            } else if (reviewdate > today && reviewdate < today + 7776000000) { //7776000000 = 3 Months in Miliseconds
+                row.cells[4].style.color = "orange";
+            }
+
+            //Control stage bar
+            //table.table-main td.pre-pipeline, table.table-main td.identification, table.table-main td.appraisal, table.table-main td.approval, table.table-main td.implementation, table.table-main td.completion, table.table-main td.post-completion {
+            if (row.cells[3].innerHTML.trim() === "Pre Pipeline") {
+                row.cells[3].className = "pre-pipeline";
+            }
+            if (row.cells[3].innerHTML.trim() === "Identification") {
+                row.cells[3].className = "identification";
+            }
+            if (row.cells[3].innerHTML.trim() === "Appraisal and Design") {
+                row.cells[3].className = "appraisal";
+            }
+            if (row.cells[3].innerHTML.trim() === "Approval") {
+                row.cells[3].className = "approval";
+            }
+            if (row.cells[3].innerHTML.trim() === "Implementation") {
+                row.cells[3].className = "implementation";
+            }
+            if (row.cells[3].innerHTML.trim() === "Completion") {
+                row.cells[3].className = "completion";
+            }
+            if (row.cells[3].innerHTML.trim() === "Archive") {
+                row.cells[3].className = "post-completion";
+            }
+
+
+        } catch
+        (x) {
+            //Nothing to Catch as we use paging some remove buttons cant be accessed.
+        }
+    }
+    $(document).ready(function() {
+        var isPagingButtonVisible = false;
+        $("ul.pagination").children().each(function() {
+            if ($(this).children("a").html() == "2")
+                isPagingButtonVisible = true;
+        })
+
+        var numOfProjects = $("#project-list tr").length;
+        if (isPagingButtonVisible || numOfProjects > 11)
+            $("#pagingPreference").show();
+
+        var pagingOn = $('#userPreference').data("pagingvalue");
+        if (pagingOn == "F")
+            $("#pagingPreference").html("Enable Paging");
+
+    });
+
+
+    function GoCountryDashboard() {
+        var win = window.open('', '_blank');
+
+
+        win.focus();
+    }
+
+    function GoCreateProject() {
+        var urlToOpen = '@Html.Raw(@Url.Action("Create", "Project"))';
+        var win = window.open(urlToOpen,'_blank');
+        win.focus();
+    }
+
+    function GoAdvanceSearch() {
+        //var win = window.open('AdvanceSearch', '_blank');
+        //win.focus();
+
+        var urltoRefresh = '@Html.Raw(@Url.Action("AdvancedSearch", "Dashboard"))';
+        var win = window.open(urltoRefresh, '_blank');
+        win.focus();
+    }
+
+    function GoARIES() {
+
+        var win = window.open("@(ViewBag.ARIESUrl.ToString())",'_blank');
+
+        win.focus();
+    }
+
+
+    function GoAMP(url) {
+
+        var win = window.open("@(ViewBag.BaseUrl.ToString())" + url, '_blank');
+
+        win.focus();
+    }
+
+    
+                    function GoAlert(url) {
+
+                        var win = window.open("@(ViewBag.BaseUrl.ToString())" + url, '_blank');
+
+                        win.focus();
+                    }
+
+                    function convertDate(inputFormat) {
+                        function pad(s) { return (s < 10) ? '0' + s : s; }
+                        var d = new Date(inputFormat);
+                        return [pad(d.getDate()), pad(d.getMonth() + 1), d.getFullYear()].join('/');
+                    }
+
+    $(document).ready(function() {
+        // Task Card version ARIES
+        var newHTML = "";
+        var TotalTasks = 0;
+        // Task Card version AMP
+        
+        
+
+        var user ="@(ViewBag.User.ToString())";
+
+        user = user.replace("R","");
+        
+        console.log(user);
+        // Get AMP Tasks
+        $.ajax({
+            async: false,
+            cache: false,
+            url: "@(ViewBag.DFIDTasksServer.ToString())/AMPTasks/GetAMPTasks/" + user + "?type=json",
+            success: function(result) {
+                data = result;
+
+                var NumberTasks = result.length;
+                TotalTasks = TotalTasks+NumberTasks;
+
+                $('#tab2Header').html('Tasks');
+
+                $('.NotificationIcon').html(NumberTasks);
+
+                for (i = 0; i < NumberTasks; i++) {
+
+                    var date = new Date(result[i].ActionDate);
+
+                    var UkDate = convertDate(date); //date.getDay().toString() + "-" + date.getMonth().toString() +"-"+ date.getFullYear().toString();
+
+                    var newTask =
+                        "<div class='grid-row AMPTaskBox' id='task_" + result[i].ProjectID + "_" + i +"'>\n" +
+                            "<div style='width:15%;margin: 5px 0; float:left;'>\n" +
+                            "<img float:left;' class='ImageRound' src ='" + result[i].Sender + "' title='" + result[i].Sender + "'/>\n" +
+                            "<br/>\n" +
+                              "</div>\n" +
+                              "<div style='width:65%;margin: 5px 0; float:left;'>\n" +
+                            "<b><p>"+result[i].TaskDescription+"</p></b>\n" +
+                            "<p class='form-hint'>" + result[i].SenderName + " sent you a request for " + result[i].ProjectID + " "  + result[i].Title + " on "+ UkDate +"</p>\n" +
+                            //"<p class='form-hint'>Sent at " + result[i].ActionDate.replace("T", ":") + " </p>\n" +
+                            "</div>\n"+
+                            "<div style='width:20%;margin: 5px 0; float:left;'>\n" +
+                            "<button id='ViewTask_" + result[i].ProjectID + "_" + i + "' style='margin-top:40%;' class='button' type='button' onclick='GoAMP(\"" + result[i].Path + "\")'>Take me to it!</button>\n" +
+                            "</div>\n"+
+                            "</div>";
+
+                    newHTML = newHTML + newTask;
+                }
+
+                $('#Tasks').html(newHTML);
+            }
+        });
+        // Get ARIES Tasks
+        $.ajax({
+            async: false,
+            cache: false,
+            url: "@(ViewBag.DFIDTasksServer.ToString())/ARIESTasks/GetARIESTasks/" + user + "?type=json",
+            success: function(result) {
+
+                data = result;
+
+                var NumberTasks = result.length;
+
+                TotalTasks = TotalTasks + NumberTasks;
+
+                $('#tab2Header').html('Tasks');
+
+                $('#TaskNotification').html(TotalTasks);
+
+                for (i = 0; i < NumberTasks; i++) {
+
+                    var date = new Date(result[i].SentAt);
+
+                    //var UkDate = date.getDay().toString() + "-" + date.getMonth().toString() +"-"+ date.getFullYear().toString();
+                    var UkDate = convertDate(date);
+
+                    var newTask =
+                        "<div class='grid-row  ARIESTaskBox'>\n" +
+                        "<div style='width:15%;margin: 5px 0; float:left;'>\n" +
+                            "<img float:left;' class='ImageRound' src ='" + result[i].SentbyUserID + "' title='" + result[i].SentByName + "'/>\n" +
+                             "<br/>\n" +
+                              "</div>\n" +
+                              "<div style='width:65%;margin: 5px 0; float:left;'>\n" +
+                               "<b><p>"+result[i].TaskType+": "+result[i].ID+"</p></b>\n" +
+                            "<p class='form-hint'>" + result[i].SentByName + " has sent you a task for your approval on "+UkDate+". </p>\n" +
+                           //"<p class='form-hint'>Sent at " + result[i].ActionDate.replace("T", ":") + " </p>\n" +
+                            "</div>\n"+
+                            "<div style='width:20%;margin: 5px 0; float:left;'>\n" +
+                            "<button id='ViewTask' style='margin-top:40%;' class='button' type='button' onclick='GoARIES()'>Take me to it!</button>\n" +
+                            "</div>\n"+
+                            "</div>";
+                    newHTML = newHTML + newTask;
+                }
+
+                if (TotalTasks == 0) {
+
+                    $('#Tasks').html('<p>You have no tasks</p>');
+                } else {
+                    $('#Tasks').html(newHTML);
+                }
+            }
+        });
+        // Get AMP Alerts
+        @*$.ajax({
+            async: false,
+            cache: false,
+            url: "@(ViewBag.DFIDTasksServer.ToString())/AMPTasks/GetAMPAlerts/" + user + "?type=json",
+            success: function(result) {
+
+                data = result;
+
+                var NumberAlerts = result.length;
+
+                $('#tab3Header').html('Alerts');
+
+                $('#AlertNotification').html(result.length);
+
+                for (i = 0; i < NumberAlerts; i++) {
+
+                    var newAlert =
+                                "<div class='grid-row  AMPAlertBox'>\n" +
+                                "<div style='width:80%;margin: 5px 0; float:left;'>\n" +
+                                "<b><p>Alert for project: "+ result[i].ProjectID +"</p></b>\n" +
+                                "<p class='form-hint'>" + result[i].Message + "</p>\n" +
+                                "</div>\n"+
+                                "<div style='width:20%;margin: 5px 0,5px,5px; float:left;'>\n" +
+                                "<button id='ViewTask' style='margin-top:30%;' class='button' type='button' onclick='GoAlert(\""+result[i].Path+"\")'>Take me to it!</button>\n" +
+                                "</div>\n"+
+                                "</div>";
+                }
+
+
+                if (NumberAlerts == 0) {
+
+                    $('#Alerts').html('<p>You have no alerts</p>');
+                } else {
+                    $('#Alerts').html(newAlert);
+                }
+
+
+
+            }
+
+
+        });*@
+    });
+
+
+</script>
+                }

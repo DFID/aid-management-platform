@@ -1,0 +1,79 @@
+﻿@model AMP.ViewModels.WorkflowsVM
+@using AMP.Helpers
+
+@{
+    ViewBag.Title = "Workflow History";
+} 
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml", Model.ProjectHeaderVm)
+
+<div class="page-container">
+    <h3>Workflow History</h3>
+
+    @if (Model.workflows != null)
+    {
+        <p class="form-hint">This table displays completed workflows for the project. Only workflows completed in AMP are shown, historical workflows from ARIES have not been migrated.</p>
+        <table id="workflow-table" class="table-main" title="Workflow table for the project" border="1">
+            <thead>
+            <tr id="WFTableHeader">
+                <th id="headerWFType">Type</th>
+                <th id="headerWFSender">Sender Name</th>
+                <th id="headerWFSenderComments">Sender Comments</th>
+                <th id="headerWFApprover">Approver Name</th>
+                <th id="headerWFDecision">Decision</th>
+                <th id="headerWFDate">Approval Date</th>
+                <th id="headerWFDocumentLink">Doc ID</th>
+            </tr>
+            </thead>
+            <tbody>
+            @{
+        var index = 0;
+                foreach (var item in Model.workflows)
+                {
+                    <tr>
+                        <td id="WFType-@index" headers="headerWFType" style="text-align: left">
+                            @Html.ActionLink(@item.TaskDescription, "../Workflow/Details", new {id = item.WorkflowRequest.WorkFlowID}, new {id = String.Format("Details_{0}", item.WorkflowRequest.WorkFlowID), title = String.Format("Link to details for workflowID {0}", item.WorkflowResponse.WorkFlowID)})
+                            @*@Html.DisplayFor(modelItem => item.TaskDescription)*@
+                        </td>
+                        <td id="WFSender-@index" headers="headerWFSender" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.WorkflowRequest.RequesterName)
+                        </td>
+                        <td id="WFSenderComments-@index" headers="headerWFSenderComments" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.WorkflowRequest.ActionComments)
+                        </td>
+                        <td id="WFApprover-@index" headers="headerWFApprover" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.WorkflowResponse.RequesterName)
+                        </td>
+                        @if (item.WorkflowResponse.StageID == 2)
+                        {
+                            <td id="WFDecision-@index" headers="headerWFDecision" style="text-align: right">
+                                Approved
+                            </td>
+                        }
+                        else
+                        {
+                            <td id="WFDecision-@index" headers="headerWFDecision" style="text-align: right">
+                                Rejected
+                            </td>
+                        }
+                        <td id="WFDate-@index" headers="headerWFDate" style="text-align: right">
+                            @item.WorkflowResponse.ActionDate.Value.ToString("dd-MMM-yyyy")
+                        </td>
+                        <td id="WFDocument-@index" headers="headerWFDocumentLink" style="text-align: right">
+                            <a id="DocumentLink-@index" target="blank" href="@item.DocumentLink"> @Html.DisplayFor(modelItem => item.DocumentDescription)</a>
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div>This project does not have any completed workflows in AMP.</div>   
+    }
+</div>

@@ -1,0 +1,88 @@
+﻿@model AMP.ViewModels.AdminUsersVM
+@{
+    ViewBag.Title = "Admin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-container secondary">
+    <h2>AMP Admins</h2>
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+        <div class="grid-row">
+            <div class="column-two-thirds">
+                <table id="Admin-User-list" class="table-main" title="Table of Admin Users." border="1">
+                    <thead>
+                    <tr id="AdminUserHeader">
+                        <th id="headerAdminUserID">Admin EmpNo</th>
+                        <th id="HeaderAdminLastUpdatedID">Last Updated</th>
+                        <th id="HeaderUpdatedBy">Updated By</th>
+                        <th id="headerActions">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @{
+                        var index = 0;
+                        foreach (var item in Model.adminUsers)
+                        {
+                            <tr>
+                                <td id="Admin-User-@index" headers="headerAdminUserID" style="text-align: left">
+                                    @Html.DisplayFor(modelItem => item.AdminUserID)
+                                </td>
+                                <td id="Admin-LastUpdate-@index" headers="HeaderAdminLastUpdatedID" style="text-align: left">
+                                    @Html.DisplayFor(modelItem => item.LastUpdated)
+                                </td>
+                                <td id="Admin-Updatedby-@index" headers="HeaderUpdatedBy" style="text-align: left">
+                                    @Html.DisplayFor(modelItem => item.UserID)
+                                </td>
+                                <td id="Evaluation-Actions-@index" headers="headerActions" style="text-align: left">
+                                    <button type="button" value="Remove-admin-@index" class="button" id="@String.Format("btnRemoveAdmin{0}", item.AdminUserID)" style="margin-left: 5px;" onclick="RemoveAdmin(@item.AdminUserID)">Remove Admin</button>
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                    }
+                    </tbody>
+                </table>
+
+
+            </div>
+        </div>
+
+    <div class="grid-row">
+        <h3>Add Admin</h3>
+        <div class="column-third">
+            <label class="form-label-bold" for="AdminToAdd">Employee Number</label>
+            <p>The employee number of the admin you want to add. Starts with a zero (0)</p>
+            @Html.TextBoxFor(model => model.AdminToAdd)
+            <button id="AddAdmin" name="submitButton" class="button" value="Add Admin" type="submit">
+                Add Admin
+            </button>
+        </div>
+    </div>
+    }
+</div>
+
+    <script type="text/javascript">
+
+        function RemoveAdmin(adminToRemove) {
+            //$.post("./Index", { id: ProjectID }, function(data) {
+            $.ajax({
+                type: 'POST',
+                url: "@Url.Action("RemoveAdminUser", "Admin")",
+                data: { adminToRemove: adminToRemove },
+                success: function (data) {
+                    if (data.success === true) {
+                        // alert("Team member removed successfully.");
+                        location.reload();
+                    }
+                    if (data.success === false) {
+                        //alert("An error has occurred. Please try again.");
+                    }
+                },
+                async: true
+            });
+        }
+    </script>
+
+

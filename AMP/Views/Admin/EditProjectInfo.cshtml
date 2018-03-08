@@ -1,0 +1,121 @@
+﻿@model AMP.Models.ProjectInfo
+
+@{
+    ViewBag.Title = "EditProjectInfo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="page-container">
+        <h2>Edit ProjectInfo - @Html.DisplayFor(model => model.ProjectID)</h2>
+        <hr/>
+        @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+        @Html.HiddenFor(model => model.ProjectID)
+        <div class="grid-row">
+            <div class="column-half">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.OVIS, htmlAttributes: new {@class = "control-label col-md-2"})
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.OVIS, new {htmlAttributes = new {@class = "form-control"}})
+                        @Html.ValidationMessageFor(model => model.OVIS, "", new {@class = "text-danger"})
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TeamMarker, htmlAttributes: new {@class = "control-label col-md-2"})
+                    <div class="col-md-10">
+                        @Html.TextAreaFor(model => model.TeamMarker, new {id = "TeamMarker", @class = "form-control", @rows = 2})
+                        @Html.ValidationMessageFor(model => model.TeamMarker, "", new {@class = "text-danger"})
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.RiskAtApproval, htmlAttributes: new {@class = "control-label col-md-2"})
+                    <div class="col-md-10">
+
+                        @{
+                            List<SelectListItem> listItems = new List<SelectListItem>();
+                            listItems.Add(new SelectListItem
+                            {
+                                Text = "Minor",
+                                Value = "R1"
+                            });
+                            listItems.Add(new SelectListItem
+                            {
+                                Text = "Moderate",
+                                Value = "R2"
+                            });
+                            listItems.Add(new SelectListItem
+                            {
+                                Text = "Major",
+                                Value = "R3"
+                            });
+                            listItems.Add(new SelectListItem
+                            {
+                                Text = "Severe",
+                                Value = "R4"
+                            });
+
+
+                            @Html.DropDownListFor(model => model.RiskAtApproval, listItems, "-- Select risk --", new {@class = "form-control", id = "ProjectMaster_Status"})
+                            @Html.ValidationMessageFor(model => model.RiskAtApproval, "", new {@class = "text-danger"})
+
+
+                        }
+                    </div>
+                </div>
+                </div>
+
+            <div class="column-half">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.SpecificConditions, htmlAttributes: new {@class = "control-label col-md-2"})
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.SpecificConditions, new {htmlAttributes = new {@class = "form-control"}})
+                        @Html.ValidationMessageFor(model => model.SpecificConditions, "", new {@class = "text-danger"})
+                    </div>
+                </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.LastUpdate, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.LastUpdate, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.LastUpdate, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.UserID, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.UserID, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.UserID, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())"/>
+            <div id="SaveMessage" style="display: none">Save Successful</div>
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="button submit"/>
+                    <button id="CancelMaster" name="SubmitButton" class="button" type="button" value="Cancel">Cancel</button>
+                </div>
+            </div>
+            <div>
+                @Html.ActionLink("Back to List", "Index")
+            </div>
+            </div>
+        </div>
+    </div>
+}
+
+    @section Scripts {
+        <script type="text/javascript">
+
+    $('#CancelMaster').click(function (e) {
+    location.reload();
+    });
+        </script>
+
+    }

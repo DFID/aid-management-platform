@@ -1,0 +1,67 @@
+﻿@model AMP.Models.InputSectorCode
+
+@{
+    ViewBag.Title = "View";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>View</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="page-container">
+
+        <div class="form-horizontal">
+            <h4>InputSectorCode</h4>
+            <hr/>
+            @Html.ValidationSummary(true, "", new {@class = "text-danger"})
+
+            @Html.HiddenFor(model => model.ComponentID)
+            @Html.HiddenFor(model => model.LineNo)
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.ComponentID, "ComponentID", htmlAttributes: new {@class = "control-label col-md-2"})
+                <div class="col-md-10">
+                    @Html.DisplayFor(model => model.ComponentID, new {htmlAttributes = new {@class = "form-control"}})
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.LineNo, "LineNo", htmlAttributes: new {@class = "control-label col-md-2"})
+                <div class="col-md-10">
+                    @Html.DisplayFor(model => model.LineNo, new {htmlAttributes = new {@class = "form-control"}})
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.InputSectorCode1, "InputSectorCode1", htmlAttributes: new {@class = "control-label col-md-2"})
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.InputSectorCode1, "", new {htmlAttributes = new {@class = "form-control"}})
+                    @Html.ValidationMessageFor(model => model.InputSectorCode1, "", new {@class = "text-danger"})
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Percentage, htmlAttributes: new {@class = "control-label col-md-2"})
+                <div class="col-md-10">
+                    @Html.EditorFor(model => model.Percentage, new {htmlAttributes = new {@class = "form-control"}})
+                    @Html.ValidationMessageFor(model => model.Percentage, "", new {@class = "text-danger"})
+                </div>
+            </div>
+
+            <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+            <div id="SaveMessage" style="display:none">Save Successful</div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="btn btn-default"/>
+                </div>
+            </div>
+        </div>
+        </div>
+        }
+
+        <div>
+            @Html.ActionLink("Back to List", "Index")
+        </div>

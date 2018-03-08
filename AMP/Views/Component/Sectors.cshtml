@@ -1,0 +1,669 @@
+﻿@model AMP.ViewModels.ComponentSectorVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Component Sectors";
+}
+@Html.Partial("~/Views/Shared/_ComponentHeader.cshtml",Model.ComponentHeader)
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(model => model.Approved, new { id = "Approved" })
+    @Html.HiddenFor(model => model.AnyApprovedBudget, new { id = "AnyApprovedBudget" })
+    @Html.HiddenFor(model => model.WFCheck.Status, new { @id = "IsActiveWorkflow" })
+    @Html.HiddenFor(model => model.ComponentHeader.ComponentID, new { @id = "ComponentID" })
+    @Html.HiddenFor(model => model.ComponentHeader.BudgetCentreID, new { @id = "BudgetCentreID" })
+    @Html.HiddenFor(model => model.IsTeamMember, new { id = "IsTeamMember" })
+
+    <div class="page-container">
+        <div id="NewSectorSection" style="display:none">
+            <div style="display:none" id="lblFundingMech">@Model.FundingMechanism</div>
+            <div class="grid-row">
+                <div class="column-two-thirds">
+                    <!-- Sector -->
+                    <div class="form-group">
+                        <label class="form-label-bold" for="InputSectorBox">Sector Code</label>
+
+                        <p class="form-hint">Sectors filtered on your Funding type: @Model.FundingMechanism</p>
+                        <div id="InputSec">
+                            <input id="InputSectorBox" type="text" class="typeahead" placeholder="Search for Sector" style="width: 600px; height: 25px"/>
+                            @Html.HiddenFor(model => model.NewInputSector.InputSectorCode1)
+                            <div class="PushDown">@Html.ValidationMessageFor(model => model.NewInputSector.InputSectorCode1)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column-third">
+                    <div class="form-group">
+                        <label class="form-label-bold" for="NewInputSector_Percentage">Percentage</label>
+                        <p class="form-hint">Percentage value of your Sector</p>
+                        <input type="text" id="NewInputSector_Percentage" name="NewInputSector.Percentage" style="width: 25px; height: 25px;"/>
+                        <div class="PushDown">@Html.ValidationMessageFor(model => model.NewInputSector.Percentage)</div>
+                    </div>
+                </div>
+            </div>
+            @Html.ValidationSummary(true)
+            <button id="CreateBtn" class="button sector-control" onclick="CreateFunction()" value="Save" type="submit">
+                Save
+            </button>
+          
+            <button id="CancelBtn" class="bluelightnight" onclick="CreateFunctionCancel()" value="Save" type="button">
+                Cancel
+            </button>
+            <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+        </div>
+        <br/>
+        <button id="ShowCreate" class="bluelightnight sector-control" onclick="CreateFunction()" value="Create A New Sector" type="button">
+            Add new sector
+        </button>
+        <div id="sectorsTeamMessage" style="display: none">
+            <p class="form-hint">You must be a member of the project team to edit sector codes.</p>
+        </div>
+        <button data-url="/Component/EditSectorCodes/{0}" class="bluelightnight Edit-Sector-Codes button" id="btnEditSectors">
+            Edit Sector Codes
+        </button>
+        <div id="SaveMessage" style="display:none">Save Successful</div>
+        <div class="grid-row">
+
+            <div class="column-full">
+                <p class="form-hint">Input sector codes identify which sector(s) a component is targeting e.g. health or education. A component can have between one and 8 codes. You must provide an estimated percentage weighting for each sector based on the proportion of the lifetime budget expected to be spent in each sector. If you have multiple input sectors, one sector must have a higher percentage weighting to identify the broad sector (i.e. 51% primary education and 49% secondary education). It is important to get this right because it is used for external reporting to the UK Parliament and the OECD Development Assistance Committee (DAC).</p>
+                <!--Sector Table-->
+                @{var visible = Model.InputSectors.Count();
+                    if (visible == 0)
+                    {
+                        <div class="InfoMessage">
+                            <div>No Sector Codes have been associated with this Component. To add a sector code, please click on the Add New Sector button.</div>
+                        </div>
+                    }
+                    else
+                    {
+                        <table id="SectorList" class="table-main" title="This table displays Sectors Code, Description and Percentage.">
+                            @*width="100%" border="0" cellspacing="0" cellpadding="0"*@
+
+                            <tr>
+                                <th id="sectoridheader">
+                                    Code
+                                </th>
+                                <th id="SectorTitleHeader">
+                                    Description
+                                </th>
+                                <th id="SectorPercentageHeader">
+                                    %
+                                </th>
+                                <th id="SectorActionHeader">
+                                    Action
+                                </th>
+                            </tr>
+                            @{
+                                var index2 = 1;
+                                foreach (var item in Model.InputSectors)
+                                {
+                                    <tr>
+                                        <td headers="sectoridheader" id="InputSectorCodeValue-@index2">
+                                            @Html.DisplayFor(modelItem => item.InputSectorCode1)
+                                        </td>
+                                        <td headers="SectorTitleHeader" id="InputSectorCodeDescriptionValue-@index2">
+                                            @Html.DisplayFor(modelItem => item.InputSectorCodeDescription)
+                                        </td>
+                                        <td headers="SectorPercentageHeader" id="PercentrageValue-@index2">
+                                            @Html.DisplayFor(modelItem => item.Percentage)
+                                        </td>
+                                        <td>
+
+                                            <button type="button" value="Remove-Sector-@index2" class="button sector-control" id="@String.Format("btnRemoveSector{0}", item.InputSectorCode1)" style="margin-left: 5px;" onclick='DeleteSector(@item.ComponentID.Substring(0, 6), @item.ComponentID.Substring(7), @item.InputSectorCode1)'>Delete</button>
+                                        </td>
+                                    </tr>
+                                    index2++;
+                                }
+                            }
+
+                        </table>
+                    }
+
+                }
+            </div>
+            <div class="grid-row">
+
+                <div class="column-half">
+                    <div id="chart"></div>
+                </div>
+            </div>
+        </div>
+
+    @Html.ActionLink("Back to Component list", "../Project/Components/", new { id = Model.ComponentHeader.ProjectID })
+</div>
+}
+        <!-- Modal -->
+<div class="modal fade" id="SectorsModal" tabindex="-1" role="dialog" aria-labelledby="SectorsModalLabel" aria-hidden="true" style="">
+    <div class="modal-dialog">
+        <div class="modal-content" style="padding:10px">
+            <div class="modal-header">
+                <button id="btnCloseEditSectorCode" type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                @*<h4 class="form-hint">Add a new delivery partner</h4>*@
+            </div>
+            <div class="modal-body"><div class="te"></div></div>
+            <div class="modal-footer">
+                <button class="bluelightnight" id="CloseEditSectors" data-dismiss="modal">Close</button>
+                @*<button type="button" class="btn btn-primary">Save changes</button>*@
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/typeahead")
+    @Scripts.Render("~/bundles/datetimepicker")
+
+    <script type="text/javascript">
+
+        $.ajaxSetup({
+            // Disable caching of AJAX responses
+            cache: false
+        });
+        //If the component has approved budget you cannont change the sectors.
+
+        var Approved = $("#Approved").val();
+        if ($('#Approved').val() == 'Y') {
+
+            $('#ShowCreate').toggle();
+            $('.button').prop('disabled', true);
+            if ($('#IsTeamMember').val() == 'True') {
+                $('#btnEditSectors').prop('disabled', false);
+                $('#btnSaveSectorChanges').prop('disabled', false);
+            } else {
+                $('#sectorsTeamMessage').toggle();
+                $('#btnEditSectors').toggle();
+            }
+            $('#lockdownhint').toggle();
+
+        } else {
+            $('#btnEditSectors').toggle();
+        }
+        // if the stage is at archive then the screen is readonly
+
+        var stage = parseInt(@Model.ProjectStage);
+        if (stage == 7) {
+            $('#ShowCreate').prop('disabled', true);
+            $('.button').prop('disabled', true);
+        } else if (stage == 8) {
+            $('#ShowCreate').prop('disabled', true);
+            $('.button').prop('disabled', true);
+            $('#lockdownhint').toggle();
+        }
+        //Find the Funding Mech for this Component
+        var FundingMech = document.getElementById("lblFundingMech").innerHTML;
+
+        //Create a string for the URI including the id which is Funding Mech
+        var Method = '../InputSectorCodeLookUp/' + FundingMech.innerHTML;
+
+
+        /*Bloodhound typeahead for Budget Centre*/
+        var sectors = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('InputSectorCodeDescription'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            limit: 20,
+            prefetch: '../InputSectorCodeLookUp/' + FundingMech
+        });
+
+        // kicks off the loading/processing of `local` and `prefetch`
+        sectors.initialize();
+
+        // passing in `null` for the `options` arguments will result in the default
+        // options being used
+        $('#InputSec .typeahead').typeahead({ highlight: true }, {
+            name: 'sectors',
+            displayKey: 'InputSectorCodeDescription',
+            // `ttAdapter` wraps the suggestion engine in an adapter that
+            // is compatible with the typeahead jQuery plugin
+            source: sectors.ttAdapter()
+        }).bind('typeahead:selected', function(obj, datum) {
+            changeTypeaheadNewCode(obj, datum);
+        }).bind('typeahead:autocompleted', function(obj, datum) {
+            changeTypeaheadNewCode(obj, datum);
+        });
+
+// This function will change the value of a hidden field to the choosen sector when selected.
+        function changeTypeaheadNewCode(obj, datum) {
+            //console.log(datum.InputSectorCodeID);
+            $('input#NewInputSector_InputSectorCode1').val(datum.InputSectorCodeID);
+        };
+
+/*End Bloodhound typeahead for Budget Centre*/
+
+        //This Javascript will change the DOM, specificly the page the user is on.
+        $("#component-menu-Sectors").toggleClass("active");
+
+        //This Javascript will change the DOM, specificly the page the user is on.
+
+        //Update navigation to active
+        var x = document.getElementById("component-tab");
+        x.className = "active";
+
+        //If the project is stage 7, all fields should be read only.
+        //if (document.getElementById("Stage").value == 6 ||document.getElementById("Stage").value == 7) {
+        //    $("input").prop('disabled', true);
+        //    $("textarea").prop('disabled', true);
+        //    $("button").prop('disabled', true);
+        //}
+
+
+        //If the save fails leave form visible
+        if ($("#SaveSuccess").val() == "0") {
+            $("#NewSectorSection").toggle();
+            $("#ShowCreate").toggle();
+        }
+
+        // Functions to hide and show sections.
+        function CreateFunction() {
+            $("#NewSectorSection").toggle();
+            $("#ShowCreate").toggle();
+        }
+
+        function CreateFunctionCancel() {
+            $("#NewSectorSection").toggle();
+            $("#ShowCreate").toggle();
+        }
+
+        // C3 Chart
+        var data = [];
+
+        //Get all TD's
+        var SectorTable = document.getElementById("SectorList");
+
+        var TotalPercentage = 0;
+
+        //Loop through every cell in the table
+        for (var i = 1, row; row = SectorTable.rows[i]; i++) {
+
+            var InputSector = row.cells["InputSectorCodeDescriptionValue-" + i].innerHTML;
+            var Percentage = row.cells["PercentrageValue-" + i].innerHTML;
+
+            // Cast to Int
+            var PercentageNumber = parseInt(Percentage);
+
+            TotalPercentage = TotalPercentage + PercentageNumber;
+
+            data.push([InputSector, PercentageNumber]);
+        }
+
+        if (TotalPercentage != 100) {
+            data.push(["Missing", 100 - TotalPercentage]);
+        }
+
+
+        if (100 - TotalPercentage == 100) {
+            $('#chart').toggle();
+        }
+
+        // New Chart
+        var chart = c3.generate({
+            //size: {
+            //    height: 240,
+            //    width: 480
+            //},
+            data: {
+                // iris data from R
+                columns: data,
+                type: 'pie',
+
+                onclick: function(d, i) { /*console.log("onclick", d, i);*/ },
+                onmouseover: function(d, i) { /*console.log("onmouseover", d, i);*/ },
+                onmouseout: function (d, i) { /*console.log("onmouseout", d, i);*/ },
+                colors: {
+                    "Missing": 'grey'
+                },
+            }
+        });
+
+
+        function DeleteSector(projectid, componentid, sectorid) {
+
+            //Once a string with numbers and - are passed javascript starts to subtract and make it int... very anoying.
+            componentid = projectid + '-' + componentid;
+
+            $.ajax({
+                type: 'POST',
+                url: "@Url.Action("DeleteSector", "Component")",
+                data: { componentid: componentid, sectorcode: sectorid },
+                success: function(data) {
+                    if (data.success === true) {
+                        location.reload();
+                    }
+                    if (data.success === false) {
+                        //alert("An error has occurred. Please try again.");
+                    }
+                },
+                async: true
+            });
+
+
+        }
+
+        function AdminBudCentSettings() {
+
+            var budgetCentre = $('#BudgetCentreID').val();
+
+            if (budgetCentre.substr(0, 2) == "A0" || budgetCentre.substr(0, 2) == "C0" || budgetCentre.substr(0, 2) == "AP") {
+                $(".sector-control").prop('disabled', true);
+            }
+        }
+
+        $(document).ready(function() {
+
+            //AdminBudCentSettings();
+
+            //Open Accordion if in workflow:
+            if ($('#IsActiveWorkflow').val() == "True") {
+
+
+                $("input").prop('disabled', true);
+                $("textarea").prop('disabled', true);
+                $("button").prop('disabled', true);
+            }
+        });
+
+        //Code to launch modal pop up for editing sector codes.
+        $(document).on("click", '.Edit-Sector-Codes', function(evt) {
+
+            evt.preventDefault();
+            evt.stopPropagation();
+
+            var componentId = $('#ComponentID').val();
+            $('.modal-body').load('../EditSectorCodes/' + componentId, function(result) {
+
+
+                $('#SectorsModal').modal({ show: true });
+
+                var numberOfSectors = ReturnNumberOfSectorCodes();
+
+                for (var i = 0; i < numberOfSectors; i++) {
+                    EditSectorsTypeAhead(i);
+                }
+
+            });
+        });
+
+        function EditSectorsTypeAhead(inputId) {
+            /*Bloodhound typeahead for Sector Codes*/
+
+            var typeAheadControlId = '#InputSec-' + inputId + ' .typeahead';
+            var descriptionControlId = 'input#SectorCodesCodeVm_ISDescription_' + inputId;
+            var targetControlId = 'input#SectorCodesCodeVm_' + inputId + '__ISCode';
+
+            //console.log(typeAheadControlId);
+            var sectors = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('InputSectorCodeDescription'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                limit: 20,
+                prefetch: '../InputSectorCodeLookUp/' + FundingMech
+            });
+
+            // kicks off the loading/processing of `local` and `prefetch`
+            sectors.initialize();
+
+            // passing in `null` for the `options` arguments will result in the default
+            // options being used
+            $(typeAheadControlId).typeahead({ highlight: true }, {
+                name: 'sectors',
+                displayKey: 'InputSectorCodeDescription',
+                // `ttAdapter` wraps the suggestion engine in an adapter that
+                // is compatible with the typeahead jQuery plugin
+                source: sectors.ttAdapter()
+            }).on('typeahead:open', function () {
+                SetTypeAheadWidth();
+            }).bind('typeahead:selected', function (obj, datum) {
+                changeTypeahead(obj, datum, targetControlId);
+                ClearSuggestions();
+            }).bind('typeahead:autocompleted', function(obj, datum) {
+                changeTypeahead(obj, datum, targetControlId);
+            });
+
+            //**** We need this check so that if the user enters something and then deletes it, the old sector code is not retained
+            //**** and the user is forced to complete the sector information.
+            $(typeAheadControlId).keyup(function (e) {
+                //console.log($(descriptionControlId).val());
+                if ($(descriptionControlId).val() === "") {
+                    //console.log(targetControlId);
+                    ($(targetControlId).val(""));
+                }
+            });
+
+
+
+        /*End Bloodhound typeahead for Sector Codes*/
+        }
+
+        // This function will change the value of a hidden field to the choosen sector when selected.
+        function changeTypeahead(obj, datum, inputId) {
+            //console.log(datum.InputSectorCodeID);
+            $(inputId).val(datum.InputSectorCodeID);
+        };
+
+        function ClearSuggestions() {
+            $('.tt-suggestion').remove();
+        }
+
+
+        function SetTypeAheadWidth() {
+            //console.log('logged');
+            $('.tt-menu').css('width', '500px');
+        }
+
+
+        function UpdateSectorCodes() {
+
+            if (ValidateSectorCodes()) {
+                PostSectorCodes();
+            }
+        }
+
+        function ValidateSectorCodes() {
+            var numberOfSectorCodeRows = ReturnNumberOfSectorCodes();
+            var percentageTotal = 0;
+            var maxPercentage = 0;
+
+            for (var i = 0; i < numberOfSectorCodeRows; i++) {
+                var fieldISCodeId = '#SectorCodesCodeVm_' + i + '__ISCode';
+                var fieldPercentageId = '#SectorCodesCodeVm_' + i + '__Percentage';
+
+                //console.log(fieldISCodeId);
+
+                //Check for Rows that have a SectorCode but no percentage
+                if ($(fieldISCodeId).val() === '') {
+                    $('#UpdateSectorCodeErrorMessage').html("Sector Code cannot be empty");
+                    event.preventDefault();
+                    return false;
+                }
+
+                //Check for percentage values.
+                if ($(fieldPercentageId).val() === '') {
+                    $('#UpdateSectorCodeErrorMessage').html("Percentage must be a whole number between 1 and 100");
+                    event.preventDefault();
+                    return false;
+                }
+                //Check for percentage values.
+                if (!isInt($(fieldPercentageId).val())) {
+                    $('#UpdateSectorCodeErrorMessage').html("Percentage must be a whole number between 1 and 100");
+                    event.preventDefault();
+                    return false;
+                }
+
+                //Percentages greater than 100
+                if ($(fieldPercentageId).val() > 100) {
+                    $('#UpdateSectorCodeErrorMessage').html("Percentage cannot be greater than 100");
+                    event.preventDefault();
+                    return false;
+                }
+
+                //Percentages less than 1
+                if ($(fieldPercentageId).val() < 1) {
+                    $('#UpdateSectorCodeErrorMessage').html("Percentage cannot be less than 1");
+                    event.preventDefault();
+                    return false;
+                }
+
+
+                if (parseInt($(fieldPercentageId).val()) > maxPercentage) {
+                    maxPercentage = $(fieldPercentageId).val();
+                }
+
+                percentageTotal = percentageTotal + parseInt($(fieldPercentageId).val());
+                //console.log(maxPercentage);
+                //console.log(percentageTotal);
+            }
+
+            //Duplicate entries are not allowed
+            var inputClass = "sectorCode";
+            if (checkDuplicatesInputsByClassName(inputClass)) {
+                $('#UpdateSectorCodeErrorMessage').html("Duplicate input sectors are not allowed");
+                event.preventDefault();
+                return false;                                                
+            }
+
+
+            //Total of percentages must equal 100%
+            if (percentageTotal !== 100) {
+                $('#UpdateSectorCodeErrorMessage').html("Sector Codes total must equal 100%");
+                event.preventDefault();
+                return false;
+            }
+
+            //One sector must be dominant (e.g. has a percentage greater than the others).
+            var countMaxValues = 0;
+            $("input[class='sectorPercentage']").each(function () {
+                if (this.value === maxPercentage) {
+                    countMaxValues = countMaxValues + 1;
+                }
+            });
+            // console.log(countMaxValues);
+
+            if (countMaxValues > 1) {
+                $('#UpdateSectorCodeErrorMessage').html("Sector percentages are equal. One must be higher than the other to identify broad sector for DAC reporting.");
+                event.preventDefault();
+                return false;
+            }
+
+            return true;
+        }
+
+
+        function PostSectorCodes() {
+
+            event.preventDefault();
+            var ComponentID = $('#ComponentID').val();
+            $.ajax({
+                url: '@Url.Action("UpdateInputSectorCodes", "Component")',
+                type: 'POST',
+                data: $('#EditInputSectorCodes').serialize(),
+                cache: false,
+                dataType: 'html',
+                success: function(data) {
+                    $('#UpdateSectorCodeErrorMessage').removeClass("SaveMessageFail").addClass("SaveMessageSuccess").html(data);
+ 
+                    if (data === 'Saved') {
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        $('#UpdateSectorCodeErrorMessage').removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html(data);
+                    }
+                },
+                async:true
+            });
+        }
+
+        function MaxSectorCode() {
+            return 8;
+        }
+
+        function ReturnNumberOfSectorCodes() {
+            return $("#InputSectorsContainer").children('.grid-row').length;
+        }
+
+        function ReturnDeleteButtonHTML(rowNumber) {
+            return '<button type="button" id="DeleteRow" class="red deleteButton" style="height: 25px;margin-left:5px; margin-right:5px;" value="Remove" onclick="DeleteSectorCode(' + rowNumber + ');"><i class="fa fa-minus-square-o" aria-hidden="true"></i></button>';
+        } 
+
+        function ReturnAddButtonHTML() {
+            return '<button type="button" value="Add" class="bluelightnight addButton" style="height: 25px;margin-left:5px; margin-right:5px;" id="AddInputSectorRowButton" onclick="AddInputSectorRow();"><i class="fa fa-plus-square-o" aria-hidden="true"></i></button>';
+        }
+
+
+        function AddInputSectorRow() {
+
+            var numberOfSectorInputs = ReturnNumberOfSectorCodes();
+            var hiddenLineNo = '<input id="SectorCodesCodeVm_' + numberOfSectorInputs + '__LineNo" name="SectorCodesCodeVm[' + numberOfSectorInputs + '].LineNo" type="hidden" value="">';
+            var hiddenIscCode = '<input id="SectorCodesCodeVm_' + numberOfSectorInputs + '__ISCode" name="SectorCodesCodeVm[' + numberOfSectorInputs + '].ISCode" type="hidden" value="" class="sectorCode">';
+            var sectorCodeTypeAheadHtml = '<input id="SectorCodesCodeVm_ISDescription_' + numberOfSectorInputs + '" name="SectorCodesCodeVm[' + numberOfSectorInputs + '].ISDescription" type="text" class="typeahead" placeholder="Search for Sector" style="width: 350px; height: 25px; position: relative; vertical-align: top; background-color: transparent;" value="" autocomplete="off" spellcheck="false" dir="auto">'; 
+            var percentageInputHtml = '<input data-val="true" data-val-number="The field Percentage must be a number." id="SectorCodesCodeVm_' + numberOfSectorInputs + '__Percentage" name="SectorCodesCodeVm[' + numberOfSectorInputs + '].Percentage" class="sectorPercentage" style="width: 30px" type="text" value="">';
+            var deleteButtonHtml = ReturnDeleteButtonHTML(numberOfSectorInputs);
+            var sectorCodeLabel = '<label class="form-label-bold" for="SectorCodesCodeVm_ISDescription_' + numberOfSectorInputs + '">Sector Code</label>';
+            var percentageLabel = '<label class="form-label-bold" for="SectorCodesCodeVm_' + numberOfSectorInputs + '__Percentage">Percentage</label>';
+            var addButtonHtml = '<button type="button" value="Add" class="bluelightnight addButton" style="height: 25px; margin-left:5px; margin-right:5px;" id="AddInputSectorRowButton" onclick="AddInputSectorRow();"><i class="fa fa-plus-square-o" aria-hidden="true"></i></button>';
+
+            $("#InputSectorsContainer").find('.deleteButton').remove();
+            $("#InputSectorsContainer").find('.addButton').remove();
+
+            $("#InputSectorsContainer")
+                .append($('<div class="grid-row" id="InputSectorsGridRow_' + numberOfSectorInputs + '">' +
+                    '<div class="column-two-thirds">' +
+                    '<div id="InputSec-' + numberOfSectorInputs + '">' +
+                    sectorCodeLabel + 
+                    sectorCodeTypeAheadHtml + '</div>' +
+                    hiddenIscCode + hiddenLineNo +
+                    '</div>' +
+                    '<div class="column-third">' +
+                    percentageLabel + 
+                    percentageInputHtml +
+                    deleteButtonHtml +
+                    addButtonHtml +
+                    '</div>' +
+                    '</div>'));
+
+            EditSectorsTypeAhead(numberOfSectorInputs);
+
+            //console.log(ReturnNumberOfSectorCodes());
+
+            if (ReturnNumberOfSectorCodes() >= MaxSectorCode()) {
+                RemoveAddInputSectorControlsButton();
+            }
+
+
+        }
+
+        function DeleteSectorCode(rowNumber) {
+            var rowToDelete = '#InputSectorsGridRow_' + rowNumber;
+            $(rowToDelete).remove();
+            AddAddSectorCodeControl(rowNumber - 1);
+            AddDeleteSectorCodeControl(rowNumber - 1);
+        }
+
+        function AddDeleteSectorCodeControl(rowNumber) {
+            //console.log(rowNumber);
+            var deleteButtonHtml = ReturnDeleteButtonHTML(rowNumber);
+            if (rowNumber > 0) {
+                var elementToAppendTo = '#SectorCodesCodeVm_' + rowNumber + '__Percentage';
+                $(elementToAppendTo).after(deleteButtonHtml);
+            }
+
+        }
+
+        function AddAddSectorCodeControl(rowNumber) {
+            //console.log(rowNumber);
+            var addButtonHtml = ReturnAddButtonHTML();
+            var elementToAppendTo = '#SectorCodesCodeVm_' + rowNumber + '__Percentage';
+            $(elementToAppendTo).after(addButtonHtml);
+        }
+
+
+        function RemoveAddInputSectorControlsButton() {
+            //console.log('In Remove Add Button');
+            $('#AddInputSectorRowButton').toggle();
+        }
+
+
+    </script>
+}

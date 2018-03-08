@@ -1,0 +1,498 @@
+﻿@using PagedList.Mvc;
+@model AMP.ViewModels.AdvanceSearchVM
+
+@{
+    ViewBag.Title = "Advanced Search";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-container">
+    <div id="SearchProjectSection">
+        @using (Html.BeginForm("AdvancedSearch", "Dashboard", FormMethod.Post, new { id = "FormAdvancedSearch" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary(true)
+            <div>
+                <div class="grid-row">
+                    <div class="column-full">                       
+                        <p class="form-label-bold">Advanced Search</p>
+                        <label for="SearchKey" class="form-hint">Search on the project title, description and project number</label>
+                        @Html.TextAreaFor(model => model.SearchKeyWord, new { id = "SearchKey", @class = "form-control", @rows = 2})
+                       
+                    </div>
+                </div>
+                    
+                <div class="grid-row">
+                    <div class="column-third">
+                        <p class="form-label-bold">Stage</p>
+                        <label for="Project_Stages" class="form-hint">Select project stage</label>
+                        @Html.DropDownListFor(model => model.stage, new SelectList(Model.ProjectStages.Where(x => x.Status == "A"), "StageID", "StageDescription"), "-- Select Stage --", new { @class = "form-control", id = "Project_Stages" })
+                    </div>
+                    <div class="column-third">
+                        <p class="form-label-bold">Benefiting Location</p>
+                        <label for="BenefitingCountry_ID" class="form-hint">Captured at component level</label>
+                        @Html.DropDownListFor(model => model.BenefittingCountryID, new SelectList(Model.BenefitingCountry.Where(x => x.Status == "A"), "BenefitingCountryID", "BenefitingCountryDescription"), "-- Select Country --", new { @class = "form-control", id = "BenefitingCountry_ID" })
+                    </div>
+                    @*<div class="column-third">
+                        <h3>Budget Centre</h3>
+                        <p class="form-hint">Project and component level</p>
+                        @Html.DropDownListFor(model => model.BudgetCentreID, new SelectList(Model.BudgetCentre, "BudgetCentreID", "BudgetCentreDescription"), "-- Select Budget Centre --", new { @class = "form-control", id = "BudgetCentre_ID" })
+                    </div>*@
+                
+                    <div class="column-third">
+                        <p class="form-label-bold">Budget Centre</p>
+                        <label for="BudgetCentreBox" class="form-hint">Project and component level</label>
+                        <div id="BudCen">
+                            <input id="BudgetCentreBox" type="text" class="typeahead" name="BudgetCentreDescription" placeholder="Type to search" style="width: 300px; height: 25px" value="@Model.BudgetCentreName" />
+                        </div>
+                        @Html.HiddenFor(model => model.BudgetCentreID, new { id = "BudgetCentreName" })
+                     
+                    </div>
+
+
+                    @*<div class="form-group" style="display:none">
+                        <p class="form-hint">Project Satus</p>
+                        @Html.RadioButtonFor(model => model.StatusChoice, string.Format("Active"), new { id = "status-Active" }) Active
+                        @Html.RadioButtonFor(model => model.StatusChoice, string.Format("Closed"), new { id = "status-Closed" }) Closed
+                        @Html.RadioButtonFor(model => model.StatusChoice, string.Format("All"), new { id = "status-All" }) Any
+                    </div>*@
+                </div>
+                <div class="grid-row">
+
+                    @*<div class="column-third">
+                        <h3>Senior Responsible Officer</h3>
+                        <p class="form-hint">Start typing the name of the SRO</p>
+                        <div id="SROPersonDiv" class="SROID">
+                            @Html.HiddenFor(model => model.SRO, new { id = "SROName" })
+                            <input id="SROBox" type="text" class="typeahead" placeholder="Search for a SRO" style="width: 400px; height: 25px" value="@Model.SROName" />
+                            <div class="column-full SaveMessageFail" id="SROName-Error"></div>
+                        </div>
+                    </div>*@
+                    
+                    <div class="column-third">
+                        <p class="form-label-bold">Senior Responsible Officer</p>
+                        <label for="TeamSroBox" class="form-hint">Start typing the name of the SRO</label>
+                        <div id="TeamSro">
+                            <input id="TeamSroBox" type="text" class="typeahead" name="DISPLAY_NAME_SURNAME_FIRST" placeholder="Type to search" style="width: 300px; height: 25px" value="@Model.SROName" />
+                        </div>
+                        @Html.HiddenFor(model => model.SRO, new { id = "TeamSroName" })
+                    </div>
+                    
+                </div>
+                    <div class="grid-row">
+                        <div class="column-half">
+                            <button id="FindProject" class="button" type="submit" value="Find Project">Find Projects</button>
+                            <button id="CancelBtn" class="bluelightnight" value="Cancel" type="button" tabindex="11" onclick="ClearFileds()">Clear</button>
+                            <button id="click" class="button" type="button" value="OK" onclick="Click()" style="display:none">Find Projects</button>
+                        </div>
+                    </div>
+
+                </div>
+        }
+
+        <div style="clear: both"></div>
+    </div>
+
+    @{
+        if (Model.projects != null && Model.ProjectCount > 0)
+        {
+            <span id="RowCount" class="SaveMessageSuccess">@Model.ProjectCount Record(s) found</span>
+            <script type="text/javascript">
+                $(function () {
+                    $("#click").click();
+                });
+            </script>
+        }
+
+        if (Model.ProjectCount>0 && Model.ProjectCount <= 10)
+        {
+            <script type="text/javascript">
+                $(function () {
+                    $("#pagingPreferenceAS").hide();
+                });
+            </script>
+        }
+
+        else if (Model.ResultMsg == null)
+        {
+            <script type="text/javascript">
+                $(function () {
+                    $("#SaveMessage").html("");
+                });
+            </script>
+        }
+        else if (Model.ResultMsg == "B")
+        {
+            if (Model.SearchKeyWord == null && Model.stage == null && Model.BenefittingCountryID == null && Model.BudgetCentreID == null && Model.SRO == null)
+            {
+                <script type="text/javascript">
+                    $(function () {
+                        $("#SaveMessage").html("");
+                        $("#project-list").hide();
+                    });
+                </script>
+            }
+            else
+            { 
+            <span id="RowCount" class="SaveMessageFail"></span>
+            <script type="text/javascript">
+                $(function () {
+                    $("#SaveMessage").text('No Data found');
+                    $("#SaveMessage").addClass("SaveMessageFail");
+                    $("#project-list").hide();
+                });
+            </script>
+            }
+        }
+        else if (Model.AriesMsg == "C" && Model.AriesMsg!= null)
+        {
+            <script type="text/javascript">
+                $(function () {
+                    $("#SaveMessageAries").text('Sorry, ARIES does not seem to be available at the moment. Your financial data cannot be shown.');
+                    $("#SaveMessageAries").addClass("SaveMessageFail");
+                });
+            </script>
+        }
+        else
+        {
+
+        }
+}
+    <div id="SaveMessage"></div>
+    <div id="SaveMessageAries"></div>
+    <input type="hidden" id="userPreferenceAS" data-pagingvalue="@ViewBag.PagingOn" />
+    
+   
+       @{
+           if (Model.projects.Count > 0)
+           {
+
+            <table id="project-list" class="table-main" border="1" style="margin-bottom:0px" title="A data table that contains your Search result.">
+
+                <tr>
+                    <th id="id">ID</th>
+                    <th id="ProjectTitleHeader">Project Title</th>
+                    @*<th id="ApprovedBudgetHeader" style="display:none">Approved Budget</th>*@
+                    <th id="StageDescriptionHeader">Stage</th>
+                    <th id="DescriptionHeader">Description</th>
+                    <th id="ActionsHeader">Actions</th>
+                    @*<th id="PortfolioFlagHeader" style="display: none">Portfolio</th>*@
+                </tr>
+                @{
+                var index = 0;
+                foreach (var item in Model.projects)
+                {
+                <tr>
+                    <td id="ProjectID-@index" headers="id">
+                        @Html.DisplayFor(modelItem => item.ProjectID)
+                    </td>
+                    <td id="ProjectTitle-@index" headers="ProjectTitleHeader">
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    @*<td class="figure" style="display:none" id="ApprovedBudget-@index" headers="ApprovedBudgetHeader">
+                            @Html.DisplayFor(modelItem => item.ApprovedBudget)
+                        </td>*@
+                    <td id="StageDescription-@index" headers="StageDescriptionHeader">
+                        @Html.DisplayFor(modelItem => item.Stage1.StageDescription)
+                    </td>
+                    <td id="NextReviewDescription-@index" headers="DescriptionHeader">
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td id="Actions-@index" headers="ActionsHeader" style="border-right: 0px">
+                        @Html.ActionLink("Details", "Edit", "Project", new { id = item.ProjectID }, new { id = String.Format("Details_{0}", index), title = String.Format("Link to Details page of project {0}", item.ProjectID) })
+                    </td>
+                    @*<td id="PortfolioFlag-@index" headers="PortfolioFlagHeader" style="display:none">
+                            @Html.HiddenFor(modelItem => item.Portfolio, new { id = "PortfolioFlagCheck-" + @index })
+                        </td>*@
+                </tr>
+
+                index++;
+                }
+                }
+            </table>
+           }
+
+    }
+
+                
+           
+
+@{
+           if (Model.projects != null && Model.projects.Count > 0)
+           {
+            <div class="grid-row" id="grdPaging">
+                <div class="column-full">
+                    <div style="float:left; margin-right: 5px;">@Html.PagedListPager(Model.projects, page => Url.Action("AdvancedSearch", new { sortOrder = ViewBag.CurrentSort, page, currentFilter = ViewBag.CurrentFilter }))</div>
+                    <div style="float: left; ">
+                       
+                        <button style="margin-top:25px" id="pagingPreferenceAS" class="bluelightnight" onclick="SetPagingPreferenceAS()" type="button">Disable Paging</button>
+                     
+                    </div>
+                </div>
+            </div>
+          }
+}
+</div>
+
+@section Scripts {
+
+    <script src="~/Scripts/govuk-template.js" type="text/javascript"></script>
+
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/typeahead")
+    @Scripts.Render("~/bundles/datetimepicker")
+
+    @*<style type="text/css">
+        .highlight {
+            background-color: #fff34d;
+            -moz-border-radius: 5px; /* FF1+ */
+            -webkit-border-radius: 5px; /* Saf3-4 */
+            border-radius: 5px; /* Opera 10.5, IE 9, Saf5, Chrome */
+            -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.7); /* FF3.5+ */
+            -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.7); /* Saf3.0+, Chrome */
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.7); /* Opera 10.5+, IE 9.0 */
+        }
+
+        .highlight {
+            padding: 1px 4px;
+            margin: 0 -4px;
+        }
+    </style>*@
+
+    <script type="text/javascript">
+    function ClearFileds() {
+        $('#SearchKey').html("");
+        $('#Project_Stages').find('option:first').attr('selected', 'selected');
+        $('#BenefitingCountry_ID').find('option:first').attr('selected', 'selected');
+        $('#project-list').empty();
+        $('#RowCount').html("");
+        $('#grdPaging').html("");
+        $('#SaveMessage').html("");
+        $('#BudgetCentre_ID').find('option:first').attr('selected', 'selected');
+        $('#SROBox').val('');
+        $('#SROName').val('');
+        $('#BudgetCentreName').val('');
+        $('#BudgetCentreBox').val('');
+        $('#TeamSroName').val('');
+        $('#TeamSroBox').val('');
+        @*$.post("@Url.Action("ClearAdvancedSearch", "Project")", function (data) {
+                window.location.href = "@Url.Content("~/project/AdvancedSearch")";
+            });*@
+
+    }
+
+    function Click() {
+        var searchTerm = $('#SearchKey').val();
+        $('body').removeHighlight();
+        if (searchTerm) {
+            // highlight the new term
+            $('body').highlight(searchTerm);
+        }
+    }
+
+
+    function SetPagingPreferenceAS() {
+        var preference = "";
+
+        if ($("#pagingPreferenceAS").html() == "Disable Paging")
+            preference = "F";
+        else if ($("#pagingPreferenceAS").html() == "Enable Paging")
+            preference = "T";
+        $.post("@Url.Action("SetPagingPreferenceAdvSearch", "Dashboard")", { pagingEnabled: preference, searchKey: $('#SearchKey').val(), projStage: $('#Project_Stages').val(), benefittingCountry: $('#BenefitingCountry_ID').val(), budgetCentreId: $('#BudgetCentreName').val(), sro: $('#TeamSroName').val() }, function (data) {
+
+            window.location.href = '@Html.Raw(@Url.Action("AdvancedSearch", "Dashboard", new { IsPagingEnabled = Session["isPagingEnabledAS"].ToString() }))';
+            @*window.location.href = '@Html.Raw(@Url.Action("AdvancedSearch", "Project"))';*@
+
+            });
+
+            //window.location.href="";
+        }
+
+        var table = document.getElementById("project-list");
+        if (table != null) {
+            var today;
+            today = new Date();
+            today = Date.parse(today);
+            for (var i = 0, row; row = table.rows[i + 1]; i++) {
+                try {
+                    if (row.cells[2].innerHTML.trim() === "Pre Pipeline") {
+                        row.cells[2].className = "pre-pipeline";
+                    }
+                    if (row.cells[2].innerHTML.trim() === "Identification") {
+                        row.cells[2].className = "identification";
+                    }
+                    if (row.cells[2].innerHTML.trim() === "Appraisal and Design") {
+                        row.cells[2].className = "appraisal";
+                    }
+                    if (row.cells[2].innerHTML.trim() === "Approval") {
+                        row.cells[2].className = "approval";
+                    }
+                    if (row.cells[2].innerHTML.trim() === "Implementation") {
+                        row.cells[2].className = "implementation";
+                    } if (row.cells[2].innerHTML.trim() === "Completion") {
+                        row.cells[2].className = "completion";
+                    } if (row.cells[2].innerHTML.trim() === "Post Completion") {
+                        row.cells[2].className = "post-completion";
+                    }
+
+
+                } catch (x) {
+                    //Nothing to Catch as we use paging some remove buttons cant be accessed.
+                }
+            }
+        }
+
+        $(document).ready(function () {
+            var isPagingButtonVisible = false;
+            $("ul.pagination").children().each(function () {
+                if ($(this).children("a").html() == "2")
+                    isPagingButtonVisible = true;
+            })
+
+            //alert($('#BudgetCentreName').val());
+
+            var numOfProjects = $("#project-list tr").length;
+            //alert(numOfProjects);
+            if (numOfProjects > 11)
+                $("#pagingPreferenceAS").show();
+                $("#pagingPreferenceAS").html("Enable Paging");
+            if (numOfProjects == 11)
+                $("#pagingPreferenceAS").html("Disable Paging");
+            if ($("#pagingPreferenceAS").is(':visible') && numOfProjects < 11) {
+                $("#pagingPreferenceAS").html("Disable Paging");
+            }
+                var pagingOn = $('#userPreferenceAS').data("pagingvalue");
+
+            if (pagingOn == "T")
+                $("#pagingPreferenceAS").html("Enable Paging");
+
+        });
+</script>
+
+    <script type="text/javascript">
+        jQuery.fn.highlight = function (pat) {
+            function innerHighlight(node, pat) {
+                var skip = 0;
+                if (node.nodeType == 3) {
+                    var pos = node.data.toUpperCase().indexOf(pat);
+                    if (pos >= 0) {
+                        var spannode = document.createElement('span');
+                        spannode.className = 'highlight';
+                        var middlebit = node.splitText(pos);
+                        var endbit = middlebit.splitText(pat.length);
+                        var middleclone = middlebit.cloneNode(true);
+                        spannode.appendChild(middleclone);
+                        middlebit.parentNode.replaceChild(spannode, middlebit);
+                        skip = 1;
+                    }
+                }
+                else if (node.nodeType == 1 && node.childNodes && !/(script|style)/i.test(node.tagName)) {
+                    for (var i = 0; i < node.childNodes.length; ++i) {
+                        i += innerHighlight(node.childNodes[i], pat);
+                    }
+                }
+                return skip;
+            }
+            return this.each(function () {
+                innerHighlight(this, pat.toUpperCase());
+            });
+        };
+
+        jQuery.fn.removeHighlight = function () {
+            function newNormalize(node) {
+                for (var i = 0, children = node.childNodes, nodeCount = children.length; i < nodeCount; i++) {
+                    var child = children[i];
+                    if (child.nodeType == 1) {
+                        newNormalize(child);
+                        continue;
+                    }
+                    if (child.nodeType != 3) { continue; }
+                    var next = child.nextSibling;
+                    if (next == null || next.nodeType != 3) { continue; }
+                    var combined_text = child.nodeValue + next.nodeValue;
+                    new_node = node.ownerDocument.createTextNode(combined_text);
+                    node.insertBefore(new_node, child);
+                    node.removeChild(child);
+                    node.removeChild(next);
+                    i--;
+                    nodeCount--;
+                }
+            }
+
+            return this.find("span.highlight").each(function () {
+                var thisParent = this.parentNode;
+                thisParent.replaceChild(this.firstChild, this);
+                newNormalize(thisParent);
+            }).end();
+        };
+    </script>
+
+     <script type="text/javascript">
+
+            var sros = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('DISPLAY_NAME_FORENAME_FIRST'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                limit: 10,
+                prefetch: {
+                    //url: './ProjectLookUp',
+                    url: "@Url.Action("PeopleDetailsSRO", "Project")",
+                    ttl: 36000000 //10 Hour (in milliseconds)
+                    }
+
+            });
+            sros.initialize();
+
+            // passing in `null` for the `options` arguments will result in the default
+            // options being used
+            $('#TeamSro .typeahead').typeahead({ highlight: true }, {
+                name: 'sros',
+                displayKey: 'DISPLAY_NAME_FORENAME_FIRST',
+                // `ttAdapter` wraps the suggestion engine in an adapter that
+                // is compatible with the typeahead jQuery plugin
+                source: sros.ttAdapter(),
+                limit: 10
+            }).bind('typeahead:selected', function (obj, datum) {
+                changeTypeaheadsro(obj, datum);
+            }).bind('typeahead:autocompleted', function (obj, datum) {
+                changeTypeaheadsro(obj, datum)
+            });
+
+            function changeTypeaheadsro(obj, datum) {
+                $('input#TeamSroName').val(datum.EMP_NO);
+                $('#lblBudCenIDValue').text(datum.EMP_NO);
+            };
+
+
+
+
+            var budcents = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('BudgetCentreDescription'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                prefetch: '../Project/BudgetCentreLookup',
+                limit: 20
+
+            });
+            budcents.initialize();
+
+            // passing in `null` for the `options` arguments will result in the default
+            // options being used
+            $('#BudCen .typeahead').typeahead({ highlight: true }, {
+                name: 'budcents',
+                displayKey: 'BudgetCentreDescription',
+                // `ttAdapter` wraps the suggestion engine in an adapter that
+                // is compatible with the typeahead jQuery plugin
+                source: budcents.ttAdapter()
+            }).bind('typeahead:selected', function (obj, datum) {
+                changeTypeahead(obj, datum);
+            }).bind('typeahead:autocompleted', function (obj, datum) {
+                changeTypeahead(obj, datum)
+            });
+
+            function changeTypeahead(obj, datum) {
+                $('input#BudgetCentreName').val(datum.BudgetCentreID);
+                $('#lblBudCenIDValue').text(datum.BudgetCentreID);
+            };
+
+            </script>
+
+}

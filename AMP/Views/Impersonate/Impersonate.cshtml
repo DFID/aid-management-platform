@@ -1,0 +1,86 @@
+﻿@model AMP.ViewModels.ImpersonateVM
+@{
+    ViewBag.Title = "Impersonate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+@using (Html.BeginForm())
+{
+    <div class="page-container">
+        <h2>Impersonate</h2>
+        <div id="IdentitySearch">
+            <input id="IdentityBox" type="text" class="typeahead" placeholder="Search for person" style="width:400px; height:30px" />
+            @Html.HiddenFor(model => model.ImpersonateEmpNo)
+            @Html.HiddenFor(model => model.ImpersonateLogon)
+            @Html.HiddenFor(model => model.DisplayName)
+            <div class="PushDown">@Html.ValidationMessageFor(model => model.ImpersonateEmpNo)</div>
+            <br />
+            <br />
+            <button type="submit" id="ImpersonateUser" value="Impersonate" style="display:none" class="button submit">Impersonate User</button>
+        </div>
+        <div id="ResultMessage" style="display:none">
+            <label id="lblSaveMessage" class="SaveMessageSuccess">@ViewBag.message</label>
+        </div>
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/typeahead")
+
+    <script type="text/javascript">
+
+
+        var staffList = [
+            { "EmpNo": "111111", "DisplayName": "A Inputter", "Logon": "A-INPUTTER" },
+            { "EmpNo": "222222", "DisplayName": "A SRO", "Logon": "A-SRO" },
+            { "EmpNo": "333333", "DisplayName": "An Adviser", "Logon": "A-Adviser" },
+            { "EmpNo": "444444", "DisplayName": "A TeamMember", "Logon": "A-TeamMemver" },
+            { "EmpNo": "555555", "DisplayName": "A OfficeHead", "Logon": "A-OfficeHead" }
+        ];
+
+
+        /*Bloodhound typeahead for Staff*/
+
+        var staff = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('DisplayName'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: staffList
+        });
+
+        // kicks off the loading/processing of `local` and `prefetch`
+        staff.initialize();
+
+        // passing in `null` for the `options` arguments will result in the default
+        // options being used
+        $('#IdentitySearch .typeahead').typeahead({ highlight: true }, {
+            name: 'staff',
+            displayKey: 'DisplayName',
+            // `ttAdapter` wraps the suggestion engine in an adapter that
+            // is compatible with the typeahead jQuery plugin
+            source: staff.ttAdapter()
+        }).bind('typeahead:selected', function (obj, datum) {
+            changeTypeahead(obj, datum);
+        }).bind('typeahead:autocompleted', function (obj, datum) {
+            changeTypeahead(obj, datum)
+        });
+
+        function changeTypeahead(obj, datum) {
+            $('input#DisplayName').val(datum.DisplayName);
+            $('input#ImpersonateEmpNo').val(datum.EmpNo);
+            $('input#ImpersonateLogon').val(datum.Logon);
+            document.getElementById("ImpersonateUser").style.display = "inline";
+        };
+        /*End Bloodhound typeahead for Staff*/
+
+        var container = document.getElementById("ResultMessage");
+        var message = document.getElementById("lblSaveMessage");
+
+        if (message.value != "") {
+            container.style.display = "inline";
+        }
+    </script>
+}
+
+

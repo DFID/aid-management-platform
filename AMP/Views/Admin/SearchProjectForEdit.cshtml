@@ -1,0 +1,128 @@
+﻿@*@model AMP.Models.ProjectMaster*@
+@{
+    Layout = null;
+}
+@{
+    ViewBag.Title = "Admin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="page-container">
+    @using (Html.BeginForm())
+    {
+
+        @Html.AntiForgeryToken()
+
+            <p class="form-hint">Project number</p>
+            <div class="grid-row">
+                <div class="column-full">
+                    @*<input id="project-search" type="text" name="Title" placeholder="Search for a project" style="width: 485px; height: 27px" />
+                    @Html.ValidationMessageFor(model => model.ProjectID, null, new { id = "ErrorMessage" })
+                    @Html.HiddenFor(model => model.ProjectID)*@
+                   
+                    <input id="ProjectID" type="text" style="width: 250px; height: 25px" />
+                    <button id="EditPerformance" name="SubmitButton" class="button" type="button" value="Edit Performance">Edit Performance</button>
+                    <button id="EditProjectMaster" name="SubmitButton" class="button" type="button" value="Edit Project Master">Edit Project Master</button>
+                </div>
+               
+            </div>
+            <p class="form-hint">Component ID </p>
+            <div class="grid-row">              
+                <div class="column-full">                    
+                    <input id="ComponentID" type="text" style="width: 250px; height: 25px" />     
+                    <button id="EditComponent" name="SubmitButton" class="button" type="button" value="Edit Componenet">Edit Component</button>
+                    <button id="EditComponentDate" name="SubmitButton" class="button" type="button" value="Edit Componenet Dates">Edit Component Dates</button>
+                </div>
+                </div>
+            <br />
+
+        <input style="display: none" id="SaveSuccess" name="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+        <div id="SaveMessage" style="display: none">Save Successful</div>
+        @Html.ActionLink("Back to List", "Index")
+
+    }
+</div>
+
+
+<script type="text/javascript">
+    $('#EditPerformance').click(function (e) {
+        e.preventDefault();
+        projectId = $('#ProjectID').val();
+        urltoOpen = '@Html.Raw(@Url.Action("EditPerformanceNew", "Admin"))' + "/" + projectId;
+        if (projectId != '') {
+            window.location.href = urltoOpen;
+        }
+
+    });
+
+
+    $('#EditProjectMaster').click(function (e) {
+        e.preventDefault();
+        projectId = $('#ProjectID').val();
+        urltoOpen = '@Html.Raw(@Url.Action("EditProjectMaster", "Admin"))' + "/" + projectId;
+        if (projectId != '') {
+            window.location.href = urltoOpen;
+        }
+    });
+
+    $('#EditComponent').click(function (e) {
+        e.preventDefault();
+        ComponentID = $('#ComponentID').val();
+        urltoOpen = '@Html.Raw(@Url.Action("EditComponentMaster", "Admin"))' + "/" + ComponentID;
+        if (ComponentID != '') {
+            window.location.href = urltoOpen;
+        }
+    });
+
+    $('#EditComponentDate').click(function (e) {
+        e.preventDefault();
+        ComponentID = $('#ComponentID').val();
+        urltoOpen = '@Html.Raw(@Url.Action("EditComponentDates", "Admin"))' + "/" + ComponentID;
+        if (ComponentID != '') {
+            window.location.href = urltoOpen;
+        }
+    });
+    </script>
+
+    @*@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/typeahead")
+        @Scripts.Render("~/bundles/datetimepicker")
+    <script type="text/javascript">
+    var projects = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('Title'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        limit: 20,
+        prefetch: {
+            //url: './ProjectLookUp',
+            url: "@Url.Action("ProjectLookUp", "Project")",
+            ttl: 36000000 //10 Hour (in milliseconds)
+
+        }
+    });
+
+    // kicks off the loading/processing of `local` and `prefetch`
+    projects.initialize();
+
+    // passing in `null` for the `options` arguments will result in the default
+    // options being used
+    $('#project-search').typeahead({ highlight: true }, {
+        name: 'projects',
+        displayKey: 'Title',
+        // `ttAdapter` wraps the suggestion engine in an adapter that
+        // is compatible with the typeahead jQuery plugin
+        source: projects.ttAdapter(),
+        limit: 20
+    }).bind('typeahead:selected', function(obj, datum) {
+        changeTypeahead(obj, datum);
+    }).bind('typeahead:autocompleted', function(obj, datum) {
+        changeTypeahead(obj, datum);
+    });
+
+    function changeTypeahead(obj, datum) {
+        $('input#ProjectID').val(datum.ProjectID);
+    };
+
+   
+</script>
+
+    }*@

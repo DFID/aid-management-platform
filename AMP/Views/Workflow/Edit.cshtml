@@ -1,0 +1,752 @@
+﻿@model AMP.ViewModels.WorkflowVM
+@using AMP.Helpers
+@using MoreLinq
+
+@{
+    ViewBag.Title = "Edit Workflow";
+}
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml", Model.ProjectHeaderVm)
+
+<div class="page-container">
+    <h2 id="WF_Description">@Model.TaskDescription</h2>
+    <p class="form-hint" id="WFHintText"></p>
+    <div class="grid-row">
+
+        @using (Html.BeginForm("Edit", "Workflow", FormMethod.Post, new {id = "WorkflowForm"}))
+        {
+            @Html.AntiForgeryToken()
+            @Html.ValidationSummary()
+
+            <div class="column-half">
+
+                <input type="hidden" id="WorkflowRequest_ProjectID" name="WorkflowRequest.ProjectID" value="@Model.WorkflowRequest.ProjectID"/>
+
+                @Html.HiddenFor(model => model.ProjectHeaderVm.BudgetCentre)
+                @Html.HiddenFor(model => model.WorkflowRequest.StageID)
+                @Html.HiddenFor(model => model.WorkflowResponse.StageID)
+                @Html.HiddenFor(model => model.UserRole)
+                @Html.HiddenFor(model => model.WorkflowRequest.TaskID)
+                @Html.HiddenFor(model => model.WorkflowRequest.ActionBy)
+                @Html.HiddenFor(model => model.CurrentAction)
+                @Html.HiddenFor(model => model.RequiresDelegatedAuthorityApproval)
+                @Html.HiddenFor(model => model.TaskID)
+                @Html.HiddenFor(model => model.IsDocumentRequired)
+                @Html.HiddenFor(model => model.ProjectHeaderVm.Stage, new {id = "ProjectStage"} )
+                @Html.HiddenFor(model => model.WfMessage)
+                <div id="dvWorkflowRequest">
+                    <div class="report-basics">
+                        <h2>Submission</h2>
+                        <div class="grid-row">
+                            @if (Model.WorkflowResponse == null)
+                            {
+                                <div class="column-half">
+                                    <div class="form-group" id="dvRequesterName">
+                                        <label class="form-label-bold" for="WFRequesterName">Requester</label>
+                                        <p class="form-hint">Name of the requester</p>
+                                        @Html.TextBoxFor(model => model.WorkflowRequest.RequesterName, new {id = "WFRequesterName", disabled = "disabled", style = "width: 400px"})
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="column-half">
+                                    <h3>Requester</h3>
+                                    <div class="inputter">
+                                        <img src="~/Content/localImages/user-310807_640.png" alt="image of the requester" height="100" />
+                                        <div class="inputter-id" id="WF_RequesterName">
+                                            @Model.WorkflowRequest.RequesterName
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        @if ((Model.WfMessage != null  &&  Model.WorkflowResponse.StageID.ToString() == "3" ) || (Model.WfMessage != null ))
+                        {
+                            <div class="grid-row">
+                                <div class="column-full">
+
+                                    <div class="warning-summary" role="group" tabindex="-1" id="warningSection">
+                                        <h5 id="WFApprover-Message" style="white-space: pre-wrap">@Model.WfMessage</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+
+
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <label class="form-label-bold" for="WFRequestComments">Comments</label>
+                                <p class="form-hint" id="WFSubmission-Comments-Hint">Please provide additional information describing what you are seeking approval for, for example budget details. Between 20 and 500 characters.</p>
+                                @Html.TextAreaFor(model => @Model.WorkflowRequest.ActionComments, new { @class = "form-control", id = "WFRequestComments", maxlength = "500", @onkeyup = "countChar(this,'WFRequestComments-characterCount',500 );" })
+                                <span class="form-hint" id="WFRequestComments-characterCount"></span>
+                                <div class="column-full SaveMessageFail" id="WFRequest-CommentError"></div>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <label class="form-label-bold" for="DocumentID">Document Number</label>
+                                <p class="form-hint" id="WFSubmission-DocumentNumber-Hint">You must provide the Vault ID of the document you want to send as part of the approval, for example the BC approval email. The ID must be 6 to 12 digits.</p>
+                                @Html.TextBoxFor(model => @Model.DocumentID)
+                                <div class="column-full SaveMessageFail" id="DocumentID-Error"></div>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <label class="form-label-bold" for="DocumentDescription">Document Description</label>
+                                <p class="form-hint">Provide a description of the document you are linking to. Between 5 and 100 characters.</p>
+                                @Html.TextAreaFor(model => @Model.DocumentDescription, new { @class = "form-control", id = "DocumentDescription", maxlength = "100", @onkeyup = "countChar(this,'DocumentDescription-characterCount',100 );" })
+                                <span class="form-hint" id="DocumentDescription-characterCount"></span>
+                                <div class="column-full SaveMessageFail" id="DocumentDescription-Error"></div>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <div class="form-group" id="dvWFSubmissionTypeAhead">
+                                    <label class="form-label-bold" for="WFSubmissionAuthoriserBox">Approver</label>
+                                    <p class="form-hint" id="WFSelect-Approver-Hint">Start typing the name of the person you want to approve this request with enough Delegated Authority</p>
+                                    <div id="WFAuthoriser">
+                                        <input id="WFSubmissionAuthoriserBox" type="text" class="typeahead WFRequest" placeholder="Search for an approver" style="width: 400px; height: 25px;"/>
+                                        @Html.HiddenFor(model => model.WorkflowRequest.Recipient)
+                                        <div class="column-full SaveMessageFail WFRequest" id="WFRequest-ApproverError"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid-row" id="WFRequestButton">
+                            <div class="column-half">
+                                <button name="submitWorkflow" id="BtnWFSubmission" value="Send for Approval" type="submit" class="button WFRequest" onclick="WFRequestPrintErrors(event);">Send For Approval</button>
+                            </div>
+                            <div class="column-full SaveMessageFail WFRequest" id="WFRequestSubmission-Error"></div>
+                        </div>
+                        <div class="content-loading" id="WFRequestWaiting" style="margin: auto; width: 65px; display: none;">
+                            <img class="content-loading" src="../Content/GovUKStyle/Images/spinner.gif" style="display: block" alt="please wait.."/>
+                        </div>
+                        <div class="grid-row" id="SubmittedDateSection">
+                            <div class="column-full">
+                                @Html.DateBlock("WorkflowRequest.ActionDate", "Submitted Date", @Model.WorkflowRequest.ActionDate, "Date the workflow request was submitted")
+                            </div>
+                        </div>
+                        <div class="PushDown">
+                            <input type="hidden" id="WFRequestSuccess" value="@TempData["WFRequest"].ToString()"/>
+                            <div id="WFRequestMessage" style="display: none">Submission Successful</div>
+                            <div class="column-full SaveMessageFail WFRequest" id="WFSubmission-Error"></div>
+                        </div>
+                        <div class="PushDown">
+                        </div>
+                        <div class="grid-row" id="WFActionButtons">
+                            <div class="column-half">
+                                <button name="changeApprover" id="btnChangeApprover" type="button" class="bluelightnight" onclick=" ToggleChangeApprover(); ">Change Approver</button>
+                            </div>
+                            <div class="column-half">
+                                <button name="submitWorkflow" id="btnCancelWorkflow" type="submit" class="red" onclick="CancelWorkflow();" value="Cancel Workflow">Cancel Workflow</button>
+                            </div>
+                        </div>
+                        <div class="grid-row" id="WFRequestChangeApproverButtons">
+                            <div class="column-third">
+                                <button name="submitWorkflow" id="btnSubmitChangeApprover" value="Change Approver" type="submit" style="display: none;" class="button" onclick=" WFRequestChangeApprover(event); ">Submit</button>
+                            </div>
+                            <div class="column-third">
+                                <button name="cancelChangeApprover" id="btnCancelChangeApprover" class="bluelightnight" type="button" onclick=" ToggleChangeApprover(); " style="display: none;">Cancel</button>
+                            </div>
+                        </div>
+                        <div class="content-loading" id="WFRequesChangeApprovertWaiting" style="margin: auto; width: 65px; display: none;">
+                            <img class="content-loading" src="../Content/GovUKStyle/Images/spinner.gif" style="display: block" alt="please wait.."/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column-half" id="dvWFResponse">
+
+                <input type="hidden" id="AuthCP_ProjectID" name="WorkflowResponse.ProjectID" value="@Model.WorkflowRequest.ProjectID"/>
+                <input type="hidden" id="AuthCP_WorkFlowID" name="WorkflowResponse.WorkFlowID" value="@Model.WorkflowRequest.WorkFlowID">
+                <input type="hidden" id="AuthCP_TaskID" name="WorkflowResponse.TaskID" value="@Model.TaskID">
+                <input type="hidden" id="AuthCP_Recipient" name="WorkflowResponse.Recipient" value="@Model.WorkflowRequest.ActionBy">
+                <input type="hidden" id="AuthCP_RecipientName" name="WorkflowResponse.RequesterName" value="@Model.WorkflowResponse.RequesterName">
+                <input type="hidden" id="AuthCP_WFMessage" name="WFMessage" value="@Model.WfMessage">
+
+
+                <div id="dvWFResponseAuth">
+                    <div class="report-basics">
+                        <h2>Authorisation</h2>
+                        <div class="grid-row">
+                            <div class="column-half">
+                                <h3>Approver</h3>
+                                <div class="inputter">
+                                    <img src="~/Content/localImages/businessman-310819_640.png" alt="image of the approver" height="100" />
+                                    <div class="inputter-id" id="WF_ApproverName">
+                                        @Model.WorkflowResponse.RequesterName
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @if (Model.DocumentID != null)
+                        {
+                            <div class="grid-row">
+                                <div class="column-full">
+                                   
+                                    <h3>Supporting Documents</h3>
+                                    <p class="form-hint">Click on the links to review the documents that supports this approval request</p>
+                                    <a id="ApprovalDocumentLink" target="blank" href="@Model.DocumentLink"> @String.Format("{0} ({1})", Model.DocumentDescription, Model.DocumentID)</a>
+                                </div>
+                            </div>
+                        }
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <p class="form-hint" id="WFApprover-Authorisation-Hint"></p>
+                            </div>
+                        </div>
+                        @if ((Model.WfMessage != null && Model.WorkflowResponse.StageID.ToString() != "3" && Model.WorkflowRequest.ActionDate != null))
+                        {
+                            <div class="grid-row">
+                                <div class="column-full">
+                                   
+                                    <div class="warning-summary" role="group" tabindex="-1" id="warningSection">
+                                        <h5 id="WFApprover-Message" style="white-space: pre-wrap">@Model.WfMessage</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                            <div class="grid-row">
+                                <div class="column-full">
+                                    <label class="form-label-bold" for="WFResponseComments">Comments</label>
+                                    <p class="form-hint">Please provide approval comments or rejection justification. (Between 20 and 500 characters)</p>
+                                    @Html.TextAreaFor(model => @Model.WorkflowResponse.ActionComments, new { @class = "form-control Close-Project", id = "WFResponseComments", maxlength = "500", @onkeyup = "countChar(this,'WFResponseComments-characterCount',500 );" })
+                                    <span class="form-hint" id="WFResponseComments-characterCount"></span>
+                                    <div class="column-full SaveMessageFail" id="WFResponseCommentsError"></div>
+                                </div>
+                            </div>
+                            @if (Model.WorkflowResponse.StageID == 2 || Model.WorkflowResponse.StageID == 3)
+                            {
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        @if (Model.WorkflowResponse.StageID == 2)
+                                        {
+                                            @Html.DateBlock("WorkflowResponse.ActionDate", "Workflow Approved", @Model.WorkflowResponse.ActionDate, "Date the workflow request was approved")
+                                        }
+                                        else
+                                        {
+                                            @Html.DateBlock("WorkflowResponse.ActionDate", "Workflow Rejected", @Model.WorkflowResponse.ActionDate, "Date the workflow request was rejected")
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="grid-row" id="WFResponseAuthButtons">
+                                    <div class="column-half">
+                                        <button id="BtnWFApprove" name="submitWorkflow" type="submit" value="Approve Workflow" class="button WF-Response" onclick=" ApproveWorkflow(event); ">
+                                            Approve
+                                        </button>
+                                    </div>
+                                    <div class="column-half">
+                                        <button id="BtnWFReject" name="submitWorkflow" type="submit" value="Reject Workflow" class="red WF-Response" onclick=" RejectWorkflow(event); ">
+                                            Reject
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="content-loading" id="WFResponseWaiting" style="margin: auto; width: 65px; display: none;">
+                                    <img class="content-loading" src="../Content/GovUKStyle/Images/spinner.gif" style="display: block" alt="please wait.." />
+                                </div>
+                            }
+                            <div class="PushDown">
+                                <input type="hidden" id="WFResponseSuccess" value="@TempData["WFResponse"].ToString()" />
+                                <div id="WFResponseMessage" style="display: none">Save Successful</div>
+                            </div>
+                            <div class="PushDown">
+                                @Html.ValidationSummary(true)
+                            </div>
+                        </div>
+                </div>
+
+            </div>
+        }
+    </div>
+</div>
+
+<script src="~/Scripts/govuk-template.js" type="text/javascript"></script>
+@section Scripts {
+
+
+
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/typeahead")
+    @Scripts.Render("~/bundles/datetimepicker")
+
+
+    <script type="text/javascript">
+
+
+        $(document).ready(function() {
+
+            var requiresDelAuthApproval = $('#RequiresDelegatedAuthorityApproval').val();
+
+            if (requiresDelAuthApproval === 'True') {
+
+
+            var DAStaff = [{ "client": "DF", "EmpNo": "555555", "description": "A OfficeHead", "DisplayDescription": "A OfficeHead - 50000000", "grade": "G2", "orgunit": "99999", "budcent": "A0002", "project_auth": 50000000 }];
+
+            var DAStaff = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('DisplayDescription'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                limit: 10,
+                local: DAStaff
+            });
+
+                // kicks off the loading/processing of `local` and `prefetch`
+                DAStaff.initialize();
+
+                function DAStaffWithDefaults(q, sync) {
+                    if (q === '') {
+                        sync(DAStaff.index.all());
+                    } else {
+                        DAStaff.search(q, sync);
+                    }
+                }
+
+
+                // passing in `null` for the `options` arguments will result in the default
+                // options being used
+                $('#WFAuthoriser .typeahead').typeahead({
+                    minLength: 0,
+                    highlight: true
+                },
+                {
+                    name: 'DAStaff',
+                    displayKey: 'DisplayDescription',
+                    // `ttAdapter` wraps the suggestion engine in an adapter that
+                    // is compatible with the typeahead jQuery plugin
+                    source: DAStaffWithDefaults
+                }).bind('typeahead:selected', function(obj, datum) {
+                    changeDelAuthApproverTypeahead(obj, datum);
+                }).bind('typeahead:autocompleted', function(obj, datum) {
+                    changeDelAuthApproverTypeahead(obj, datum);
+                });
+
+            } else {
+                SetTypeAhead();
+            }
+            SetPageByWorkflowType();
+            SetWorkflowControlState();
+            DisplayMessages();
+
+
+        });
+
+        //Bloodhound Type Ahead Scripts
+
+
+        function SetTypeAhead() {
+            var personServiceUrl = '@ViewBag.IdentityLite.ToString()' + 'Identity/LookupHODStaff';
+            //console.log(delegatedAuthorityUrl);
+
+            SetHoDTypeAhead(personServiceUrl, $('#WFAuthoriser .typeahead'));
+        }
+
+        //function SetDATypeAhead(url, typeAheadObj) {
+
+        //    var DAStaff = new Bloodhound({
+        //        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('DisplayDescription'),
+        //        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        //        limit: 10,
+        //        prefetch: url
+        //    });
+
+        //    // kicks off the loading/processing of `local` and `prefetch`
+        //    DAStaff.initialize();
+
+        //    // passing in `null` for the `options` arguments will result in the default
+        //    // options being used
+        //    typeAheadObj.typeahead({ highlight: true }, {
+        //        name: 'DAStaff',
+        //        displayKey: 'DisplayDescription',
+        //        // `ttAdapter` wraps the suggestion engine in an adapter that
+        //        // is compatible with the typeahead jQuery plugin
+        //        source: DAStaff.ttAdapter()
+        //    }).bind('typeahead:selected', function(obj, datum) {
+        //        changeDelAuthApproverTypeahead(obj, datum);
+        //    }).bind('typeahead:autocompleted', function(obj, datum) {
+        //        changeDelAuthApproverTypeahead(obj, datum);
+        //    });
+
+
+        //}
+
+        function SetHoDTypeAhead(url, typeAheadObj) {
+            var HoDList = [{ "EmpNo": "555555", "DisplayName": "A OfficeHead", "LOGON": "A-OfficeHead" }];
+
+            var staff = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('DisplayName'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                limit: 10,
+                local: HoDList
+            });
+
+            // kicks off the loading/processing of `local` and `prefetch`
+            staff.initialize();
+
+            // passing in `null` for the `options` arguments will result in the default
+            // options being used
+            typeAheadObj.typeahead({ highlight: true }, {
+                name: 'staff',
+                displayKey: 'DisplayName',
+                // `ttAdapter` wraps the suggestion engine in an adapter that
+                // is compatible with the typeahead jQuery plugin
+                source: staff.ttAdapter()
+            }).bind('typeahead:selected', function (obj, datum) {
+                changeApproverTypeahead(obj, datum);
+            }).bind('typeahead:autocompleted', function (obj, datum) {
+                changeApproverTypeahead(obj, datum);
+            });
+
+        }
+
+        function DisplayMessages() {
+
+            var WFRequestSuccess = $("#WFRequestSuccess");
+            var WFRequestMessage = $("#WFRequestMessage");
+
+            if (WFRequestSuccess.val() == "1") {
+                WFRequestMessage.toggleClass("SaveMessageSuccess");
+                WFRequestMessage.toggle();
+            }
+
+
+            if (WFRequestSuccess.val() == "0") {
+                WFRequestMessage.text('Your request was not submitted.');
+                WFRequestMessage.toggleClass("SaveMessageFail");
+                WFRequestMessage.toggle();
+            }
+
+
+            var WFResponseSuccess = $("#WFResponseSuccess");
+            var WFResponseMessage = $("#WFResponseMessage");
+
+            if (WFResponseSuccess.val() == "1") {
+                WFResponseMessage.toggleClass("SaveMessageSuccess");
+                WFResponseMessage.toggle();
+            }
+
+            if (WFResponseSuccess.val() == "0") {
+                WFResponseMessage.toggleClass("SaveMessageFail");
+                WFResponseMessage.text('Your request was not submitted.');
+                WFResponseMessage.toggle();
+            }
+
+        }
+
+
+
+
+
+        function changeDelAuthApproverTypeahead(obj, datum) {
+            $('input#WorkflowRequest_Recipient').val(datum.EmpNo);
+        };
+
+        function changeApproverTypeahead(obj, datum) {
+            $('input#WorkflowRequest_Recipient').val(datum.EmpNo);
+        };
+
+
+        //Set Page State based on whether Workflow is In progress, approved or rejected.
+
+        function SetWorkflowControlState() {
+            var WFResponseStage = $('#WorkflowResponse_StageID').val();
+            var WFRequestStage = $('#WorkflowRequest_StageID').val();
+            var UserRole = $('#UserRole').val();
+
+            var url = window.location.href;
+
+            var route = url.toUpperCase().indexOf('DETAILS');
+
+            //alert(UserRole);
+            //alert(WFRequestStage);
+            //alert(WFResponseStage);
+
+            //Possible Stage pairs
+            //Request Stage 0 (new workflow request, not submitted).- Request editable by Team, no response.
+            //Request Stage 1 Response Stage 0 (workflow submitted, not actioned). - Request Locked down - Response editable by Approver only.
+            //Request Stage 1 Response Stage 2 (workflow approved) - Request and Response Locked down.
+            //Request Stage 1 Response Stage 3 (workflow rejected) - Request should be editable by Team. Response Locked down.
+
+            if (WFRequestStage == 0) {
+                if (UserRole !== "Team") {
+                    DisableWorkflowRequestControls();
+                }
+                DisableWorkflowResponseControls();
+                HideSubmissionDate();
+                HideChangeApprover();
+                HideCancelWorkflow();
+            } else if (WFRequestStage == 1 && WFResponseStage == 0) {
+                DisableWorkflowRequestControls();
+                if (UserRole !== "Approver") {
+                    DisableWorkflowResponseControls();
+                }
+                if (UserRole !== "Team") {
+                    DisableChangeApprover();
+                    DisableCancelWorkflow();
+                }
+            } else if (WFRequestStage == 1 && WFResponseStage == 3) {
+                if (UserRole !== "Team" || route > 0) {
+                    DisableWorkflowRequestControls();
+                }
+                DisableWorkflowResponseControls();
+                HideSubmissionDate();
+                HideChangeApprover();
+                HideCancelWorkflow();
+            } else if (WFRequestStage == 1 && WFResponseStage == 2) {
+                DisableWorkflowRequestControls();
+                DisableWorkflowResponseControls();
+                HideChangeApprover();
+                HideCancelWorkflow();
+            }
+
+            if (WFResponseStage === "3") {
+                //If the WF Response has been rejected, clear out the previous approver so user has to select a new one.
+                $('#WorkflowRequest_Recipient').val(null);
+            }
+
+        }
+
+        function DisableWorkflowRequestControls() {
+
+            $("#WFRequestComments").prop('disabled', true);
+            $("#dvWFSubmissionTypeAhead").css("display", "none");
+            $("#BtnWFSubmission").css("display", "none");
+            $("#WorkflowRequest_ActionDate_Day").prop('disabled', true);
+            $("#WorkflowRequest_ActionDate_Month").prop('disabled', true);
+            $("#WorkflowRequest_ActionDate_Year").prop('disabled', true);
+
+            $("#DocumentID").prop('disabled', true);
+            $("#DocumentDescription").prop('disabled', true);
+
+        }
+
+        function DisableWorkflowResponseControls() {
+
+            $("#WFResponseComments").prop('disabled', true);
+            $("#WFResponseAuthButtons").css("display", "none");
+            $("#WorkflowResponse_ActionDate_Day").prop('disabled', true);
+            $("#WorkflowResponse_ActionDate_Month").prop('disabled', true);
+            $("#WorkflowResponse_ActionDate_Year").prop('disabled', true);
+        }
+
+
+        function HideSubmissionDate() {
+            $("#SubmittedDateSection").toggle();
+        }
+
+        function HideChangeApprover() {
+            $("#btnChangeApprover").toggle();
+        }
+
+        function HideCancelWorkflow() {
+            $("#btnCancelWorkflow").toggle();
+        }
+
+        function ApproveWorkflow(event) {
+            return WFResponsePrintErrors(event, 'Approve');
+        }
+
+        function RejectWorkflow(event) {
+            return WFResponsePrintErrors(event, 'Reject');
+        }
+
+        function SetPageByWorkflowType() {
+            var TaskId = $("#TaskID").val();
+            var StageId = $("#ProjectStage").val();
+
+
+            //always show this
+            switch (TaskId) {
+                case "9":
+                    $("#WFApprover-Authorisation-Hint").text("By authorising this request you are confirming that you have checked the attached approval documentation, and the project data accurately reflects archiving this project.");
+                    break;
+                default:
+                    $("#WFApprover-Authorisation-Hint").text("By authorising this request you are confirming that you have checked the attached approval documentation, and the project data accurately reflects the purpose of the project.");
+                    break;
+            }
+
+            switch (TaskId) {
+                case "7":
+                    $("#WFHintText").text("This approval will move the project stage from Pre-pipeline to Appraisal & Design.  A&D budgets will move to original, any other budgets added through ARIES Planner will move to pipeline.  " +
+                        "You must ensure you have the appropriate project approval documentation and " +
+                        "have checked than the project title, description and component meet DFID transparancy standards and are fit for publication before proceeding.");
+                    break;
+
+                case "2":
+                    $("#WFHintText").text("This approval will move any update changes to existing budgets to revised. For new budgets, it will move to original. You must ensure you have the appropriate project approval documentation and have checked that all the information to be published - which now includes project documents - meet DFID transparency standards and is fit for publication before proceeding.");
+                    break;
+
+                case "11":
+                    $("#WFHintText").text("This approval will move any update changes to existing budgets to revised. For new budgets, it will move to original. You must ensure you have the appropriate project approval documentation and have checked that all the information to be published - which now includes project documents - meet DFID transparency standards and is fit for publication before proceeding.");
+                    break;
+
+                case "8":
+                    $("#WFHintText").text("This approval will move the project stage from Pre-pipeline to Implementation.  All budgets will move from pre-pipeline to original.  You must ensure you have the appropriate project approval documentation before proceeding.");
+                    break;
+
+                case "9":
+                    $("#WFHintText").text("Projects should be sent to archive when the project team are satisfied that all financial matters and reporting have been settled, including any audit, evaluation and asset transfer or disposals actions have been completed.");
+                    $('#WFSubmission-Comments-Hint').text("Please provided additional information for requesting the project to be archived. Between 20 and 500 characters.");
+                    $('#WFSubmission-DocumentNumber-Hint').text("You must provide the Quest or Vault ID of the document you want to send as part of the approval, for example a project closure checklist. The ID must be 6 or 7 digits.");
+                    break;
+
+                case "10":
+                    $("#WFHintText").text("This approval will re-open the project at implementation stage. You must ensure you have the appropriate project approval documentation before proceeding.");
+                    break;
+                case "12":
+                    $("#WFHintText").text("This approval will update the existing 'Planned End Date' to the new date entered.");
+                    $('#WFSubmission-Comments-Hint').text("Please provide details why the end date has been changed. Between 20 and 500 characters.");
+                    break;
+                default:
+            }
+
+            if ($('#RequiresDelegatedAuthorityApproval').val() === 'True') {
+                $('#WFSelect-Approver-Hint').text("Start typing the name of the person who has the appropriate level of delegated authority for the overall project budget");
+            } else {
+                $('#WFSelect-Approver-Hint').text("Start typing the name of the HoD or Deputy HoD you want to approve this request");
+            }
+
+        }
+
+        function WFRequestChangeApprover(event) {
+            $('#WFRequest-ApproverError').html("");
+            var hiddenAuth = $('#WorkflowRequest_Recipient');
+            var user = $('#UserID').val();
+
+            if (hiddenAuth.val() === '') {
+                $('#WFRequest-ApproverError').html("Authoriser can not be empty");
+                event.preventDefault();
+                return false;
+            } else if (user === hiddenAuth.val()) {
+                $('#WFRequest-ApproverError').html("You cannot send approval tasks to youself");
+                event.preventDefault();
+                return false;
+            }
+            $("#WFRequesChangeApprovertWaiting").toggle();
+            $("#WFRequestChangeApproverButtons").toggle();
+            document.getElementById('CurrentAction').value = "Send for Approval";
+            document.getElementById("WorkflowForm").submit();
+            return true;
+
+        }
+
+        function WFRequestPrintErrors(event) {
+
+
+            $('#WFRequest-CommentError').html("");
+            $('#WFRequest-ApproverError').html("");
+            $('#DocumentID-Error').html("");
+            $('#DocumentDescription-Error').html("");
+
+            var hiddenAuth = $('#WorkflowRequest_Recipient');
+            var DocumentID = $('#DocumentID');
+            var DocumentDescription = $('#DocumentDescription');
+            var DocumentRequired = $('#IsDocumentRequired').val();
+            var user = $('#UserID').val();
+
+            //alert($('#DocumentID').val().length);
+            //alert($('#IsDocumentRequired').val());
+            //alert(hiddenAuth.val());
+
+            if (($('#WFRequestComments').val().length < 20) || ($('#WFRequestComments').val().length > 500)) {
+                $('#WFRequest-CommentError').html("Comments must be within 20 to 500 characters");
+                event.preventDefault();
+                return false;
+            } else if (hiddenAuth.val() === '') {
+                $('#WFRequest-ApproverError').html("Authoriser can not be empty");
+                event.preventDefault();
+                return false;
+            } else if (user === hiddenAuth.val()) {
+                $('#WFRequest-ApproverError').html("You cannot send approval tasks to youself");
+                event.preventDefault();
+                return false;
+            } else if (DocumentRequired === 'True' && (DocumentID.val().length < 6 || DocumentID.val().length > 12 || !isNumeric(DocumentID.val()))) {
+                $('#DocumentID-Error').html("Document ID is mandatory, can only contain numbers and must be between 6 & 12 digits in length.");
+                event.preventDefault();
+                return false;
+            } else if (DocumentRequired === 'True' && (DocumentDescription.val().length < 5 || DocumentDescription.val().length > 100)) {
+                $('#DocumentDescription-Error').html("Document Description is mandatory and must be 5 and 100 characters in length.");
+                event.preventDefault();
+                return false;
+            } else if ((DocumentID.val().length !== 0 || DocumentDescription.val().length !== 0)) {
+                if (DocumentID.val().length < 6 || DocumentID.val().length > 12) {
+                    $('#DocumentID-Error').html("Document ID must be between 6 & 12 digits in length.");
+                    event.preventDefault();
+                    return false;
+                } else if (!isNumeric(DocumentID.val())) {
+                    $('#DocumentID-Error').html("Document ID can only contain numbers and must be between 6 & 12 digits in length.");
+                    event.preventDefault();
+                    return false;
+                } else if (DocumentDescription.val().length < 5 || DocumentDescription.val().length > 100) {
+                    $('#DocumentDescription-Error').html("Document Description must be between 5 and 100 characters long.");
+                    event.preventDefault();
+                    return false;
+                }
+            }
+            $("#WFRequestWaiting").toggle();
+            $("#WFRequestButton").toggle();
+            document.getElementById('CurrentAction').value = "Send for Approval";
+            document.getElementById("WorkflowForm").submit();
+            return true;
+        }
+
+        function WFResponsePrintErrors(event, action) {
+            $('#WFResponseCommentsError').html("");
+
+
+            if (($('#WFResponseComments').val().length < 20) || ($('#WFResponseComments').val().length > 500)) {
+                $('#WFResponseCommentsError').html("Comments must be within 20 to 500 characters");
+                event.preventDefault();
+                return false;
+            } else {
+                $("#WFResponseAuthButtons").toggle();
+                $("#WFResponseWaiting").toggle();
+                $("button[name='WFResponseButton']").closest('form').submit();
+                document.getElementById('CurrentAction').value = action.valueOf();
+                return true;
+            }
+
+        }
+
+        function isNumeric(n) {
+            return !isNaN(parseFloat(n)) && isFinite(n);
+        }
+
+        function ToggleChangeApprover() {
+
+            $("#dvWFSubmissionTypeAhead").toggle();
+            $("#btnSubmitChangeApprover").toggle();
+            $("#btnCancelChangeApprover").toggle();
+            $("#btnChangeApprover").toggle();
+            $("#btnCancelWorkflow").toggle();
+            $("#WFRequestComments").prop('disabled', function (i, v) { return !v; });
+            $("#DocumentID").prop('disabled', function (i, v) { return !v; });
+            $("#DocumentDescription").prop('disabled', function (i, v) { return !v; });
+            $('#WorkflowRequest_Recipient').val(null);
+        }
+
+        function DisableChangeApprover() {
+            $("#btnChangeApprover").prop('disabled', true);
+        }
+
+        function DisableCancelWorkflow() {
+            $("#btnCancelWorkflow").prop('disabled', true);
+        }
+
+
+        function CancelWorkflow() {
+            $("#WFRequestWaiting").toggle();
+            $("#WFActionButtons").toggle();
+            document.getElementById('CurrentAction').value = "Cancel Workflow";
+            document.getElementById("WorkflowForm").submit();
+
+        }
+
+    </script>
+}

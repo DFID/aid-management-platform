@@ -1,0 +1,235 @@
+﻿@model AMP.ViewModels.ComponentVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Component Edit";
+}
+@Html.Partial("~/Views/Shared/_ComponentHeader.cshtml",Model.ComponentHeader)
+@using AMP.Helpers
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(model => model.ProjectID, new {id = "ProjID"})
+    @Html.HiddenFor(model => model.ComponentID, new { id = "CompID" })
+    @Html.HiddenFor(model => model.AnyApprovedBudget, new {id = "AnyApprovedBudget"})
+    @Html.HiddenFor(model => model.Approved, new { id = "Approved" })
+    @*@Html.HiddenFor(model => model.ComponentDate.OperationalStartDate_Day)
+    @Html.HiddenFor(model => model.ComponentDate.OperationalStartDate_Month)
+    @Html.HiddenFor(model => model.ComponentDate.OperationalStartDate_Year)*@
+    @*@Html.HiddenFor(model => model.Approved)*@
+    @Html.HiddenFor(model => model.FundingMechanism)
+    @Html.HiddenFor(model => model.WFCheck.Status, new { @id = "IsActiveWorkflow" })
+
+
+    @Html.EditorFor(model => model, "ComponentDetails")
+    <div class="page-container secondary">
+        <br/>
+        <div class="grid-row">
+            <div class="column-full">
+                <div id="validation-errors">
+                    @Html.ValidationSummary()
+                </div>
+                </div>
+        </div>
+        <button id="CreateBtn" class="button" value="Save" type="submit">
+            Save
+        </button>
+        <div class="PushDown">
+            <div id="SaveMessage" style="display:none">Save Successful</div>
+            <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+        </div>
+        <div class="PushDown">
+            @Html.ActionLink("Back to Component list", "../Project/Components/", new { id = Model.ProjectID })
+        </div>
+    </div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/typeahead")
+    @Scripts.Render("~/bundles/datetimepicker")
+
+    <script type="text/javascript">
+
+        /*Bloodhound typeahead for Budget Centre*/
+        var budcents = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('BudgetCentreDescription'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            prefetch: '../BudgetCentreLookup',
+            limit: 20
+
+        });
+
+        // kicks off the loading/processing of `local` and `prefetch`
+        budcents.initialize();
+
+        // passing in `null` for the `options` arguments will result in the default
+        // options being used
+        $('#BudCen .typeahead').typeahead({ highlight: true }, {
+            name: 'budcents',
+            displayKey: 'BudgetCentreDescription',
+            // `ttAdapter` wraps the suggestion engine in an adapter that
+            // is compatible with the typeahead jQuery plugin
+            source: budcents.ttAdapter()
+        }).bind('typeahead:selected', function(obj, datum) {
+            changeTypeaheadBudget(obj, datum);
+        }).bind('typeahead:autocompleted', function(obj, datum) {
+            changeTypeaheadBudget(obj, datum);
+        });
+
+        function changeTypeaheadBudget(obj, datum) {
+            $('input#BudgetCentreID').val(datum.BudgetCentreID);
+            
+            if (datum.BudgetCentreID.substr(0, 2) == "A0" || datum.BudgetCentreID.substr(0, 2) == "C0" || datum.BudgetCentreID.substr(0, 2) == "AP") {
+                $('#AdminGroup').toggle();
+            }
+        };
+
+/*End Bloodhound typeahead for Budget Centre*/
+        var rowCount = 0;
+        try {
+            //  alert(document.getElementById("ImplementingOrganisation-list").rows.length);
+            var rowCount = document.getElementById("ImplementingOrganisation-list").rows.length;
+        } catch (x) {
+            rowCount = 0;
+        }
+        if (rowCount == 0) {
+
+            $('#ImplementingOrganisation-list').toggle();
+        }
+
+
+    </script>
+
+    <script type="text/javascript">
+    //This Javascript will change the DOM, specificly the page the user is on.
+    $("#component-menu-details").toggleClass("active");
+
+    //This Javascript will change the DOM, specificly the page the user is on.
+    $("#component-tab").toggleClass("active");
+
+    //Update navigation to active
+
+    //var x = document.getElementById("component-tab");
+    //x.className = "active";
+
+
+    $(document).ready(function() {
+
+        var stage = parseInt(@Model.ProjectStage);
+        var ProjectPastEndDate = @Model.ProjectPastEndDate;
+        var Approved = $("#Approved").val();
+        SetTypeAhead();
+       
+        if (stage === 7) {
+
+            $('#ComponentDate_OperationalStartDate_Day').prop('disabled', true);
+            $('#ComponentDate_OperationalStartDate_Month').prop('disabled', true);
+            $('#ComponentDate_OperationalStartDate_Year').prop('disabled', true);
+
+            $('#ComponentDate_OperationalEndDate_Day').prop('disabled', true);
+            $('#ComponentDate_OperationalEndDate_Month').prop('disabled', true);
+            $('#ComponentDate_OperationalEndDate_Year').prop('disabled', true);
+
+        }
+
+            //If the project is at Archive (stage 8) or has gone beyond the expected end date, all fields should be read only.
+            if (stage === 8 || ProjectPastEndDate == true) {
+                $("input").prop('disabled', true);
+                $("textarea").prop('disabled', true);
+                $("button").prop('disabled', true);
+                $('#GOMI').prop('disabled', false);
+                $("#FundingArrangementdd").prop('disabled', true);
+                $("#PartnerOrgdd").prop('disabled', true);
+            }
+
+            //if the project is approved lock down budget centre
+            if (Approved === "Y") {
+                $("#BudgetCentreBox").prop('disabled', true);
+                $("#FundingMechdd").prop('disabled', true);
+     
+            }
+
+            //If this is an admin component show admin section
+            var BudgetCentre = "@Model.BudgetCentreID";
+
+        //alert(BudgetCentre.substr(0,1));
+
+        if (BudgetCentre.substr(0,2) == "A0" || BudgetCentre.substr(0,2) == "C0" || BudgetCentre.substr(0,2) == "AP" ) {
+            $('#AdminGroup').toggle();
+        }
+
+        if ($('#IsActiveWorkflow').val() == "True") {              
+            $("input").prop('disabled', true);
+            $("textarea").prop('disabled', true);
+            $("button").prop('disabled', true);
+            $('#GOMI').prop('disabled', false);
+        }
+
+
+            //By default you cannont change a start date
+            //$('#ComponentDate_OperationalStartDate_Day').prop('disabled', true);
+            //$('#ComponentDate_OperationalStartDate_Month').prop('disabled', true);
+            //$('#ComponentDate_OperationalStartDate_Year').prop('disabled', true);
+
+
+            $('#ComponentDate_StartDate_Day').prop('disabled', true);
+            $('#ComponentDate_StartDate_Month').prop('disabled', true);
+            $('#ComponentDate_StartDate_Year').prop('disabled', true);
+
+            $('#ComponentDate_EndDate_Day').prop('disabled', true);
+            $('#ComponentDate_EndDate_Month').prop('disabled', true);
+            $('#ComponentDate_EndDate_Year').prop('disabled', true);
+        });
+
+        //$(document).ready(function() {
+
+            
+        //});
+
+        function SetTypeAhead() {
+
+            var staffList = [
+                { "EmpNo": "111111", "DisplayName": "A Inputter", "LOGON": "A-INPUTTER" },
+                { "EmpNo": "222222", "DisplayName": "A SRO", "LOGON": "A-SRO" },
+                { "EmpNo": "333333", "DisplayName": "An Adviser", "LOGON": "A-Adviser" },
+                { "EmpNo": "444444", "DisplayName": "A TeamMember", "LOGON": "A-TeamMemver" },
+                { "EmpNo": "555555", "DisplayName": "A OfficeHead", "LOGON": "A-OfficeHead" }
+            ];
+
+
+            /*Bloodhound typeahead for Staff*/
+
+            var staff = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('DisplayName'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: staffList
+            });
+
+            // kicks off the loading/processing of `local` and `prefetch`
+            staff.initialize();
+
+            // passing in `null` for the `options` arguments will result in the default
+            // options being used
+            $('#AdminSection .typeahead').typeahead({ highlight: true }, {
+                name: 'staff',
+                displayKey: 'DisplayName',
+                // `ttAdapter` wraps the suggestion engine in an adapter that
+                // is compatible with the typeahead jQuery plugin
+                source: staff.ttAdapter()
+            }).bind('typeahead:selected', function (obj, datum) {
+                changeTypeahead(obj, datum);
+            }).bind('typeahead:autocompleted', function (obj, datum) {
+                changeTypeahead(obj, datum);
+            });
+        }
+
+    function changeTypeahead(obj, datum) {
+        $('input#DisplayName').val(datum.DisplayName);
+        $('input#AdminApprover').val(datum.EmpNo);
+
+    };
+    /*End Bloodhound typeahead for Staff*/
+
+ 
+    </script>
+}

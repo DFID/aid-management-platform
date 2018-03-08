@@ -1,0 +1,749 @@
+﻿@model AMP.ViewModels.ComponentFinanceVM
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Component Finance";
+}
+@Html.Partial("~/Views/Shared/_ComponentHeader.cshtml", Model.ComponentHeader)
+
+<div class="page-container">
+    <div id="FinanceMessageContainer">
+        <label id="ARIESFinanceWSMessage" class="LabelAlert">@Model.FinanceWebServiceMessage</label>
+    </div>
+    <br />
+    <div class="grid-row">
+        <div class="column-third">
+            <div id="BudgetBox" style="background-color:darkred; width:10px;height:60px; float:left;margin-right:5px"></div>
+            <div>
+                <label class="form-label-bold" for="FilterButton"> @Model.ComponentFinance.Sum(x => x.Revised_Budget.Value).ToString("N")</label>
+                <p class="form-hint">Lifetime Budget</p>
+            </div>
+
+        </div>
+        <div class="column-third">
+            <div id="SpendBox" style="background-color:darkgreen; width:10px;height:60px; float:left;margin-right:5px"></div>
+            <label class="form-label-bold" for="FilterButton">@Model.ComponentFinance.Sum(x => x.Spend.Value).ToString("N")</label>
+            <p class="form-hint">Lifetime Spend</p>
+        </div>
+        <div class="column-third">
+            <div id="ForecastBox" style="background-color:darkgrey;  width:10px;height:60px; float:left;margin-right:5px"></div>
+            <label class="form-label-bold" for="FilterButton">@Model.ComponentFinance.Sum(x => x.ForecastOutturn.Value).ToString("N")</label>
+            <p class="form-hint">Lifetime Forecast</p>
+        </div>
+    </div>
+    <label class="form-label-bold" for="ChangeGraphType">Finance Profile</label>
+    <p class="form-hint">This graph displays Spend, Budget and Forecast Outturn by month for the selected year. For the current year, Forecast Outturn is calculated as Spend to date + Remaining Forecast. Source: ARIES</p>
+    <button id="ChangeGraphType" class="bluelightnight" value="line" type="button">
+        View as line chart
+    </button>
+    <button id="ColourBlindFriendly" class="bluelightnight" value="Standard" type="button">
+        Colour Blind Mode
+    </button>
+    <br />
+    <br />
+    <div id="YearSelection">
+        <input id="Year" type="hidden" />
+    </div>
+    <div id="YearOptions"></div>
+    <div id="FinanceGraph"></div>
+    <label class="form-label-bold" for="FilterButton">Finance Detail</label>
+    <p class="form-hint">This table shows the detail of your projects finances. Source: ARIES</p>
+    <button id="FilterButton" class="bluelightnight" value="ShowAllYears" type="button">
+        Show All Years
+    </button>
+    <button id="ForecasterButton" class="punchoutgrey" type="button" onclick="GoForecaster()">
+        Open Forecaster
+    </button>
+    <button id="PlannerButton" class="punchoutgrey" type="button" onclick="GoPlanner()">
+        Open Planner
+    </button>
+    <table id="Finance-list" class="table-main" title="Finance table displaying data from ARIES." border="1">
+        <thead>
+            <tr id="FinanceHeader">
+                <th id="headerYear">Year</th>
+                <th id="headerPrePielineBudget" title="Budget loaded at pre pipeline stage">PrePipeline</th>
+                <th id="headerPipelinebudget" title="Budget loaded at pipeline stage">Pipeline</th>
+                <th id="headerRevisedBudget" title="Budget approved in ARIES and available to use.">Approved Budget</th>
+                <th id="headerSpend" title="Spend to date">Spend</th>
+                <th id="headerAmount" title="Ring fenced requisitions, Purchase orders and journals">Committed</th>
+                <th id="headerBalance" title="This is your Approved budget - (Spend + Commited)">Balance</th>
+                <th id="headerForecastOutturn" title="This is your spend to date + remaining forecast">Forecast Outturn</th>
+                <th id="headerForecastOutturnVariance" title="This is your Budget - (Spend to date + Remaining Forecast) This indicator show throughout the year if you are on track.">Outturn Variance</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var index = 0;
+                foreach (var item in Model.ComponentFinance)
+                {
+                    <tr>
+                        <td id="Year-@index" headers="headerYear" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.Year)
+                        </td>
+                        <td id="prepipeline-@index" headers="headerPrePielineBudget" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.PrePipeline_Budget)
+                        </td>
+                        <td id="Pipeline-@index" headers="headerPipelinebudget" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.Pipeline_Budget)
+                        </td>
+                        <td id="RevisedBudget-@index" headers="headerRevisedBudget" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.Revised_Budget)
+                        </td>
+                        <td id="Spend-@index" headers="headerSpend" style="text-align: right">
+                            <a href="http://financesystem/spendLink @Html.DisplayFor(modelItem => item.work_order)" target="_blank">
+                                @Html.DisplayFor(modelItem => item.Spend)
+                            </a>
+                        </td>
+                        <td id="Amount-@index" headers="headerAmount" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.Committed_Amount)
+                        </td>
+                        <td id="Balance-@index" headers="headerBalance" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.Balance)
+                        </td>
+                        <td id="ForecastOutturn-@index" headers="headerForecastOutturn" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.ForecastOutturn)
+                        </td>
+                        <td id="Variance-@index" headers="headerForecastOutturnVariance" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.OutturnVariance)
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+        </tbody>
+        <tfoot id="AllYearFootter">
+            <tr id="AllCurrentFooterTR" style="font-weight: 600; text-align: right">
+                <td id="CurrentTotal" style="text-align: left">Total</td>
+                <td id="CurrentBudget">@Model.ComponentFinance.Where(x => x.Year == ViewBag.FinancialYear).Sum(x => x.PrePipeline_Budget.Value).ToString("C")</td>
+                <td id="CurrentPrePipe">@Model.ComponentFinance.Where(x => x.Year == ViewBag.FinancialYear).Sum(x => x.Pipeline_Budget.Value).ToString("C")</td>
+                <td id="CurrentRevised">@Model.ComponentFinance.Where(x => x.Year == ViewBag.FinancialYear).Sum(x => x.Revised_Budget.Value).ToString("C")</td>
+                <td id="CurrentSpend">@Model.ComponentFinance.Where(x => x.Year == ViewBag.FinancialYear).Sum(x => x.Spend.Value).ToString("C")</td>
+                <td id="CurrentAmount">@Model.ComponentFinance.Where(x => x.Year == ViewBag.FinancialYear).Sum(x => x.Committed_Amount.Value).ToString("C")</td>
+                <td id="CurrentBalance">@Model.ComponentFinance.Where(x => x.Year == ViewBag.FinancialYear).Sum(x => x.Balance.Value).ToString("C")</td>
+                <td id="CurrentForecastOuturn">@Model.ComponentFinance.Where(x => x.Year == ViewBag.FinancialYear).Sum(x => x.ForecastOutturn.Value).ToString("C")</td>
+                <td id="CurrentOuturnVariance">@Model.ComponentFinance.Where(x => x.Year == ViewBag.FinancialYear).Sum(x => x.OutturnVariance.Value).ToString("C")</td>
+            </tr>
+            <tr id="AllYearFooterTR" style="display: none; font-weight: 600; text-align: right">
+                <td id="AllTotal" style="text-align: left">Total</td>
+                <td id="AllBudget">@Model.ComponentFinance.Sum(x => x.PrePipeline_Budget.Value).ToString("C")</td>
+                <td id="AllPrePipe">@Model.ComponentFinance.Sum(x => x.Pipeline_Budget.Value).ToString("C")</td>
+                <td id="AllRevised">@Model.ComponentFinance.Sum(x => x.Revised_Budget.Value).ToString("C")</td>
+                <td id="AllSpend">@Model.ComponentFinance.Sum(x => x.Spend.Value).ToString("C")</td>
+                <td id="AllAmount">@Model.ComponentFinance.Sum(x => x.Committed_Amount.Value).ToString("C")</td>
+                <td id="AllBalance">@Model.ComponentFinance.Sum(x => x.Balance.Value).ToString("C")</td>
+                <td id="AllForecastOuturn">@Model.ComponentFinance.Sum(x => x.ForecastOutturn.Value).ToString("C")</td>
+                <td id="AllOuturnVariance">@Model.ComponentFinance.Sum(x => x.OutturnVariance.Value).ToString("C")</td>
+            </tr>
+        </tfoot>
+    </table>
+    <br />
+    <br />
+    <div class="PushDown">
+        @Html.ActionLink("Back to Component list", "../Project/Components/", new { id = Model.ComponentHeader.ProjectID })
+    </div>
+</div>
+<script>
+
+    //Update navigation to active
+    var x = document.getElementById("component-menu-finances");
+    x.className = "active";
+
+    //This Javascript will change the DOM, specificly the page the user is on.
+
+    //Update navigation to active
+    var x = document.getElementById("component-tab");
+    x.className = "active";
+
+    //This bit of script hides the Web Service Messages Div if there is no return message from the web service.
+    if (document.getElementById("ARIESFinanceWSMessage").innerHTML == "") {
+        document.getElementById("FinanceMessageContainer").style.display = "none";
+        //document.getElementById("FinanceContainer").style.display = "block";
+    } else {
+        document.getElementById("FinanceMessageContainer").style.display = "block";
+        //document.getElementById("FinanceContainer").style.display = "none";
+    }
+
+    //Finance Graph and Hide Show table Rows----------------------------------------------------------------------------------------------------------------------------
+
+    $(document).ready(function () {
+        //Get current financial year from Web.config
+        var FinancialYear = parseInt('@System.Configuration.ConfigurationManager.AppSettings["FinancialYear"]');
+
+        var chart;
+        var YearArray = [];
+
+        //Retrieve available year values from table column Year
+        $("#Finance-list tbody tr td:nth-child(1)").each(function (i) {
+            YearArray.push(parseInt($(this).text().trim()));
+        });
+
+        //Sort year values DESC
+        YearArray.sort(function (a, b) {
+            return b - a;
+        });
+
+        //Var to hold unique years that have data available for them
+        var AvailYears = [];
+
+        //Extract unique values from YearArray
+        for (var i = 0; i < YearArray.length; i++) {
+            var str = YearArray[i];
+            if (AvailYears.indexOf(str) == -1) {
+                AvailYears.push(str);
+            }
+        }
+
+        //Check if the current finacial year is part of the year array and show it by default if it is
+        if (YearArray.indexOf(FinancialYear) > -1) {
+            document.getElementById("Year").value = FinancialYear;
+        }
+
+        //Otherwise show the latest recorded year
+        else {
+            document.getElementById("Year").value = YearArray[0];
+        }
+
+        //Create a graph
+        createGraph(document.getElementById("Year").value);
+
+        //Create HTML 'a' tags for year selection
+        addYearOptions(AvailYears);
+
+        //Create label for the currently shown year
+        var createH = document.createElement("h3");
+        var createHText = document.createTextNode("Showing Year: " + document.getElementById("Year").value);
+        createH.setAttribute('id', "YearLabel");
+        createH.appendChild(createHText);
+        var yearDiv = document.getElementById("YearSelection");
+        yearDiv.appendChild(createH);
+
+    });
+
+    // Go through the table and hide/show rows when filter button is pressed
+    $('#FilterButton').on('click', function () {
+
+        $('#AllCurrentFooterTR').toggle();
+        $('#AllYearFooterTR').toggle();
+
+        //Toggle button text and rows to be shown
+        if ($('#FilterButton').val() == "ShowAllYears") {
+            //Show all rows
+            $('#Finance-list tbody tr').show();
+
+            $('#FilterButton').html("Show " + document.getElementById("Year").value);
+            $('#FilterButton').val("ShowCurrentYear");
+        } else if ($('#FilterButton').val() == "ShowCurrentYear") {
+            //Filter to show selected year
+            var $rowsNo = $('#Finance-list tbody tr').filter(function () {
+                return $.trim($(this).find('td').eq(0).text()) !== document.getElementById("Year").value
+            }).toggle();
+
+            $('#FilterButton').html("Show All Years");
+            $('#FilterButton').val("ShowAllYears");
+        }
+    });
+
+    function addYearOptions(AvailYears) {
+
+        //Loop through available years to create HTML 'a' tags with year options
+        for (var i = 0; i < AvailYears.length; i++) {
+            var createA = document.createElement('a');
+            var createAText = document.createTextNode(AvailYears[i]);
+            createA.setAttribute('href', " ");
+            //Set onclick attributes to trigger javascript functions
+            createA.setAttribute('onclick', "javascript:createGraph(" + AvailYears[i] + ");changeYearLabel(" + AvailYears[i] + ");resetBtn();return false;");
+
+            createA.appendChild(createAText);
+            var yearLinks = document.getElementById("YearOptions");
+            yearLinks.appendChild(createA);
+            yearLinks.appendChild(document.createTextNode(' '));
+        }
+
+    }
+
+    function changeYearLabel(ChangedYear) {
+
+        //Change label for the currently shown year and update hidden field value
+        document.getElementById("YearLabel").innerHTML = "Showing Year: " + ChangedYear;
+        document.getElementById("Year").value = ChangedYear;
+
+    }
+
+        function createGraph(YearSelection) {
+
+    //Get ComponentID
+    var ComponentID = $("#HiddenComponent_ID").val();
+
+    //budgetchart
+    var thisFYdata;
+
+    //This ensures this version of the code is pointing to the correct ARIES API
+    //var url = '@ViewBag.ARIESAPI.ToString()' + 'Projects/ComponentPeriodGraph/' + ComponentID + '?type=json';
+    var url = '@ViewBag.ARIESAPI.ToString()' + 'Projects/ComponentPeriodGraphFY/' + ComponentID + '/' + YearSelection + '?type=json';
+
+    //$.getJSON(url, function (json) {
+
+
+        var json = [
+            {
+                "id": 310139,
+                "work_order": "108538-101",
+                "period": 201601,
+                "Spend": 0,
+                "Revised_Budget": 0,
+                "ForecastOutturn": 0,
+                "RemainingForecast": null
+            },
+            {
+                "id": 310140,
+                "work_order": "108538-101",
+                "period": 201602,
+                "Spend": 0,
+                "Revised_Budget": 0,
+                "ForecastOutturn": 0,
+                "RemainingForecast": null
+            },
+            {
+                "id": 310141,
+                "work_order": "108538-101",
+                "period": 201603,
+                "Spend": 0,
+                "Revised_Budget": 0,
+                "ForecastOutturn": 0,
+                "RemainingForecast": null
+            },
+            {
+                "id": 310142,
+                "work_order": "108538-101",
+                "period": 201604,
+                "Spend": 0,
+                "Revised_Budget": 20000,
+                "ForecastOutturn": 0,
+                "RemainingForecast": 0
+            },
+            {
+                "id": 310143,
+                "work_order": "108538-101",
+                "period": 201605,
+                "Spend": 0,
+                "Revised_Budget": 0,
+                "ForecastOutturn": 0,
+                "RemainingForecast": 0
+            },
+            {
+                "id": 310144,
+                "work_order": "108538-101",
+                "period": 201606,
+                "Spend": 0,
+                "Revised_Budget": 0,
+                "ForecastOutturn": 0,
+                "RemainingForecast": 0
+            },
+            {
+                "id": 310145,
+                "work_order": "108538-101",
+                "period": 201607,
+                "Spend": 0,
+                "Revised_Budget": 0,
+                "ForecastOutturn": 20000,
+                "RemainingForecast": 20000
+            },
+            {
+                "id": 310146,
+                "work_order": "108538-101",
+                "period": 201608,
+                "Spend": 0,
+                "Revised_Budget": 80000,
+                "ForecastOutturn": 0,
+                "RemainingForecast": 0
+            },
+            {
+                "id": 310147,
+                "work_order": "108538-101",
+                "period": 201609,
+                "Spend": 0,
+                "Revised_Budget": 0,
+                "ForecastOutturn": 80000,
+                "RemainingForecast": 80000
+            },
+            {
+                "id": 310148,
+                "work_order": "108538-101",
+                "period": 201610,
+                "Spend": 0,
+                "Revised_Budget": 0,
+                "ForecastOutturn": 0,
+                "RemainingForecast": 0
+            },
+            {
+                "id": 310149,
+                "work_order": "108538-101",
+                "period": 201611,
+                "Spend": 0,
+                "Revised_Budget": 0,
+                "ForecastOutturn": 0,
+                "RemainingForecast": 0
+            },
+            {
+                "id": 310150,
+                "work_order": "108538-101",
+                "period": 201612,
+                "Spend": 0,
+                "Revised_Budget": 0,
+                "ForecastOutturn": 0,
+                "RemainingForecast": 0
+            }
+        ];
+
+        var ColourBlindSetting = "None";
+        var data = new Array();
+
+        // pull out this FY only
+        json.forEach(function (d) {
+            data.push(d);
+        });
+
+        thisFYdata = data;
+
+        //sort the data first
+        data.sort(function (a, b) {
+            return a.period - b.period;
+        });
+
+        //make individual arrays
+        periods = $.map(data, function (d) {
+            return d.period;
+        });
+
+        //If there is a period 13, get rid of it
+        if (periods[periods.length - 1].toString().substring(4, 6) === "13") {
+            periods.pop();
+        }
+
+        //Get Current Period from Graph data set. (It always returns current year for now)
+        try {
+            //This handles an exception where there is no data in this year.
+            YearSelection = periods[0].toString();
+            YearSelection = YearSelection.substring(0, 4);
+        } catch (err) {
+            YearSelection = "NoDataCurrentYear";
+        }
+
+        //Show corresponding table rows
+        selectRows(YearSelection);
+
+        //Get individual arrays of values.
+        budgets = $.map(data, function (d) {
+            return d.Revised_Budget;
+        });
+
+        forecasts = $.map(data, function (d) {
+            return d.ForecastOutturn;
+        });
+
+        spend = $.map(data, function (d) {
+
+            return d.Spend;
+        });
+        //This Cumulative Hack
+        //spend = $.map(data, function (d) {
+        //    if (d.Spend > 0)
+        //        return d.Spend;
+        //});
+
+        //  console.log(budgets);
+
+        chart = c3.generate({
+            bindto: '#FinanceGraph',
+            padding: { left: 75 },
+            data: {
+                x: 'x',
+                columns: [
+                   ['x'].concat(periods),
+                   ['budget'].concat(budgets),
+                   ['forecast'].concat(forecasts),
+                   ['spend'].concat(spend)
+                ],
+                names: {
+                    budget: 'Budget',
+                    forecast: 'Forecast',
+                    spend: 'Spend'
+                },
+                colors: {
+                    budget: 'darkred',
+                    spend: 'darkgreen',
+                    forecast: 'darkgrey'
+                },
+                types: {
+                    spend: 'bar',
+                    forecast: 'bar',
+                    budget: 'bar'
+                }
+            },
+            axis: {
+                x: {
+                    tick: {
+                        culling: false,
+                        format: function (x) { return getMonth(x); }
+                    },
+                    label: YearSelection + ' Period'
+                },
+                y: {
+                    //label: 'GBP',
+                    tick: { format: d3.format(',d') },
+                    //padding: { bottom: 0 },
+
+                    min: 0
+                }
+            },
+            grid: {
+                y: {
+                    lines: [{ value: 0 }]
+                }
+            },
+            legend: {
+                position: 'inset',
+                inset: {
+                    anchor: 'top-left',
+                    x: 20,
+                    y: 50,
+                    step: undefined
+                }
+            },
+            tooltip: {
+                format: {
+                    title: function (d) { return 'Period ' + d + ' (' + getMonth(d) + ')'; },
+                    value: function (value, ratio, id) {
+                        //var format = id === 'budget' ? d3.format(',') : d3.format('£');
+                        var format = d3.format(',.0f');
+                        return '&pound;' + format(value);
+                    }
+                }
+            },
+            bar: {
+                width: {
+                    ratio: 0.35,
+                }
+            }
+            /*transition: {
+                duration: 2000
+            }*/
+        });
+
+        // Change Graph Type on click
+        $('#ColourBlindFriendly').on('click', function () {
+
+            //alert(ColourBlindSetting);
+            //Graph
+            if (ColourBlindSetting == "None") {
+                //deuteranopia Blue-Green Colour Blind
+                chart.data.colors({
+                    budget: d3.rgb('#C927BB').darker(1),
+                    spend: d3.rgb('#CA4703').darker(1),
+                    forecast: d3.rgb('#5CAB8B').darker(1),
+                });
+
+                //Change lifetime box colours
+                $('#BudgetBox').css("background-color", "#C927BB");
+                $('#SpendBox').css("background-color", "#CA4703");
+                $('#ForecastBox').css("background-color", "#5CAB8B");
+
+                ColourBlindSetting = "Deuteranopia";
+                //alert(ColourBlindSetting);
+            }
+            else {
+                //Chart
+                chart.data.colors({
+                    budget: d3.rgb('darkred'),
+                    spend: d3.rgb('darkgreen'),
+                    forecast: d3.rgb('darkgrey'),
+                });
+
+                //Change lifetime box colours
+                $('#BudgetBox').css("background-color", "darkred");
+                $('#SpendBox').css("background-color", "darkgreen");
+                $('#ForecastBox').css("background-color", "darkgrey");
+
+                ColourBlindSetting = "None";
+            }
+        });
+  //  });
+
+    }
+
+    function resetBtn() {
+        //Reset the button before re-drawing chart
+        $('#ChangeGraphType').val("line");
+        $('#ChangeGraphType').html("View as line chart");
+    }
+
+    // Change Graph Type on click
+    $('#ChangeGraphType').on('click', function () {
+
+        if ($('#ChangeGraphType').val() == "line") {
+            //Transform chart to given type
+            chart.transform('line');
+
+            //Set value of next type
+            $('#ChangeGraphType').val("Hybrid");
+            $('#ChangeGraphType').html("View as hybrid chart");
+
+        } else if ($('#ChangeGraphType').val() == "Hybrid") {
+            //Transform chart to given type
+            chart.transform('bar', 'budget');
+            chart.transform('line', 'spend');
+            chart.transform('line', 'forecast');
+
+            //Set value of next type
+            $('#ChangeGraphType').val("Bar");
+            $('#ChangeGraphType').html("View as bar chart");
+
+        } else if ($('#ChangeGraphType').val() == "Bar") {
+            //Transform chart to given type
+            chart.transform('bar');
+
+            //Set value of next type
+            $('#ChangeGraphType').val("line");
+            $('#ChangeGraphType').html("View as line chart");
+        }
+    });
+
+    function selectRows(SelectedYear) {
+
+        //Reset filter button
+        $('#FilterButton').html("Show All Years");
+        $('#FilterButton').val("ShowAllYears");
+
+        //Hide all rows before filtering to show only selected year
+        $('#Finance-list tbody tr').hide();
+
+        //Keep selected year's rows
+        var $yearRows = $('#Finance-list tbody tr').filter(function () {
+            return $.trim($(this).find('td').eq(0).text()) === SelectedYear
+        });
+
+        // Ensure the table header is visible by default.
+        //   $('#FinanceHeader').toggle();
+
+        //Show only selected year's data
+        $yearRows.toggle();
+
+        //Arrays to hold totals (Number and String format) for Approved Budget, Spend, Committed, Balance, Forecast Outturn and Outturn Variance
+        var totalsNum = [0, 0, 0, 0, 0, 0, 0, 0];
+        var totalsString = [];
+
+        //Loop through td 1-8 of selected year's rows
+        //totalsArray = [i] = ...find('td').eq(i + 1)
+        for (var i = 0; i < 8; i++) {
+            $yearRows.each(function () {
+                //Retrieve the value and convert to float
+                var financeString = $(this).find('td').eq(i + 1).text().replace(/,/g, '').trim();
+
+                //Var for converting string to num to allow sums
+                var financeNum;
+
+                //Remove currency sign (comes after "-" for negative numbers)
+                if (financeString.substring(0, 1) === "-") {
+                    financeNum = parseFloat(financeString.slice(0, 1) + financeString.slice(2));
+                }
+                else {
+                    financeNum = parseFloat(financeString.substring(1));
+                }
+
+                //Update totals (numeric)
+                totalsNum[i] = totalsNum[i] + financeNum;
+
+                //Convert to string and format to show currency and thousands separators
+                totalsString[i] = totalsNum[i].toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+                if (totalsString[i].substring(0, 1) === "-") {
+                    totalsString[i] = totalsString[i].slice(0, 1) + "£" + totalsString[i].slice(1);
+                }
+                else {
+                    totalsString[i] = "£" + totalsString[i];
+                }
+
+            });
+        }
+
+        //Update table footer
+        $('#CurrentBudget').html(totalsString[0]);
+        $('#CurrentPrePipe').html(totalsString[1]);
+        $('#CurrentRevised').html(totalsString[2]);
+        $('#CurrentSpend').html(totalsString[3]);
+        $('#CurrentAmount').html(totalsString[4]);
+        $('#CurrentBalance').html(totalsString[5]);
+        $('#CurrentForecastOuturn').html(totalsString[6]);
+        $('#CurrentOuturnVariance').html(totalsString[7]);
+
+    }
+
+
+
+    function thisFY() {
+        var d = new Date();
+        var month = d.getMonth();
+        var year = d.getFullYear();
+        if (month < 3)
+            return year - 1;
+        else
+            return year;
+    }
+
+    function getMonth(p) {
+
+        var monthstring = p.toString();
+
+        var x = monthstring.substring(4, 6);
+
+        var month = ['-', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+        return month[parseInt(x)];
+    }
+
+
+    // Colour code negative values
+    //Get all TD's
+    var Cells = document.getElementById("Finance-list").getElementsByTagName("td");
+
+    //Loop through every cell in the table
+    for (i = 0; i < Cells.length; i++) {
+
+        // alert(Cells[i].innerHTML.substring(1,20));
+        try {
+
+            var currency = Cells[i].innerHTML;
+
+            var number = parseFloat(currency.replace(/[^0-9\.-]+/g, ""));
+
+            //console.log(number);
+
+            //Apply conditional formmating.
+            if (number < 0) {
+                Cells[i].style.color = "Red";
+            }
+        }
+        catch (x) {
+
+        }
+    }
+
+
+    function GoPlanner() {
+        var win = window.open('', '_blank');
+
+            win.focus();
+    }
+
+    function GoForecaster() {
+        var win = window.open('', '_blank');
+
+
+            win.focus();
+    }
+
+    function GoARIESFinance() {
+        var win = window.open('', '_blank');
+
+
+        win.focus();
+    }
+</script>

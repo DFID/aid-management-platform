@@ -1,0 +1,54 @@
+﻿@model AMP.ViewModels.EditInputSectorsVM
+
+@using (Html.BeginForm("UpdateInputSectorCodes", "Component", FormMethod.Post, new { id = "EditInputSectorCodes" }))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(model => model.CompID);
+    <div class="column-full" id="InputSectorsContainer">
+        @{
+            for (int i = 0; i < Model.SectorCodesCodeVm.Length; i++)
+            {
+  
+                <div class="grid-row" id="InputSectorsGridRow_@i">
+                    <div class="column-two-thirds">
+                        <div id="InputSec-@i">
+                            <label class="form-label-bold" for="SectorCodesCodeVm_ISDescription_@i">Sector Code</label>
+                            <input id="SectorCodesCodeVm_ISDescription_@i" name="SectorCodesCodeVm[@i].ISDescription" type="text" class="typeahead" placeholder="Search for Sector" style="width: 350px; height: 25px" value="@Model.SectorCodesCodeVm[i].ISDescription">
+                        </div>
+                        @Html.HiddenFor(m => Model.SectorCodesCodeVm[i].ISCode, new {@class = "sectorCode"})
+                        @Html.HiddenFor(m => Model.SectorCodesCodeVm[i].LineNo)
+                    </div>
+                    <div class="column-third">
+                        @Html.LabelFor(m => Model.SectorCodesCodeVm[i].Percentage, new { @class = "form-label-bold" })
+                        @Html.TextBoxFor(m => Model.SectorCodesCodeVm[i].Percentage, new {style="width: 30px", @class= "sectorPercentage"})
+                        @if(i > 0 && i == (Model.SectorCodesCodeVm.Length-1))
+                        {
+                            <button type="button" id="DeleteRow" class="red deleteButton" style="height: 25px;" value="Remove" onclick="DeleteSectorCode(@i);"><i class="fa fa-minus-square-o" aria-hidden="true"></i></button>
+                        }
+                        @if (i == (Model.SectorCodesCodeVm.Length - 1) && Model.SectorCodesCodeVm.Length < 8)
+                        {
+                            <button type="button" value="Add" class="bluelightnight addButton" style="height: 25px;" id="AddInputSectorRowButton" onclick="AddInputSectorRow();"><i class="fa fa-plus-square-o" aria-hidden="true"></i></button>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="column-full">
+        <div class="grid-row">
+            <div class="column-full">
+                <input type="submit" class="button btn-primary" value="Save" id="btnSaveSectorChanges" onclick="UpdateSectorCodes();" />
+            </div>
+        </div>
+        <div class="grid-row">
+            <div class="column-full SaveMessageFail" id="UpdateSectorCodeErrorMessage"></div>            
+        </div>
+    </div>
+   }
+
+
+
+
+
