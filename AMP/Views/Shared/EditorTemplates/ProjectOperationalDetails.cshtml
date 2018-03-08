@@ -1,0 +1,57 @@
+﻿@using AMP.Helpers
+@model AMP.ViewModels.ProjectVM
+    
+<div class="project-details-section">
+    <h1 class="form-title heading-large">Operational details</h1>
+    <div class="grid-row">
+        <div class="column-third" id="operational-dates">
+            <h2>Important dates</h2>
+            <div style="display: none">
+                @Html.DateBlock("ProjectDates.Created_date", "Created Date", @Model.ProjectDates.Created_date, "Date the project was created on AMP")
+                @Html.HiddenFor(model => model.ProjectDates.Created_date)
+                @Html.ValidationMessageFor(model => model.ProjectDates.Created_date)
+            </div>
+            @Html.DateBlock("ProjectDates.FinancialStartDate", "Financial Start Date", @Model.ProjectDates.FinancialStartDate, "Set to the date the project is created")
+            @Html.HiddenFor(model => model.ProjectDates.FinancialStartDate)
+            @Html.ValidationMessageFor(model => model.ProjectDates.FinancialStartDate)
+
+            @Html.DateBlock("ProjectDates.OperationalStartDate", "Planned Start Date", @Model.ProjectDates.OperationalStartDate, "Date that implementation is expected")
+            @Html.HiddenFor(model => model.ProjectDates.OperationalStartDate)
+            @Html.ValidationMessageFor(model => model.ProjectDates.OperationalStartDate)
+
+            @Html.DateBlock("ProjectDates.ActualStartDate", "Actual Start Date", @Model.ProjectDates.ActualStartDate, "When implementation actually starts (Approved date)")
+            @Html.HiddenFor(model => model.ProjectDates.ActualStartDate)
+        </div>
+        <div class="column-third">
+            <h2>&nbsp;</h2>
+            
+
+            @Html.DateBlock("ProjectDates.FinancialEndDate", "Financial End Date", @Model.ProjectDates.FinancialEndDate, "Date up to which payments can be made")
+            @Html.HiddenFor(model => model.ProjectDates.FinancialEndDate)
+            @Html.ValidationMessageFor(model => model.ProjectDates.FinancialEndDate)
+
+            @Html.DateBlock("ProjectDates.OperationalEndDate", "Planned End Date", @Model.ProjectDates.OperationalEndDate, "When is the project expected to end")
+            @Html.HiddenFor(model => model.ProjectDates.OperationalEndDate)
+            @Html.ValidationMessageFor(model => model.ProjectDates.OperationalEndDate)
+            <br/>
+            <br/>
+            <br />
+            @Html.DateBlock("ProjectDates.ActualEndDate", "Actual End Date", @Model.ProjectDates.ActualEndDate, "When the project moves to completion (Project Closure)")
+            @Html.HiddenFor(model => model.ProjectDates.ActualEndDate)
+        </div>
+        <div class="column-third">
+            <h2>&nbsp;</h2>
+            
+
+            @Html.DateBlock("ProjectDates.PromptCompletionDate", "Closure Reminder Date", @Model.ProjectDates.PromptCompletionDate, "Three month reminder till planned close date")
+            @Html.HiddenFor(model => model.ProjectDates.PromptCompletionDate)
+            @Html.ValidationMessageFor(model => model.ProjectDates.PromptCompletionDate)
+
+            @Html.DateBlock("ProjectDates.ArchiveDate", "Archive Date", @Model.ProjectDates.ArchiveDate, "When the project moved to archive")
+            @Html.HiddenFor(model => model.ProjectDates.ArchiveDate)
+            @Html.ValidationMessageFor(model => model.ProjectDates.ArchiveDate)
+
+
+        </div>
+    </div>
+</div>

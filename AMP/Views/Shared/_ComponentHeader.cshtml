@@ -1,0 +1,144 @@
+﻿@using System.Collections.Concurrent
+@using AMP.Utilities
+@model AMP.ViewModels.ComponentHeaderVM
+<div id="HiddenComponentID">@Html.HiddenFor(x => x.ComponentID, new {id="HiddenComponent_ID"})</div>
+<div class="page-container">
+    <div class="grid-row">
+        <div class="column-full">
+            <div id="component-header">
+                <h1>Component: @Model.ComponentID</h1>
+                <h2 style="background-color: lightgray" class="project-description">
+                    @Model.ComponentDescription
+                </h2>
+            </div>
+          
+
+        </div>
+
+        @{
+            var refererURL = Request.ServerVariables["http_referer"];
+            string completeRefererPath = "";
+            string geocodeReferPath = "";
+            geocodeReferPath = AMPUtilities.AppMode() == "DEV" ? "" : "";
+            string logFrameReferPath = AMPUtilities.AppMode() == "DEV" ? "" : "";
+            string transparencyReferPath = AMPUtilities.AppMode() == "DEV" ? "" : "";
+        }
+
+
+        <div class="column-full">
+
+            <div id="project-menu-bar">
+
+                <ul class="primary-menu">
+                    <li id="project-tab">
+                        <a href="#" id="project-menu-info" class="active">Project Info</a>
+                        <ul>
+                            <li> <a href="@Url.Action("Edit", "Project", new {id = @Model.ProjectID})" title="Link to details for project @Model.ProjectID" id="tab-project-details">Details</a> </li>
+                            <li> <a href="@Url.Action("Team", "Project", new {id = @Model.ProjectID})" id="tab-project-team">Team</a> </li>
+                            <li> <a href="@Url.Action("Markers", "Project", new {id = @Model.ProjectID})" id="tab-project-markers">Markers</a> </li>
+                            <li><a href="@geocodeReferPath/@Model.ProjectID" id="tab-project-geo-coding">Geo-Coding</a></li>
+                            @*<li><a href="@transparencyReferPath/@Model.ProjectID" id="tab-project-transparency">Transparency</a></li>*@
+                            @*<li> <a href="@Url.Action("GeoCoding", "Project", new { id = @Model.ProjectID })" id="tab-project-geo-coding">Geo-Coding</a> </li>*@
+                            <li> <a href="@Url.Action("Transparency", "Project", new {id = @Model.ProjectID})" id="tab-project-transparency">Transparency</a> </li>
+                            <li> <a href="@Url.Action("Documents", "Project", new {id = @Model.ProjectID})" id="tab-documents-keydoc">Key Documents</a> </li>
+                        </ul>
+
+                    </li>
+
+                    <li id="finance-tab">
+                        <a href="#" id="project-menu-finance">Financial Info</a>
+                        <ul>
+                            <li> <a href="@Url.Action("Finance", "Project", new {id = @Model.ProjectID})" id="tab-financeinfo-finance">Finance</a> </li>
+                            <li> <a href="@Url.Action("Procurement", "Project", new {id = @Model.ProjectID})" id="tab-financeinfo-procurement">Procurement</a> </li>
+                        </ul>
+                    </li>
+
+                    <li id="performance-tab">
+                        <a href="#" id="project-menu-performance">Performance</a>
+                        <ul>
+                            <li> <a href="@Url.Action("Reviews", "Project", new {id = @Model.ProjectID})" id="tab-performance-review">Reviews</a> </li>
+                            <li><a href="@logFrameReferPath/@Model.ProjectID" id="project-menu-results" target="blank" >Results</a></li>
+                            <li> <a href="@Url.Action("Evaluation", "Project", new {id = @Model.ProjectID})" id="tab-performance-evaluation">Evaluation</a> </li>
+                            <li> <a href="@Url.Action("RiskRegister", "Project", new {id = @Model.ProjectID})" id="tab-performance-riskregister">Risk Register</a> </li>
+                            <li> <a href="@Url.Action("Statements", "Project", new {id = @Model.ProjectID})" id="tab-documents-audit">Audit Statement</a> </li>
+                        </ul>
+                    </li>
+
+                    <li id="component-tab">
+                        <a href="@Url.Action("Components", "Project", new {id = @Model.ProjectID})" id="project-menu-components">Components</a>
+                    </li>
+
+                    <li id="Actions-tab">
+                        <a href="#" id="project-menu-workflow">Actions</a>
+                        <ul>
+                            <li><a href="@Url.Action("Action", "Project", new {id = @Model.ProjectID})" id="tab-project-workflow-actions">Workflow Actions</a></li>
+                            <li><a href="@Url.Action("Index", "Workflow", new {id = @Model.ProjectID})" id="tab-project-workflow-history">History</a></li>
+
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+            <br/>
+            <div id="project-menu-bar-2">
+                <ul class=" secondary-menu">
+                    @*<li id="component-menu-Tasks">
+                            <a href="@Url.Action("Tasks", "Component", new { id = @Model.ComponentMaster.ComponentID})">Tasks</a>
+                        </li>*@
+                    <li id="component-menu-details">
+                        <a href="@Url.Action("Edit", "Component", new {id = @Model.ComponentID})">Details</a>
+                    </li>
+                    <li id="component-menu-Sectors">
+                        <a href="@Url.Action("Sectors", "Component", new {id = @Model.ComponentID})">Sectors</a>
+                    </li>
+                    <li id="component-menu-finances">
+                        <a href="@Url.Action("Finance", "Component", new {id = @Model.ComponentID})">Finance</a>
+                    </li>
+                    <li id="component-menu-markers">
+                        <a href="@Url.Action("Markers", "Component", new {id = @Model.ComponentID})">Markers</a>
+                    </li>
+               
+                </ul>
+            </div>
+        </div>
+
+
+
+    </div>
+    <div class="full-width-separator">
+
+    </div>
+
+
+
+</div>
+
+<script>
+    //Menu items
+    $(document).ready(function () {
+        $('.primary-menu > li').bind('mouseover', openSubMenu);
+        $('.primary-menu > li').bind('mouseout', closeSubMenu);
+
+        function openSubMenu() {
+            $(this).find('ul').css('visibility', 'visible');
+        }
+
+        function closeSubMenu() {
+            $(this).find('ul').css('visibility', 'hidden');
+        }
+    });
+    //If Project is not published hide or diable label
+    $.ajax({
+        url: "@ViewBag.ARIESAPI/Projects/Published/@Model.ProjectID?type=json",
+        success: function (result) {
+
+            if (result === false) {
+
+                $("#project-menu-DevTracker").toggle();
+            }
+        }
+    });
+
+
+
+</script>

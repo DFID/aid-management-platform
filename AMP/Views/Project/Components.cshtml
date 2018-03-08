@@ -1,0 +1,126 @@
+﻿@model  AMP.ViewModels.ProjectComponentVM
+
+@{
+    ViewBag.Title = "Components";
+}
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml", Model.ProjectHeader)
+<div class="page-container">
+    @Html.HiddenFor(model => model.ProjectWfCheckVm.Status, new { @id = "IsActiveWorkflow" })
+    @Html.HiddenFor(model => model.ProjectWfCheckVm.WorkFlowDescription, new { @id = "ActiveWorkflowDescription" })
+    <br/>
+    <div id="WFMessage" class="InfoMessage" style="display: none"><br />@String.Format("This Project is in {0} workflow. Changes cannot be made.", Model.ProjectWfCheckVm.WorkFlowDescription)<br /></div>
+
+    <button id="CreateComponent" class="bluelightnight" onclick="CreateFunction()" value="Add Component" type="button">
+        Create Component
+    </button>
+    @if (Model.InputterPresent == "false")
+    {
+            <div class="InfoMessage">
+                <div>You must have a Project Inputter to create a component.</div>
+            </div>
+    }
+    <div id="SaveMessage" style="display: none">Save Successful</div>
+    <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())"/>
+   
+  @{
+
+      var visible = Model.ComponentMaster.Count();
+      if (visible == 0)
+      { <div class="InfoMessage">
+        <div>No Components are associated with this project. Press the Add Component button to add a component to this project.</div>
+    </div> }
+      else { 
+    <table id="Component-list" class="table-main" border="1" title="A data table that contains a list of Components that belong to the Project. The table contains the component ID, Title, Funding Type, Operational Status, Benefiting Country Code, Budget Centre and a link to view the component details.">
+        <tr>
+            <th id="HeaderId"> ID</th>
+            <th id="HeaderTitle">Title</th>
+            <th id="Headerfundingmechid">Funding Type</th>
+            <th id="Headerbenefittingcountry">Benefiting Country </th>
+            <th id="Headerbudgetcentreid"> Budget Centre</th>
+            <th id="Headeraction">Action</th>
+        </tr>
+        @{
+            var index = 0;
+            foreach (var item in Model.ComponentMaster)
+            {
+                <tr>
+                    <td id="ComponentID-@index" headers="HeaderId" style="width: 80px">
+                        @Html.DisplayFor(modelItem => item.ComponentID)
+                    </td>
+                    <td id="ComponentDescription-@index" headers="HeaderTitle">
+                        @Html.DisplayFor(modelItem => item.ComponentDescription)
+                    </td>
+                    <td id="FundingMech-@index" headers="Headerfundingmechid">
+                        @Html.DisplayFor(modelItem => item.FundingMechanism)
+                    </td>
+                    <td id="BenefittingCountry-@index" headers="Headerbenefittingcountry">
+                        @Html.DisplayFor(modelItem => item.BenefitingCountry.BenefitingCountryDescription)
+                    </td>
+                    <td id="BudgetCentreID-@index" headers="Headerbudgetcentreid">
+                        @Html.DisplayFor(modelItem => item.BudgetCentre.BudgetCentreID)
+                    </td>
+                    <td id="Action-@index" headers="Headeraction">
+                        @Html.ActionLink("Details", "../Component/Edit", new { id = item.ComponentID }, new { id = String.Format("Details_{0}", item.ComponentID), title = String.Format("Link to details page for component {0}", item.ComponentID) })
+                    </td>
+                </tr>
+                    index++;
+                }
+            }   
+    
+    </table>
+            }
+}
+</div>
+<script type="text/javascript">
+    //This Javascript will change the DOM, specificly the page the user is on.
+
+    //Update navigation to active
+    var x = document.getElementById("component-tab");
+    x.className = "active";
+
+
+    //var x = document.getElementById("project-menu-components");
+    //x.className = "active";
+
+
+//var x = document.getElementById("tab-Components");
+    //x.className = "active";
+    function CreateFunction() {
+        window.location.href = "@Url.Action("CreateComponent", "Component", new {id = @Model.ProjectHeader.ProjectID})";
+    }
+
+    function WorkflowLockDown() {
+        if ($("#IsActiveWorkflow").val() === "True") {
+            $("#WFMessage").css("display", "block");
+            $("button").prop('disabled', true);
+            $('#GOMI').prop('disabled', false);
+        }
+    }
+
+    function NoInputter() {
+        var InputterPresent = @Model.InputterPresent;
+        if (InputterPresent === false) {
+            $("#CreateComponent").prop('disabled', true);
+            $("#CreateComponent").attr('disabled', true);
+        }
+    }
+
+    
+
+    $(document).ready(function() {
+        var stage = parseInt(@Model.ProjectHeader.Stage);
+        var ProjectPastEndDate = @Model.ProjectPastEndDate;
+
+        WorkflowLockDown();
+
+        NoInputter();
+
+        if (stage > 5 || ProjectPastEndDate == true) {
+            $('#CreateComponent').prop('disabled', true);
+            $('#CreateComponent').toggle();
+            $('#GOMI').prop('disabled', false);
+        }
+        
+    });
+
+</script>

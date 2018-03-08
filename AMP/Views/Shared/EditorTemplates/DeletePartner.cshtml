@@ -1,0 +1,54 @@
+﻿@model AMP.ViewModels.DeliveryChainVM
+
+@using (Html.BeginForm("DeleteFromChainOptions", "Component", FormMethod.Post, new {id = "DeletePartnerForm"}))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(model => model.ID, new { @id = "Id" })
+    @Html.HiddenFor(model => model.ComponentID)
+    @Html.HiddenFor(model => model.ChainID, new { @id = "ChainId" })
+
+    @Html.HiddenFor(model => model.ParentName)
+    @Html.HiddenFor(model => model.ParentType)
+    @Html.HiddenFor(model => model.ChildID,  new { @id = "ChildId" })
+    @Html.HiddenFor(model => model.ChildType)
+    @Html.HiddenFor(model => model.ParentID, new { @id = "SupplierId" })
+
+
+    <div class="column-full">
+        <div class="grid-row">
+            <div class="form-group">
+                <label class="form-label-bold">Remove Partner</label>
+
+                <p class="form-hint" id ="DeletePartnerFormHint">
+                    You have selected to remove @Model.ChildName from this delivery chain. Please select an option below:
+                </p>
+                <div id="DeleteOptions">
+                    <p class="form-block"></p>
+                    <div class="multiple-choice">
+                        <input id="radio-1" type="radio" name="radio-group-delete" value="1">
+                        <label for="radio-1">Replace this partner with a new partner</label>
+                    </div>
+                    <p class="form-block"></p>
+                    <div class="multiple-choice">
+                        <input id="radio-2" type="radio" name="radio-group-delete" value="2">
+                        <label for="radio-2">Delete this partner & all partners below it</label>
+                    </div>
+                    <p class="form-block"></p>
+                    <div class="multiple-choice">
+                        <input id="radio-3" type="radio" name="radio-group-delete" value="3">
+                        <label for="radio-3">Delete this partner & promote partners on the tier below</label>
+                    </div>
+                  
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="column-full">
+        <div class="grid-row">
+            <input type="button" name="submitButton" value="Confirm" class="button" id="btnDeletePartner" onclick="PostSelectedDeleteValue()"/>
+        </div>
+    </div>
+
+}

@@ -1,0 +1,318 @@
+﻿@model  AMP.ViewModels.ProjectEvaluationVM
+@using AMP.Helpers
+@{
+    ViewBag.Title = "Evaluations";
+}
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml",Model.projectHeader)
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    <div class="page-container">
+        
+        @Html.HiddenFor(model => model.projectHeader.ProjectID, new {@id = "View_ProjectID"})
+        @Html.HiddenFor(model => model.EvaluationID)
+        @Html.HiddenFor(model => model.WFCheck.Status, new { @id = "IsActiveWorkflow" })
+        @Html.HiddenFor(model => model.WFCheck.WorkFlowDescription, new { @id = "ActiveWorkflowDescription" })
+
+
+
+        
+        @if (@Model.EvaluationID == null)
+        {
+            <div class="grid-row">
+                <div class="column-half">
+                    <p>No evaluation information exists for this project. <a href="" target="_blank"> Click here </a> to add evaluation information in ARIES.
+                    </p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div id="WFMessage" class="InfoMessage" style="display: none"><br />@String.Format("This Project is in {0} workflow. Changes cannot be made.", Model.WFCheck.WorkFlowDescription)<br /></div>
+
+
+            <p class="form-hint">The purpose of evaluation in DFID is to contribute to improving the impact and value for money of DFID’s development spending and support the effective delivery of DFID’s Strategic Objectives. Evaluation reports are published on our external website and we also report statistical data on evaluations to the Executive Management Committee (EMC) every quarter. Detailed information on evaluation costs by region and sector is also reported to the Investment Committee.</p>
+            <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())"/>
+            <div id="SaveMessage" style="display: none">Save Successful</div>
+            <div id="accordion" class="reports">
+                <div class="accordion-toggle">
+                    <div class="title-bar">
+                        <div class="control-bar" style="max-width: inherit" id="Evalcontrol-bar-0">
+                            Evaluation
+                            <div class="arrow white medium"></div>
+                        </div>
+                        <div class="grid-row report">
+                            <div class="column-third">
+                                Type:<br/><span><b>@Model.EvaluationType.EvaluationDescription</b></span>
+                            </div>
+                            @if (Model.EvaluationTypeID != "5")
+                            {
+                                <div class="column-two-thirds">
+                                    Period Covered:<br/> <span><b> @Model.StartDate.Value.Date.ToString("dd MMMM yyyy") - @Model.EndDate.Value.Date.ToString("dd MMMM yyyy")</b></span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div id="accordion-evaluation" class="accordion-content ar-wrapper">
+                    <br/>
+                    <div style="padding: 4px;">
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <fieldset>
+                                    <legend class="form-label-bold">
+                                        Evaluation Type
+                                    </legend>
+                                    <p class="form-hint">IMPACT: Builds knowledge on what works in development by establishing causal attribution in relation to an intervention and its effects.</p>
+                                    <p class="form-hint">PERFORMANCE: Evaluates an intervention on the basis of its contribution to development outcomes and impacts within its context.</p>
+                                    <p class="form-hint">PROCESS: Provides deeper understanding of the quality of implementation, principally to the level of outputs.</p>
+                                    <p class="form-hint">Select the Evaluation Type</p>
+                                    <div id="EvaluationType" style="text-align: center">
+                                        <div class="status-select">
+                                            @Html.HiddenFor(model => model.EvaluationTypeID)
+                                            @foreach (var type in Model.EvaluationTypes.EvaluationTypeValues)
+                                            {
+                                                <label class="block-label" id="label-type-@type.EvaluationTypeID" for="type-@type.EvaluationTypeID" style="width: 200px">
+                                                    @Html.RadioButtonFor(m => m.EvaluationTypes.SelectedEvaluationType, type.EvaluationTypeID, new {@id = String.Format("type-{0}", type.EvaluationTypeID)}) @type.EvaluationTypeDescription
+                                                </label>
+                                            }
+                                        </div>
+                                        <div class="PushDown">@Html.ValidationMessageFor(model => model.EvaluationTypeID)</div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-third">
+                                <fieldset>
+                                    <legend class="form-label-bold">
+                                        Management Type
+                                    </legend>
+                                    <p class="form-hint">Select the Management Type</p>
+                                    <div id="EvaluationManagement">
+                                        <div class="status-select">
+                                            @Html.HiddenFor(model => model.ManagementOfEvaluation)
+                                            @foreach (var evalman in Model.EvaluationManagements.EvaluatioNManagementValues)
+                                            {
+                                                <label class="block-label" id="label-evalman-@evalman.EvaluationManagementID" for="evalman-@evalman.EvaluationManagementID" style="width: 200px">
+                                                    @Html.RadioButtonFor(m => m.EvaluationManagements.SelectedEvaluationManagement, evalman.EvaluationManagementID, new {@id = String.Format("evalman-{0}", evalman.EvaluationManagementID)}) @evalman.EvaluationManagementDescription
+                                                </label>
+                                            }
+                                        </div>
+                                        <div class="PushDown">@Html.ValidationMessageFor(model => model.ManagementOfEvaluation)</div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <div class="column-two-thirds">
+                                <label class="form-label-bold" for="AdditionalInfo">Additional Comments</label>
+                                <br/>
+                                <p class="form-hint">Additional information about this evaluation</p>
+                                <textarea id="AdditionalInfo" name="AdditionalInfo" rows="7">@Model.AdditionalInfo</textarea>
+                                @Html.ValidationMessageFor(model => model.AdditionalInfo)
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-third">
+                                @Html.DateBlock("StartDate", "Start Date", @Model.StartDate, "Estimate when the tender for this evaluation will be released.")
+                                @Html.HiddenFor(model => model.StartDate)
+                                @Html.ValidationMessageFor(model => model.StartDate)
+                            </div>
+                            <div class="column-third">
+                                @Html.DateBlock("EndDate", "End Date", @Model.EndDate, "Estimate when the management response for this evaluation will be published.")
+                                @Html.HiddenFor(model => model.EndDate)
+                                @Html.ValidationMessageFor(model => model.EndDate)
+                            </div>
+                            <div class="column-third">
+                                <label class="form-label-bold" for="EstimatedBudget">Cost</label>
+                                <p class="form-hint">Cost of this evaluation to DFID<br/><br/>
+                                </p>
+                                <br/>
+                                <br/>
+                                @Html.TextBoxFor(model => model.EstimatedBudget)
+                                @Html.ValidationMessageFor(model => model.EstimatedBudget)
+                            </div>
+                        </div>
+                    </div>
+                    <button id="SaveEvaluation" name="submitButton" class="button" value="Save Evaluation" type="submit">
+                        Update Evaluation
+                    </button>
+                    <div style="padding: 4px">
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <b>Documents</b>
+                                <table id="Eval_Document-list" class="table-main" title="Documents for Evaluation ." border="1">
+                                    <thead>
+                                    <tr id="EvalDocHeader">
+                                        <th id="headerDocumentID">Document ID</th>
+                                        <th id="headerDescription">Document Description</th>
+                                        <th id="headerActions">Actions</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @{
+                                        var index = 0;
+                                        foreach (var item in Model.EvaluationDocuments)
+                                        {
+                                            <tr>
+                                                <td id="Evaluation-Document-@index" headers="headerDocumentID" style="text-align: left">
+                                                    <a id="DocumentLink-@index" target="blank" href="@Html.DisplayFor(modelItem => item.DocumentLink)">@Html.DisplayFor(modelItem => item.DocumentID)</a>
+                                                </td>
+                                                <td id="Evaluation-Description-@index" headers="headerDescription" style="text-align: left">
+                                                    @Html.DisplayFor(modelItem => item.Description)
+                                                </td>
+                                                <td id="Evaluation-Actions-@index" headers="headerActions" style="text-align: left">
+                                                    <button type="button" value="Remove-document-@index" class="button" id="@String.Format("btnRemoveDocument{0}", item.DocumentID)" style="margin-left: 5px;" onclick=" RemoveEvaluationDocument(@item.DocumentID, @item.EvaluationID, @Model.ProjectID) ">Remove</button>
+                                                    @*<a id="RemoveDocument-@item.DocumentID" class="RemoveEvaluationDocument" href="" onclick=" RemoveEvaluationDocument(@item.DocumentID, @item.EvaluationID, @Model.ProjectID) ">Remove</a>*@
+                                                </td>
+                                            </tr>
+                                            index++;
+                                        }
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="padding: 4px">
+                        <div id="AddDocumentSection" style="display: none">
+                            <div class="grid-row">
+                                <div class="column-third">
+                                    <label class="form-label-bold" for="NewEvaluationDocument_DocumentID">Document ID</label>
+                                    <p>The Vault number of the document</p>
+                                    @Html.TextBoxFor(model => model.NewEvaluationDocument.DocumentID)
+                                    @Html.ValidationMessageFor(model => model.NewEvaluationDocument.DocumentID)
+                                </div>
+                                <div class="column-two-thirds">
+                                    <label class="form-label-bold" for="NewEvaluationDocument_Description">Description</label>
+                                    <p>A description of the document</p>
+                                    @Html.TextBoxFor(model => model.NewEvaluationDocument.Description, new {@class = "column-full"})
+                                    @Html.ValidationMessageFor(model => model.NewEvaluationDocument.Description)
+                                </div>
+                            </div>
+                            <button id="AddDocumentBtn" name="submitButton" class="button" value="Add New Document" type="submit">
+                                Save
+                            </button>
+                            <button id="CancelBtn" class="bluelightnight" onclick=" CreateFunctionCancel() " value="Cancel" type="button">
+                                Cancel
+                            </button>
+                        </div>
+                        <button id="ShowAdd" class="bluelightnight" onclick=" CreateFunction() " value="Show Add Document" type="button">Add document</button>
+                    </div>
+                    <br/>
+                </div>
+                <br/>
+            </div>
+        }
+    </div>
+
+}
+<script src="~/Scripts/govuk-template.js" type="text/javascript"></script>
+<script>
+
+    // Functions to hide and show sections.
+    function CreateFunction() {
+        $("#AddDocumentSection").toggle();
+        $("#ShowAdd").toggle();
+
+    }
+
+    function CreateFunctionCancel() {
+        $("#AddDocumentSection").toggle();
+        $("#ShowAdd").toggle();
+
+    }
+
+    function RemoveEvaluationDocument(DocumentID,EvaluationID,ProjectID) {
+        //$.post("./Index", { id: ProjectID }, function(data) {
+        $.ajax({
+            type: 'POST',
+            url: "@Url.Action("RemoveEvaluationDocument", "Project")",
+            data: { DocumentID: DocumentID,EvaluationID:EvaluationID,ProjectID:ProjectID},
+            success: function(data) {
+                if (data.success === true) {
+                    // alert("Team member removed successfully.");
+                    location.reload();
+                }
+                if (data.success === false) {
+                    //alert("An error has occurred. Please try again.");
+                }
+            },
+            async:true
+        });
+        @*$.post("@Url.Action("RemoveEvaluationDocument", "Project")", , function (data) {
+
+            if (data.success === true) {
+                // alert("Team member removed successfully.");
+
+                location.reload();
+
+            }
+            if (data.success === false) {
+                //alert("An error has occurred. Please try again.");
+
+            }
+
+        });*@
+    }
+
+    //Update navigation to active
+    var x = document.getElementById("performance-tab");
+    x.className = "active";
+
+    //Set the Evaluation Type Radio Button
+    var evalType = document.getElementById("EvaluationTypeID").value;
+    
+    var evalTypeSelected = document.getElementById("label-type-" + evalType);
+    evalTypeSelected.className = "block-label selected";
+
+    //Set the Evaluation Management Radio Button
+    var managementType = document.getElementById("ManagementOfEvaluation").value;
+    var managementTypeSelected = document.getElementById("label-evalman-" + managementType);
+    managementTypeSelected.className = "block-label selected";
+
+
+    
+
+    //Expand the accordion - Want this open by default.
+    $(document).ready(function($) {
+        $(".accordion-content").slideDown('fast');
+    });
+
+    //Comment out WF lock down code for now.
+    //if ($("#IsActiveWorkflow").val() === "True") {
+
+    //    $("#WFMessage").css("display", "block");
+    //    $("input").prop('disabled', true);
+    //    $("textarea").prop('disabled', true);
+    //    $("button").prop('disabled', true);
+    //    $("input[type = 'hidden']").prop('disabled', false);
+
+    //}
+
+
+    try {
+
+        if (@(ViewBag.Success.ToString()) === 0) {
+
+                $("#ShowAdd").click();
+            }
+        } catch (x) {
+            //Nothing to catch Success will be set to NA which means no one has post.
+        }
+
+        //If the project is stage 7, all fields should be read only.
+        if (document.getElementById("Stage").value == 8) {
+            $("input").prop('disabled', true);
+            $("textarea").prop('disabled', true);
+            $("button").prop('disabled', true);
+        }
+
+          if (@Model.EvaluationID == null)
+        {
+           $("#AddDocumentBtn").prop('disabled', true);
+        
+        }
+
+</script>

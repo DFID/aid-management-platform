@@ -1,0 +1,152 @@
+﻿
+@model AMP.ViewModels.RiskItemVM
+<div class="grid-row">
+    @using (Html.BeginForm("DisplayRiskItem", "Project", FormMethod.Post, new { id = "DisplayRiskRatingsForm" }))
+    {
+        @Html.AntiForgeryToken()
+        @*@Html.HiddenFor(model => model.ProjectID, new { id = "projectID" })
+            @Html.HiddenFor(model => model.RiskID, new { id = "riskItemID" })*@
+
+        <div class="column-half">
+            <div id="riskItemDiv">
+                <div class="grid-row">
+                    <div class="column-full">
+                        <div class="form-group">
+                            <label class="form-label-bold" for="RiskDescription">Risk Description</label>
+                            <p class="form-hint">Enter Description of risk (alpha numeric min 20 max 1000 characters)</p>
+                            <textarea id="RiskDescription" name="RiskDescription" rows="5" placeholder="e.g. Risk description" style="width: inherit" maxlength="1000" onkeyup="countChar(this, 'Risk-Description-characterCount', 1000);">@Model.RiskDescription</textarea>
+                            <span class="form-hint" id="Risk-Description-characterCount"></span>
+                            <div class="PushDown">@Html.ValidationMessageFor(model => model.RiskDescription)</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label-bold" for="BudgetCentreBox">Risk Owner</label>
+                            <p class="form-hint">Type the name of the person who owns the risk</p>
+                            <div id="RiskOwner" class="NameRiskOwner">
+                                @Html.HiddenFor(model => model.Owner, new { id = "RiskOwnerName" })
+                                @Html.ValidationMessageFor(model => Model.Owner)
+                                <input id="RiskOwnerBox" type="text" class="typeahead" name="BudgetCentreDescription" placeholder="Type to search" value="@Model.OwnerName" style="width: 350px; height: 25px" />
+                                <div class="column-full SaveMessageFail" id="RiskOwnerName-Error"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-row">
+                    <div class="form-group">
+                        <div class="column-half">
+                            <label class="form-label-bold" for="RiskCategorydd">Risk Category</label>
+                            <p class="form-hint">Choose a risk category</p>
+                            <div id="RiskCategorySelect">
+                                @Html.DropDownListFor(model => model.RiskCategory, ViewData["RiskCategoryList"] as SelectList, "-- Select Category--", new { @class = "form-control", id = "Risk_Category" })
+                                @Html.ValidationMessageFor(model => model.RiskCategory)
+                            </div>
+                        </div>
+                        <div class="column-half">
+                            <label class="form-label-bold" for="RiskLikelihooddd">Risk Likelihood</label>
+                            <p class="form-hint">Choose a likelihood rating</p>
+                            <div id="RiskLikelihoodSelect">
+                                @Html.DropDownListFor(model => model.RiskLikelihood, ViewData["RiskLikelihoodList"] as SelectList, "-- Select Likelihood --", new { @class = "form-control", id = "Risk_likelyhood" })
+                            </div>
+                            @Html.ValidationMessageFor(model => model.RiskLikelihood)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-row">
+                    <div class="form-group">
+                        <div class="form-group">
+                            <div class="column-half">
+                                <label class="form-label-bold" for="RiskImpactSelect">Risk Impact</label>
+                                <p class="form-hint">Choose an impact rating</p>
+                                <div id="RiskImpactSelect">
+                                    @Html.DropDownListFor(model => model.RiskImpact, ViewData["RiskImpactList"] as SelectList, "-- Select Impact --", new { @class = "form-control", id = "Risk_Impact" })
+                                </div>
+                                @Html.ValidationMessageFor(model => model.RiskImpact)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="column-half">
+            <div id="MitigationDiv">
+                <div class="grid-row">
+                    <div class="column-full">
+                        <div class="form-group">
+                            <label class="form-label-bold" for="MitigationStrategy">Mitigation Strategy</label>
+                            <p class="form-hint">Enter mitigation details (alphanumeric min 20 max 1000 characters)</p>
+                            <textarea id="MitigationStrategy" name="MitigationStrategy" rows="5" placeholder="e.g. Risk mitigation" style="width: inherit" maxlength="1000" onkeyup="countChar(this, 'Risk-Mitigation-characterCount', 1000);">@Model.MitigationStrategy</textarea>
+                            <span class="form-hint" id="Risk-Mitigation-characterCount"></span>
+                            @Html.ValidationMessageFor(model => model.MitigationStrategy)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-row">
+                    <div class="form-group">
+                        <div class="column-half">
+                            <label class="form-label-bold" for="ResidualRiskLikelihooddd">Likelihood</label>
+                            <p class="form-hint">Choose likelihood after mitigation</p>
+                            <div id="ResidualRiskLikelihoodSelect">
+                                @Html.DropDownListFor(model => model.ResidualLikelihood, ViewData["RiskLikelihoodList"] as SelectList, "-- Select Likelihood --", new { @class = "form-control", id = "Risk_Residual_likelyhood" })
+                                @*@Html.DropDownList("ResidualRiskLikelihooddd", null, "", new { @class = "form-control" })*@
+                            </div>
+                            @Html.ValidationMessageFor(model => model.ResidualLikelihood)
+                        </div>
+                        <div class="column-half">
+                            <label class="form-label-bold" for="ResidualRiskImpactSelect">Impact</label>
+                            <p class="form-hint">Choose impact after mitigation</p>
+                            <div id="ResidualRiskImpactSelect">
+                                @Html.DropDownListFor(model => model.ResidualImpact, ViewData["RiskImpactList"] as SelectList, "-- Select Impact --", new { @class = "form-control", id = "Risk_Residual_Impact" })
+                            </div>
+                            @Html.ValidationMessageFor(model => model.ResidualImpact)
+                        </div>
+                    </div>
+
+                </div>
+                <div class="grid-row">
+                    <div class="form-group">
+                        <div class="column-half">
+                            <label class="form-label-bold" for="ResidualRiskList">Residual Risk</label>
+                            <p class="form-hint">Choose the risk rating after mitigation</p>
+                            <div id="ResidualRiskList">
+                                @Html.DropDownListFor(model => model.RiskRating, ViewData["RiskRatingList"] as SelectList, "-- Select Risk --", new { @class = "form-control", id = "Risk_Rating" })
+                            </div>
+                            @Html.ValidationMessageFor(model => model.RiskRating)
+                        </div>
+
+                        <div class="column-half">
+                            <label class="form-label-bold" for="RiskListSelect">Current Status</label>
+                            <p class="form-hint">Choose the current risk status</p>
+                            @Html.DropDownListFor(model => model.Status, ViewData["StatusList"] as SelectList, "Select Status", new { @class = "form-control", id = "Risk_Status" })
+                            @Html.ValidationMessageFor(model => model.Status)
+                        </div>
+                    </div>
+
+                </div>
+                <div class="grid-row">
+                    <div class="form-group">
+                        <div class="column-full">
+                            <label class="form-label-bold" for="Comments">Update Comments</label>
+                            <p class="form-hint">provide details of changes to the risk record follow up actions</p>
+                            <textarea id="Comments" name="Comments" rows="3" placeholder="e.g. comments" style="width: inherit" maxlength="1000" onkeyup="countChar(this, 'Risk-Comments-characterCount', 1000);">@Model.Comments</textarea>
+                            <span class="form-hint" id="Risk-Comments-characterCount"></span>
+                            @Html.ValidationMessageFor(model => model.Comments)
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-row">
+                    <div class="form-group">
+                        <div class="column-full">
+                            <button id="btnDisOnlineRiskCancel" class="red" value="Cancel" type="button" onclick="UnloadEditRiskItem();">
+                                Cancel
+                            </button>
+                            <br />
+                            <br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,499 @@
+﻿@model AMP.ViewModels.ProjectTeamVM
+@using AMP.Helpers
+@{
+    ViewBag.Title = "Team";
+}
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml",Model.ProjectHeader)
+
+<div id="EditTeamMember" style="display: none"></div>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    <div class="page-container secondary">
+    @Html.HiddenFor(model => model.ProjectHeader.ProjectID, new { @id = "View_ProjectID" })
+        @Html.HiddenFor(model => model.WFCheck.Status, new { @id = "IsActiveWorkflow" })
+        @Html.HiddenFor(model => model.WFCheck.WorkFlowDescription, new { @id = "ActiveWorkflowDescription" })
+
+        @Html.HiddenFor(model => model.ReadOnly)
+        <div id="AddTeamMemberSection" style="display:none">
+            <div class="grid-row">
+                <div class="column-third">
+                    <div class="form-group">
+                        <label class="form-label-bold" for="TeamMemberBox">Team Member</label>
+                        <p class="form-hint">Start typing the name of the person you want to add to the team</p>
+                        <div id="NewMember">
+                            <input id="TeamMemberBox" name="NewTeamMember.PersonName" type="text" class="typeahead" placeholder="Search for a Team Member" value="@Model.NewTeamMember.PersonName" style="width:100%;height: 25px" />
+                            @Html.HiddenFor(model => model.NewTeamMember.TeamID)
+                            <div class="column-full SaveMessageFail" id="AddTeamMember-MemberError"></div>
+                            <div class="PushDown">@Html.ValidationMessageFor(model => model.NewTeamMember.TeamID)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column-third">
+                    <div class="form-group">
+                        <fieldset>
+                            <legend class="form-label-bold">
+                                Project Role
+                            </legend>
+                            <p class="form-hint">Select the persons role</p>
+                            <div id="MemberRole">
+                                <div class="status-select">
+                                    @foreach (var role in Model.NewTeamMember.ProjectRolesVm.ProjectRoleValues)
+                                    {
+                                        <label class="block-label" id="label-role-@role.ProjectRoleID" for="Role-@role.ProjectRoleID" style="width: 200px">
+                                            @Html.RadioButtonFor(m => m.NewTeamMember.ProjectRolesVm.SelectedRoleValue, role.ProjectRoleID, new {@id = String.Format("Role-{0}", role.ProjectRoleID)}) @role.ProjectRoleDescription
+                                        </label>
+                                    }
+                                </div>
+                                <div class="column-full SaveMessageFail" id="AddTeamMember-RoleError"></div>
+                                <div class="PushDown">@Html.ValidationMessageFor(model => model.NewTeamMember.RoleID)</div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="column-third">
+                    @Html.DateBlock("NewTeamMember.StartDate", "Start Date", @Model.NewTeamMember.StartDate, "Date the person starts on the project")
+                    @Html.HiddenFor(model => model.NewTeamMember.StartDate)
+                    @Html.ValidationMessageFor(model => model.NewTeamMember.StartDate)
+                </div>
+            </div>
+            @*<div class="grid-row">
+              
+            </div>*@
+            <button id="AddTeamMemberBtn" name="submitButton" class="button" onclick="ValidateAddTeamMember(event);" value="Add New Team Member" type="submit">
+                Save
+            </button>
+            <button id="CancelBtn" class="bluelightnight" onclick="CreateFunctionCancel()" value="Save" type="button">
+                Cancel
+            </button>
+            <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+        </div>
+        <br/>
+
+    <button id="ShowCreate" class="bluelightnight" onclick="CreateFunction()" value="Save Team Member" type="button">
+        Add new team member
+    </button>
+    <div id="InfoMessage" class="InfoMessage" style="display:none">This Project is under workflow approval. Changes cannot be made.</div>
+    <br />
+    <div id="SaveMessage" style="display:none">Save Successful</div>
+        <div id="CurrentTeamHolder">
+            <h3>Current Team</h3>
+            <p class="form-hint">Anyone who has an active role in the project. At a minimum a project must have an SRO, QA and Project Inputter. Anyone can edit the team.</p>
+            <div class="grid-row">
+                <div class="column-quarter">
+                    <div id="TeamMember-1" class="inputter">SRO</div>
+                    @if (Model.CurrentProjectTeam != null && Model.CurrentProjectTeam.Find(x => x.RoleId == "SRO" && x.IsEmployed == "T") != null)
+                    {
+                        @Html.Partial("~/Views/Shared/_TeamMember.cshtml", Model.CurrentProjectTeam.Find(x => x.RoleId == "SRO"), new ViewDataDictionary { { "TeamMemberPosition", 1 } })
+                        @Html.Partial("~/Views/Shared/TeamControls.cshtml", Model.CurrentProjectTeam.Find(x => x.RoleId == "SRO"), new ViewDataDictionary { { "TeamMemberPosition", 1 } })
+                    }
+                    else
+                    {
+                        <div id="TeamMemberMissing-1" class="inputter">
+                            <p>This project does not have an SRO Assigned. Click on the 'Add a New Team Member' button to add an SRO to the project.</p>
+                        </div>
+                    }
+                </div>
+                <div class="column-quarter">
+                    <div id="TeamMember-2" class="inputter">Quality Assurer</div>
+                    @if (Model.CurrentProjectTeam != null && Model.CurrentProjectTeam.Find(x => x.RoleId == "QA" && x.IsEmployed == "T") != null)
+                    {
+                        @Html.Partial("~/Views/Shared/_TeamMember.cshtml", Model.CurrentProjectTeam.Find(x => x.RoleId == "QA"), new ViewDataDictionary { { "TeamMemberPosition", 2 } })
+                        @Html.Partial("~/Views/Shared/TeamControls.cshtml", Model.CurrentProjectTeam.Find(x => x.RoleId == "QA"), new ViewDataDictionary { { "TeamMemberPosition", 2 } })
+                    }
+                    else
+                    {
+                        <div id="TeamMemberMissing-2" class="inputter">
+                            <p>This project does not have a Quality Assurer assigned. Click on the 'Add a New Team Member' button to add a Quality Assurer to the project.</p>
+                        </div>
+                    }
+                </div>
+                <div class="column-quarter">
+                    <div id="TeamMember-3" class="inputter">Project Inputter</div>
+                    @if (Model.CurrentProjectTeam != null && Model.CurrentProjectTeam.Find(x => x.RoleId == "PI" && x.IsEmployed == "T") != null)
+                    {
+                        @Html.Partial("~/Views/Shared/_TeamMember.cshtml", Model.CurrentProjectTeam.Find(x => x.RoleId == "PI"), new ViewDataDictionary { { "TeamMemberPosition", 3 } })
+                        @Html.Partial("~/Views/Shared/TeamControls.cshtml", Model.CurrentProjectTeam.Find(x => x.RoleId == "PI"), new ViewDataDictionary { { "TeamMemberPosition", 3 } })
+                    }
+                    else
+                    {
+                        <div id="TeamMemberMissing-3" class="inputter">
+                            <p>This project does not have a Project Inputter assigned. Click on the 'Add a New Team Member' button to add a Project Inputter to the project.</p>
+                        </div>
+                    }
+                </div>
+                <div class="column-quarter">
+                    <div id="TeamMember-4" class="inputter">Lead Adviser</div>
+                    @if (Model.CurrentProjectTeam != null && Model.CurrentProjectTeam.Find(x => x.RoleId == "LA" && x.IsEmployed == "T") != null)
+                    {
+                        @Html.Partial("~/Views/Shared/_TeamMember.cshtml", Model.CurrentProjectTeam.Find(x => x.RoleId == "LA"), new ViewDataDictionary { { "TeamMemberPosition", 4 } })
+                        @Html.Partial("~/Views/Shared/TeamControls.cshtml", Model.CurrentProjectTeam.Find(x => x.RoleId == "LA"), new ViewDataDictionary { { "TeamMemberPosition", 4 } })
+                    }
+                    else
+                    {
+                        <div id="TeamMemberMissing-4" class="inputter">
+                            <p>This project does not have a Lead Adviser assigned. Click on the 'Add a New Team Member' button to add a Lead Adviser to the project.</p>
+                        </div>
+
+                    }
+                </div>
+            </div>
+
+            @if (Model.OtherProjectTeam != null)
+            {
+                var noOfOtherRows = Model.OtherProjectTeam.Count() / 4;
+                if (Model.OtherProjectTeam.Count() % 4 > 0)
+                {
+                    noOfOtherRows++;
+                }
+
+                for (int y = 0; y < noOfOtherRows; y++)
+                {
+                    <div class="grid-row">
+
+                        @for (int z = (y * 4); z < ((y * 4) + 4); z++)
+                        {
+                            int row = z + 5;
+                            if (z < Model.OtherProjectTeam.Count())
+                            {
+                                <div class="column-quarter">
+                                    <div id="TeamMember-@row" class="inputter">@Model.OtherProjectTeam[z].RoleDescription</div>
+                                    @Html.Partial("~/Views/Shared/_TeamMember.cshtml", Model.OtherProjectTeam[z], new ViewDataDictionary { { "TeamMemberPosition", row } })
+                                    @Html.Partial("~/Views/Shared/TeamControls.cshtml", Model.OtherProjectTeam[z], new ViewDataDictionary { { "TeamMemberPosition", row } })
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+            }
+            <hr />
+            
+        </div>
+        <div class="grid-row">
+            <div id="TeamMarkerHolder" class="column-half">
+                <div class="form-group">
+                    <label class="form-label-bold" for="TeamMarker">Team Marker</label>
+                    <p class="form-hint">A marker to identify the team working on this project</p>
+                    @Html.TextAreaFor(x => x.TeamMarker)
+                </div>
+            </div>
+            <br/>
+        </div>
+        <button id="SaveTeamMarkerBtn" name="submitButton" class="button" value="Save Team Marker" type="submit">
+            Save Team Marker
+        </button>
+        <div class="PushDown">
+        </div>
+        <hr/>
+    </div>
+    }
+   
+    <div class="page-container secondary">
+
+    @if (Model.FormerProjectTeam != null && Model.FormerProjectTeam.Count > 0)
+    {
+        var noOfHistoryRows = Model.FormerProjectTeam.Count() / 4;
+
+        int NoOfOtherTeam = 0;
+
+        if (Model.OtherProjectTeam != null)
+        {
+            NoOfOtherTeam = Model.OtherProjectTeam.Count();
+        }
+
+        int exTeamCount = NoOfOtherTeam + 5;
+                                    
+        <button id="ShowTeamHistory" class="bluelightnight" onclick="ShowHistory()" value="Show History" type="button">
+            Show Team History
+        </button>
+
+        <div id="HistoricalTeam" style="display: none">
+
+
+            @if (Model.FormerProjectTeam.Count() % 4 > 0)
+            {
+                noOfHistoryRows++;
+            }
+
+            <h3>Team History</h3>
+
+
+            @for (int y = 0; y < noOfHistoryRows; y++)
+            {
+                <div class="grid-row">
+                    @for (int z = (y * 4); z < ((y * 4) + 4); z++)
+                    {
+                        int exRow = exTeamCount + z;
+                        if (z < Model.FormerProjectTeam.Count())
+                        {
+                            <div class="column-quarter">
+                                <div id="ExTeamMember-@exRow" class="inputter">@Model.FormerProjectTeam[z].RoleDescription</div>
+                                @Html.Partial("~/Views/Shared/_TeamMember.cshtml", Model.FormerProjectTeam[z], new ViewDataDictionary { { "TeamMemberPosition", exRow } })
+                            </div>
+                        }
+                    }
+                </div>
+                <hr />
+            }
+
+        </div>
+        <br />
+        <br />
+    }
+    </div>
+
+
+    @section Scripts {
+
+        @Scripts.Render("~/bundles/jqueryval")
+        @Scripts.Render("~/bundles/typeahead")
+        @Scripts.Render("~/bundles/datetimepicker")
+
+
+        <script type="text/javascript">
+
+            $(document).ready(function() {
+
+                var x = document.getElementById("project-tab");
+                x.className = "active";
+
+
+                //The start Date input should be disabled.
+                $("input[type=number]").attr('disabled', true);
+
+                SetTypeAhead();
+                SetControlsByStage();
+                WorkflowLockDown();
+
+            });
+
+////This Javascript will change the DOM, specificly the page the user is on.
+
+
+//if ($('#ReadOnly').val() == "True") {
+
+            //    $("input").prop('disabled', true);
+            //    $("textarea").prop('disabled', true);
+            //    $("button").prop('disabled', true);
+            //    //Team History button should always be enabled.
+            //    $("#ShowTeamHistory").prop('disabled', false);
+
+            //    //$("#InfoMessage").text = "The financial End Date has passed. Changes cannot be made.";
+            //    //$("#InfoMessage").toggle();
+            //}
+
+
+            function WorkflowLockDown() {
+                if ($("#IsActiveWorkflow").val() === "True") {
+                    $("#InfoMessage").toggle();
+
+                    $("input").prop('disabled', true);
+                    $("textarea").prop('disabled', true);
+                    $("button").prop('disabled', true);
+                    //Team History button should always be enabled.
+                    $("#ShowTeamHistory").prop('disabled', false);
+                }
+
+            }
+
+            function SetTypeAhead() {
+
+                var staffList = [
+                    { "EmpNo": "111111", "DisplayName": "A Inputter", "LOGON": "A-INPUTTER" },
+                    { "EmpNo": "222222", "DisplayName": "A SRO", "LOGON": "A-SRO" },
+                    { "EmpNo": "333333", "DisplayName": "An Adviser", "LOGON": "A-Adviser" },
+                    { "EmpNo": "444444", "DisplayName": "A TeamMember", "LOGON": "A-TeamMemver" },
+                    { "EmpNo": "555555", "DisplayName": "A OfficeHead", "LOGON": "A-OfficeHead" }
+                ];
+
+
+
+                var staff = new Bloodhound({
+
+                    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('DisplayName'),
+                    queryTokenizer: Bloodhound.tokenizers.whitespace,
+                    limit: 10,
+                    local : staffList
+                });
+
+                // kicks off the loading/processing of `local` and `prefetch`
+                staff.initialize();
+
+                // passing in `null` for the `options` arguments will result in the default
+                // options being used
+                $('#NewMember .typeahead').typeahead({ highlight: true }, {
+                    name: 'staff',
+                    displayKey: 'DisplayName',
+                    // `ttAdapter` wraps the suggestion engine in an adapter that
+                    // is compatible with the typeahead jQuery plugin
+                    source: staff.ttAdapter()
+                }).bind('typeahead:selected', function(obj, datum) {
+                    changeTypeahead(obj, datum);
+                }).bind('typeahead:autocompleted', function(obj, datum) {
+                    changeTypeahead(obj, datum)
+                });
+
+
+            }
+
+            function changeTypeahead(obj, datum) {
+                $('input#NewTeamMember_TeamID').val(datum.EmpNo);
+            };
+
+
+            function ShowHistory() {
+                $('#HistoricalTeam').toggle();
+                if ($('#ShowTeamHistory').html().trim() === "Show Team History") {
+                    $('#ShowTeamHistory').html("Hide Team History");
+                } else {
+                    $('#ShowTeamHistory').html("Show Team History");
+                }
+            }
+
+            function ValidateAddTeamMember(event) {
+
+                $('#AddTeamMember-MemberError').html("");
+                $('#AddTeamMember-RoleError').html("");
+
+                var hiddenAuth = $('#NewTeamMember_TeamID');
+
+                if (hiddenAuth.val() === '') {
+                    $('#AddTeamMember-MemberError').html("You must select a person to add to the project.");
+                    event.preventDefault();
+                    return false;
+                } else if (!$("input[name='NewTeamMember.ProjectRolesVm.SelectedRoleValue']:checked").val()) {
+                    $('#AddTeamMember-RoleError').html("You must assign a role to the person.");
+                    event.preventDefault();
+                    return false;
+                }
+
+                $("button[name='submitButton']").closest('form').submit();
+                CreateFunction();
+                return true;
+
+
+            }
+
+            // Functions to hide and show sections.
+            function CreateFunction() {
+                $("#AddTeamMemberSection").toggle();
+                $("#ShowCreate").toggle();
+                $("#EditTeamMember").hide();
+            }
+
+            function CreateFunctionCancel() {
+                $("#AddTeamMemberSection").toggle();
+                $("#ShowCreate").toggle();
+            }
+
+            try {
+
+                if (@(ViewBag.Success.ToString()) == 0) {
+                    $("#AddTeamMemberSection").toggle();
+                    $("#ShowCreate").toggle();
+
+                    $('input#NewTeamMember_TeamID').val(@Model.NewTeamMember.TeamID);
+                }
+            } catch (x) {
+                //Nothing to catch Success will be set to NA which means no one has post.
+            }
+
+            function EditTeamMember(idObj) {
+
+                $("#EditTeamMember").empty();
+                $.ajax({
+                    type: 'GET',
+                    url: "@Url.Content("../EditTeamMember/")",
+                    data: {
+                        Id: idObj //Data need to pass as parameter
+                    },
+                    dataType: 'html', //dataType - html
+                    success: function(result) {
+                        //alert(result);
+                        //Create a Div around the Partial View and fill the result
+                        $('#EditTeamMember').html(result);
+                    }
+                });
+
+                $("#EditTeamMember").show();
+                $("#AddTeamMemberSection").hide();
+                $('#ShowCreate').show();
+                $("#EditTeamMember").scrollTop();
+
+
+            }
+
+
+            function RemoveTeamMember(idObj) {
+
+                $.post("@Url.Action("EndTeamMember", "Project")", { id: idObj }, function(data) {
+
+                    if (data.success === true) {
+                        // alert("Team member removed successfully.");
+
+                        location.reload();
+
+                    }
+                    if (data.success === false) {
+                        //alert("An error has occurred. Please try again.");
+
+                    }
+                });
+            };
+
+            function CancelEdit() {
+                $("#EditTeamMember").toggle();
+            }
+
+            function SetControlsByStage() {
+
+                switch ($("#Stage").val()) {
+
+                    case "8":
+                        $("#ShowCreate").prop('disabled', true);
+                        $("#SaveTeamMarkerBtn").prop('disabled', true);
+                        $('#CurrentTeamHolder').css("display", "none");
+                        $('#ShowCreate').css("display", "none");
+
+
+                        break;
+                    default :
+                        break;
+                }
+
+                $("#GOMI").prop('disabled', false);
+
+            }
+
+            function PostTeamMemberEdit() {
+
+                var form = $('#EditTeamMemberForm');
+                $.ajax({
+                    cache: false,
+                    async: true,
+                    type: "POST",
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function(result) {
+                        if (result.success === true) {
+                            //$('#resultmessageMilestone').addClass("SaveMessageSuccess");
+                            location.reload();
+                        }
+                        if (result.success === false) {
+                            $("#errorDiv").html(result.response);
+                            $("#errorDiv").toggle();
+                        }
+                    },
+                    //error: function (result) { alert("Error creating new milestone"); }
+                });
+            };
+        </script>
+    }
+
+

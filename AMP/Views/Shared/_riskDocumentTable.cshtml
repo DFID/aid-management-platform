@@ -1,0 +1,45 @@
+﻿@model AMP.ViewModels.RiskDocumentsVM
+@{
+    if (Model.ProjectRiskDocuments != null)
+    {
+        var grid = new WebGrid(Model.ProjectRiskDocuments, canPage: false);
+
+        if (grid.TotalRowCount > 0)
+        {
+            @grid.GetHtml(
+                tableStyle: "table-main",
+                htmlAttributes: new {Id = "Risk-Document-list", title = "Documents for risk"},
+                mode: WebGridPagerModes.All,
+                columns:
+                    grid.Columns(
+                        grid.Column("DocumentID", "DocumentID", format: @<text><span class="display-mode" id="quest-number-@item.ProjectID-@item.WebGrid.Rows.IndexOf(item)"> <a target="blank" href="@item.DocumentLink"> @item.DocumentID</a>  </span> </text>, style: "col2Width", canSort: false),
+                        grid.Column("Description", "Description", format: @<text><span class="display-mode"><span class="lblDescription" id="document-description-@item.ProjectID-@item.WebGrid.Rows.IndexOf(item)">@item.Description</span></span></text>, style: "col1Width", canSort: false),
+                        grid.Column("Action", format: @<text>
+                                                          <button class="Delete-risk-document display-mode" id="document-delete-@item.ProjectID-@item.WebGrid.Rows.IndexOf(item)" title="Delete" data-docid="@item.DocumentID" data-proejctid="@item.ProjectID">Delete</button>
+                                                       </text>, style: "col3Width", canSort: false)
+                        ))
+        }
+    }
+    else
+    {
+        <span>null</span>
+    }
+
+}
+
+
+<script type="text/javascript">
+
+    $(document).ready(function() {
+
+        $('.Delete-risk-document').off().on('click', function() {
+            var projectId = $(this).attr("data-proejctid");
+            var docID = $(this).attr("data-docid");
+            RemoveRiskDocument(docID, projectId);
+
+        });
+
+    });
+
+</script>
+

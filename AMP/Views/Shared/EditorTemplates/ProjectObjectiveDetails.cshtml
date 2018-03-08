@@ -1,0 +1,75 @@
+﻿@model AMP.ViewModels.ProjectMarkersVM
+    
+<div class="project-details-section">
+    <h1 class="form-title heading-large">Policy Markers</h1>
+    <p class="form-hint">If your project has gender related input sector codes then you must ensure that this section is completed</p>
+    <div class="grid-row">
+        <div class="column-third">
+            <div class="form-group">
+                <fieldset>
+                    <!-- Gender equality -->
+                    <legend class="form-label-bold">
+                        Gender equality
+                    </legend>
+                    <div class="status-select">
+                        @Html.HiddenFor(model => model.GenderEquality)
+                        @foreach (var objective in Model.GenderCCO.CCOValues)
+                        {
+                            <label class="block-label" id="label-Gender-@objective.CCOValue" for="Gender-@objective.CCOValue">
+                                @Html.RadioButtonFor(m => m.GenderCCO.SelectedCCOValue, objective.CCOValue, new {@id = String.Format("Gender-{0}", objective.CCOValue)}) @objective.CCODescription
+                            </label>
+                        }
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        @*<div class="column-third">
+            <div class="form-group">
+                <fieldset>
+                     Gender equality 
+                    <legend class="form-label-bold">
+                       Climate 
+                    </legend>
+                    <div class="status-select">
+                        @Html.HiddenFor(model => model.GenderEquality)
+                        @foreach (var objective in Model.GenderCCO.CCOValues)
+                        {
+                            <label class="block-label" id="label-Gender-@objective.CCOValue" for="Gender-@objective.CCOValue">
+                                @Html.RadioButtonFor(m => m.GenderCCO.SelectedCCOValue, objective.CCOValue, new { @id = String.Format("Gender-{0}", objective.CCOValue) }) @objective.CCODescription
+                            </label>
+                        }
+                    </div>
+                </fieldset>
+            </div>
+        </div>*@
+        </div>
+    <div class="grid-row">
+        <h1 class="form-title heading-large">Other Markers</h1>
+        <p class="form-hint">If your project has HIV/AIDs related input sector codes then you must ensure that this section is completed</p>
+        <div class="column-third">
+            <div class="form-group">
+                <fieldset>
+                    <!-- HIV Aids -->
+                    <legend class="form-label-bold">
+                        HIV/AIDS
+                    </legend>
+                    <div class="status-select">
+                        @Html.HiddenFor(model => model.HIVAIDS)
+                        @foreach (var objective in Model.HIVCCO.CCOValues)
+                        {
+                            <label class="block-label" id="label-HIV-@objective.CCOValue" for="HIV-@objective.CCOValue">
+                                @Html.RadioButtonFor(m => m.HIVCCO.SelectedCCOValue, objective.CCOValue, new { @id = String.Format("HIV-{0}", objective.CCOValue) })@objective.CCODescription
+                            </label>
+                        }
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+        @*<div class="column-third">&nbsp;</div>*@
+    </div>
+
+
+
+
+

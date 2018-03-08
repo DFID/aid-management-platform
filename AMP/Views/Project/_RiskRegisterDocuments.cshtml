@@ -1,0 +1,39 @@
+﻿@model AMP.ViewModels.ProjectViewModel
+@{
+    var grid = new WebGrid(Model.ReviewVm.RiskRegister, canPage: false);
+
+
+    @grid.GetHtml(
+             tableStyle: "table-main",
+                      htmlAttributes: new { Id = "Risk-Document-list", title = "Documents for risk" },
+             mode: WebGridPagerModes.All,
+            columns:
+            grid.Columns(
+            grid.Column("DocumentID", "DocumentID", format: @<text><span class="display-mode" id="quest-number-@item.ProjectID-@item.WebGrid.Rows.IndexOf(item)"> <a href="http://insight/_layouts/QuestLinking/QuestLink.aspx?docid=@item.DocumentID"> @item.DocumentID</a>  </span> </text>, style: "col2Width", canSort: false),
+            grid.Column("Description", "Description", format: @<text><span class="display-mode"><span class="lblDescription" id="document-description-@item.ProjectID-@item.WebGrid.Rows.IndexOf(item)">@item.Description</span></span></text>, style: "col1Width", canSort: false),
+            grid.Column("Action", format: @<text>
+                    <button class="Delete-risk-document display-mode" id="document-delete-@item.ProjectID-@item.WebGrid.Rows.IndexOf(item)" title="Delete"  data-docid="@item.DocumentID" data-proejctid="@item.ProjectID">Delete</button>
+            </text>, style: "col3Width", canSort: false)
+))
+
+
+}
+
+
+<script type="text/javascript">
+
+    $(document).ready(function() {
+
+        $('.Delete-risk-document').off().on('click', function() {
+            var projectId = $(this).attr("data-proejctid");
+            var docID = $(this).attr("data-docid");
+            RemoveRiskDocument(docID, projectId);
+
+        });
+
+    });
+
+</script>
+
+
+

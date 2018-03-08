@@ -1,0 +1,2444 @@
+﻿@model AMP.ViewModels.ProjectReviewVM
+
+
+@using AMP.Helpers
+@{
+    ViewBag.Title = "Reviews";
+}
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml", Model.ProjectHeader)
+
+@using (Html.BeginForm("ARPCRBasicEdit", "Project", FormMethod.Post, new { }))
+{
+    @Html.AntiForgeryToken()
+    <div><input type="hidden" id="BudgetCentreCheck" value="@Model.ProjectHeader.BudgetCentre"   /> </div> // this is used to disable AddREview button for Admin projects
+    <div><input type="hidden" id="ReviewCount" value="@Model.ProjectReviews.Count()" /></div>
+
+    if (Model.ProjectPcrScore != null)
+    {
+        <div> <input type="hidden" id="PCRCount" value="HasPCR" /> </div>
+    }
+    else
+    {
+        <div> <input type="hidden" id="PCRCount" value="none" /> </div>
+    }
+
+    <div class="page-container secondary">
+        <div class="grid-row">
+            <div class="column-full">
+
+                <br/>
+                <p class="form-hint">
+                    The purpose of an Annual Review and Project Completion Review in DFID is to assess the performance each year and at the
+                    end of a programme. The AR or PCR should consider progress against logframe indicators,
+                    as well as broader management issues such as risk management and value for money in order to determine an overall score.
+                    These scores contribute to the overall Portfolio Quality Index score for your department, division and DFID.
+                    Departmental scores are reported monthly to your Director and the Divisional and DFID scores are reported regularly to the
+                    Executive Management Committee and the Investment Committee. A good AR or PCR will provide an unbiased and fair assessment of
+                    progress and will capture key lessons and make recommendations for improvements in future years. For more specific guidance please refer to SmartRules.
+                </p>
+                <br/>
+
+            </div>
+            <hr>
+        </div>
+
+        <div class="project-details-section">
+          
+            @if (Convert.ToInt32(Model.ProjectHeader.Stage) < 5)
+            {
+                <div class="grid-row">
+                    <div class="column-half">
+                        <div>This project has not reached implementation stage and does not have an AR or PCR due.</div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @Html.HiddenFor(model => model.Performance.ProjectID)
+
+
+
+                <div class="grid-row" id="ARMaingrid">
+                    <div class="column-third">
+                        <fieldset>
+                            <legend class="form-label-bold">AR Required?</legend>
+                            <label for="arrequired-Y" class="block-label" id="ARReq-Y-Label">
+                                @Html.RadioButtonFor(model => model.Performance.ARRequired, string.Format("Yes"), new {id = "arrequired-Y"})
+                                Yes
+                            </label>
+
+                            <label for="arrequired-N" class="block-label" id="ARReq-N-Label">
+                                @Html.RadioButtonFor(model => model.Performance.ARRequired, string.Format("No"), new {id = "arrequired-N"})
+                                No
+                            </label>
+                        </fieldset>
+                    </div>
+
+                    @if (Model.Performance.ARRequired == "Yes")
+                    {
+                        <div class="dvARDates">
+                            <div class="column-third">
+                                @Html.DateBlockWithoutFieldset("Performance.ARDueDate", "AR Due Date", @Model.Performance.ARDueDate, "Date AR to be completed", "Performance_ARDueDate")
+                            </div>
+                            <div class="column-third">
+                                @Html.DateBlockWithoutFieldset("Performance.ARPromptDate", "AR Prompt Date", @Model.Performance.ARPromptDate, "Date when a AR prompt is received", "Performance_ARPromptDate")
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="column-two-thirds" id="dvexreason" style="display: block;">
+                            <label for="exemptReason" class="form-label-bold">Exempt Reason</label>
+                            <p class="form-hint">Reason why AR exempt</p>
+                            @Html.TextAreaFor(model => model.Performance.ARExcemptReason, new {id = "exemptReason", @class = "form-control", @rows = 4, disabled = "disabled"})
+                            @*<label for="exemptJustification" class="form-label-bold">Exempt Justification</label>
+                                <p class="form-hint" style="display: none;">Additional Information</p>
+                                @Html.TextAreaFor(model => model.Performance.ARExemptJustification, new { id = "exemptJustification", @class = "form-control", @rows = 3, disabled = "disabled", style = "display: none;" })*@
+                        </div>
+                        <script type="text/javascript">
+                            $(function() {
+                                // $("#btnRequestExemptionAR").attr("disabled", true);
+                                //*** Bug Fix LR:  let people see the approved/rejected AR expemption as read only
+                                $("#btnRequestExemptionAR").attr("disabled", false);
+                                $("#ReviewMaster_ReviewType option[value='Annual Review']").remove();
+                            });
+                        </script>
+                    }
+                </div>
+                <span class="form-hint">Your Annual Review can be approved up to three weeks before the due date without affecting the due date for future years.  Any approval date outside this three-week period (i.e. more than 3 weeks early, or overdue) will see the due date reset to one year from that approval date</span>
+                <hr>
+                <div class="grid-row">
+                    <div class="column-third">
+                        <fieldset>
+                            <legend class="form-label-bold">PCR Required?</legend>
+
+                            <label for="pcrrequired-Y" class="block-label" id="PCRReq-Y-Label">
+                                @Html.RadioButtonFor(model => model.Performance.PCRRequired, string.Format("Yes"), new {id = "pcrrequired-Y"})
+                                Yes
+                            </label>
+
+                            <label for="pcrrequired-N" class="block-label" id="PCRReq-N-Label">
+                                @Html.RadioButtonFor(model => model.Performance.PCRRequired, string.Format("No"), new {id = "pcrrequired-N"})
+                                No
+                            </label>
+                        </fieldset>
+                    </div>
+
+                    @if (Model.Performance.PCRRequired == "Yes")
+                    {
+                        <div class="dvPCRDates">
+                            <div class="column-third">
+                                @Html.DateBlockWithoutFieldset("Performance.PCRDueDate", "PCR Due Date", @Model.Performance.PCRDueDate, "Date PCR to be completed", "Performance_PCRDueDate")
+                            </div>
+                            <div class="column-third">
+                                @Html.DateBlockWithoutFieldset("Performance.PCRPrompt", "PCR Prompt Date", @Model.Performance.PCRPrompt, "Date when a PCR prompt is received", "Performance_PCRPrompt")
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="column-two-thirds" id="dvexreasonPcr" style="display: block;">
+                            <label for="pcrExempt" class="form-label-bold">Exempt Reason</label>
+                            <p class="form-hint">Reason why PCR exempt</p>
+                            @Html.TextAreaFor(model => model.Performance.PCRExcemptReason, new {id = "pcrExempt", @class = "form-control", @rows = 4, disabled = "disabled"})
+                            @*<label for="pcrJustification" class="form-label-bold">Exempt Justification</label>
+                                <p class="form-hint" style="display: none;">Additional Information</p>
+                                @Html.TextAreaFor(model => model.Performance.PCRExemptJustification, new { id = "pcrJustification", @class = "form-control", @rows = 3, disabled = "disabled", style = "display: none;" })*@
+                        </div>
+                        <script type="text/javascript">
+                            $(function() {
+                                $("#btnRequestExemptionPCR").attr("disabled", true);
+                                $("#ReviewMaster_ReviewType option[value='Project Completion Review']").remove();
+                            });
+                        </script>
+                    }
+                </div>
+
+            }
+            <div>
+                <div>
+                    <input id="CreateBtnARPCRBasic" type="submit" value="Update" class="button" onclick="document.getElementById('CreateBtn').disabled = 'disabled'" style="display: none"/>
+                </div>
+                @*<div class="PushDown">
+                        <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+                        <div id="SaveMessage" style="display:none">Save Successful</div>
+                    </div>*@
+            </div>
+        </div>
+
+    
+    </div>
+
+}
+
+<br />
+
+
+
+<div class="page-container secondary">
+    <!--Accordion Container for all Accordions-->
+    <div id="accordion" class="reports">
+        <span class="form-hint" id="btnAddExemptionHints"></span>
+        @{
+
+            if (Convert.ToInt32(Model.ProjectHeader.Stage) != 5)
+            {
+                <script type="text/javascript">
+                    $(function () {
+                        $("#btnRequestExemptionAR").attr("disabled", true);
+                        $("#btnRequestExemptionPCR").attr("disabled", true);                     
+                    });
+                </script>
+            }
+
+            if (Model.ProjectWFCheck.Status == true)
+            {
+                <script type="text/javascript">
+                    $(function () {
+                        $("#btnAddReview").attr("disabled", true);
+                        if ($('#HasExemptionStage').val() != '') //$('#ReviewExemptionPCR_StageID').val()
+                        {
+                            $("#btnRequestExemptionAR").attr("disabled", false);
+                        }
+                        else {
+                            $("#btnRequestExemptionAR").attr("disabled", true);
+                        }
+                        if ($('#ReviewExemptionPCR_StageID').val() != '') {
+                            $("#btnRequestExemptionPCR").attr("disabled", false);
+                        }
+                        else {
+                            $("#btnRequestExemptionPCR").attr("disabled", true);
+                        }
+                        $("#btnAddExemptionHints").html("<span class='form-hint infomessage'> <i class='fa fa-hourglass-half'></i>This Project is awaiting workflow approval.</span>");
+                    });
+                </script>
+            }
+}
+     
+        <button id="btnRequestExemptionPCR" type="button" class="bluelightnight" style="vertical-align: text-bottom; float:right; margin-left:5px"><strong> View/Request PCR exemption </strong></button>
+        <button id="btnRequestExemptionAR" type="button" class="bluelightnight" style="vertical-align: text-bottom; float:right"><strong> View/Request AR exemption </strong></button>
+
+        @{
+            //Show "Add review" button  and "Request an exemption" button if the user is a Project team member
+            if (@Model.CurrentUserMemberOfGroup == "Team" && Convert.ToInt32(Model.ProjectHeader.Stage) == 5 )
+            {
+                <button id="btnAddReview" class="bluelightnight" style="vertical-align: text-bottom"><strong> Add review </strong></button>
+                <span class="form-hint" id="btnAddReviewHints"></span>
+            }
+            //Hide "Add review" button  and "Request an exemption" button if not Project team member
+            else
+            {
+                <span class="form-hint">You must be a project team member to add review</span> <span class="form-hint" id="btnAddReviewHints"> </span>
+        
+            }
+
+        }
+
+        @*Exemption start*@
+
+        <div class="page-container secondary">
+            <div id="ExemptionSection" class="reports">
+
+                <div id="successDivExemption" class="SaveMessageSuccess"></div>
+
+                <div class="grid-row">
+                    <div class="column-half">
+                        @{ //Exemption stage
+                            if (@Model.ReviewExemptionAR != null)
+                            {
+                                <input id="HasExemptionStage" type="hidden" value="@Model.ReviewExemptionAR.StageID" />
+                            }
+                            else
+                            {
+                                <input id="HasExemptionStage" type="hidden" value="" />
+                            }
+
+                        }
+                        
+                        <div id="ExemptionCreateForm" style="display: none" class="report-basics">
+                            @using (Html.BeginForm("SubmitExemptionForApproval", "Project", FormMethod.Post, new { id = "ExemptionForm", role = "form" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true)
+                                
+                                <input type="hidden" id="ReviewExemptionAR_ProjectID" name="ReviewExemptionAR.ProjectID" value="@Model.ProjectHeader.ProjectID" />
+                                <input type="hidden" name="ReviewExemptionAR.ExemptionType" id="ReviewExemptionAR.ExemptionType" value="Annual Review" />
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        <h2>Annual Review Exemption</h2>
+                                    </div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        @Html.DateBlock("ReviewExemption.ARDueDate", "AR Due Date", @Model.Performance.ARDueDate, "")
+                                        <br />
+                                    </div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        <div class="form-group" id="exemptReviewReasonsAR">
+                                            <label class="form-label-bold" for="ReviewExemption_ExemptionReasonAR">Exemption Reason</label>
+                                            <p class="form-hint">The reason why reviews should be exempt</p>
+                                            @Html.DropDownListFor(model => model.ReviewExemptionAR.ExemptionReason, new SelectList(Model.ExemptionReasons.Where(x => x.ExemptionType == "AR"), "ExemptionID", "ExemptionReason1"), "-- Select Exemption reasons --", new { @class = "form-control", id = "ReviewExemption_ExemptionReasonAR" })
+                                            @Html.ValidationMessageFor(model => model.ReviewExemptionAR.ExemptionReason)
+                                        </div>
+                                        <div class="column-full SaveMessageFail" id="ExemptionReason-Error"></div>
+                                    </div>
+                                </div>
+                          
+                                if (@Model.ReviewExemptionAR != null)
+                                {
+                                    if (@Model.ReviewExemptionAR.Requester != null && @Model.ReviewExemptionAR.ProjectID!=null)
+                                    {
+                                        <div class="grid-row">
+                                            <div class="column-full">
+                                                <div class="form-group" id="dvARRequesterName">
+                                                    <label class="form-label-bold" for="ARRequesterName">Requester</label>
+                                                    <p class="form-hint">Name of the requester</p>
+                                                    @Html.TextBoxFor(model => model.ReviewExemptionAR.RequesterName, new { id = "ARRequesterName", disabled = "disabled", style = "width: 400px" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="grid-row" style="display:none">
+                                            <div class="column-full">
+                                                <div class="form-group" id="dvARRequesterName">
+                                                    <label class="form-label-bold" for="ARRequesterName">Requester</label>
+                                                    <p class="form-hint">Name of the requester</p>
+                                                    @Html.TextBoxFor(model => model.ReviewExemptionAR.RequesterName, new { id = "ARRequesterName", disabled = "disabled", style = "width: 400px" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        <label class="form-label-bold" for="exemptionSubmissionComments">Comments</label>
+                                        <p class="form-hint">Justification Comments</p>
+                                        @Html.TextAreaFor(model => model.ReviewExemptionAR.SubmissionComment, new { id = "exemptionSubmissionComments", @class = "form-control", maxlength = "200", rows = "4" })
+                                        @Html.ValidationMessageFor(model => model.ReviewExemptionAR.SubmissionComment)
+                                        <div class="column-full SaveMessageFail" id="exemptionSubmissionComments-Error"></div>
+                                    </div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                
+                                        @{
+                                            if (@Model.ReviewExemptionAR.StageID == "1")
+                                            {
+                                                <button type="button" id="ToggleApproverButtonARExemption" onclick="TogglFunctionExemption('#ARExemptionApproveForm', 'ToggleApproverButtonARExemption')" class="bluelightnight">Change Approver</button>
+                                            }
+                                            else
+                                            {
+                                                <script type="text/javascript">
+                                                    $(function () {
+                                                        $('#ARExemptionApproveForm').show();
+                                                        $('#CancelBtnARExemption').hide();
+                                                    });
+                                                </script>
+                                            }
+                                        }
+                                        
+                                        <div id="ARExemptionApproveForm" style="display:none">
+                                            
+                                            <div class="form-group" id="dvExemptTypeAhead">
+                                                <label class="form-label-bold" for="ExemptionAuthoriserBox">Approver</label>
+                                                <p class="form-hint">Start typing the name of the person you want to send the exemption request to</p>
+                                                <div id="ExemptionAuthoriser" class="exemptionAuthoriserAr">
+
+                                                    @Html.HiddenFor(model => model.ReviewExemptionAR.Approver, new {id = "ExemptionAuthoriserArName"})
+                                                    <input id="ExemptionAuthoriserBox" type="text" class="typeahead" placeholder="Search for an approver" style="width: 400px; height: 25px"/>
+                                                    <div class="column-full SaveMessageFail" id="ExemptionAuthoriserName-Error"></div>
+
+                                                </div>
+                                            </div>
+
+
+                                            <br /><br />
+                                            <input id="ExemptionCreateBtn" type="submit" value="Submit" class="button" onclick="submitexemption(this);" />
+                                            
+                                            <button id="CancelBtnARExemption" class="red" onclick="TogglFunctionExemption('#ARExemptionApproveForm',null)" value="Cancel" type="button">Cancel</button>
+
+                                        </div>
+
+                                      
+                                        @{
+                                        if (@Model.CurrentUserMemberOfGroup == "Others")
+                                        {
+                                        <p class="form-hint">Only Team Members can submit an exemption request</p>
+                                        }
+                                        }
+                                    </div>
+                                </div>
+                                
+                         
+                            }
+                        </div>
+                    </div>
+                    <div class="column-half">
+
+                        <div id="ApproveExemptionForm" style="display: none" class="report-basics">
+                            @using (Html.BeginForm("ApproveExemption", "Project", FormMethod.Post, new { id = "ExemptionApprovalForm" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true)
+
+                                <input type="hidden" id="ARExemptionApproval_ProjectID" name="ReviewExemptionAR.ProjectID" value="@Model.ProjectHeader.ProjectID" />
+
+                                <input type="hidden" id="ARExemptionApproval_ID" name="ReviewExemptionAR.ID" value="@Model.ReviewExemptionAR.ID">
+                                <input type="hidden" id="ARExemptionApproval_ExemptionType" name="ReviewExemptionAR.ExemptionType" value="@Model.ReviewExemptionAR.ExemptionType">
+                                <input type="hidden" id="ARExemptionApproval_SubmissionComments" name="ReviewExemptionAR.SubmissionComment" value="@Model.ReviewExemptionAR.SubmissionComment">
+
+                                <div id="ExemptionAuthorisation">
+                                    <h2>Authorisation</h2>
+
+                                    <div class="grid-row">
+                                        <div class="column-full">
+                                            <label class="form-label-bold" for="ExemptionAppComment">Comments</label>
+                                            <p class="form-hint">Approval comments/rejection justification</p>
+                                            @Html.TextAreaFor(model => model.ReviewExemptionAR.ApproverComment, new { @class = "form-control", id = "ExemptionAppComment", rows = "4" })
+                                            <div class="column-full SaveMessageFail" id="ARExemptionApprovalComments-Error"></div>
+                                            <div></div>
+                                        </div>
+                                    </div>
+                                    <div class="grid-row">
+                                        <fieldset>
+                                            <div class="column-half">
+                                                <label class="block-label" style="margin-right: 20px" for="isExemptionApproved-Y">
+                                                    @Html.RadioButtonFor(model => model.ReviewExemptionAR.Approved, string.Format("1"), new { id = "isExemptionApproved-Y" })
+                                                    Approve
+                                                </label>
+                                            </div>
+                                            <div class="column-half">
+                                                <label class="block-label" style="margin-right: 20px" for="isExemptionApproved-N">
+                                                    @Html.RadioButtonFor(model => model.ReviewExemptionAR.Approved, string.Format("0"), new { id = "isExemptionApproved-N" })
+                                                    Reject
+                                                </label>
+                                            </div>
+                                            <div class="column-full SaveMessageFail" id="ARExemptionApprovalRadio-Error"></div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="column-full">
+                                            <div class="form-group" id="ExApproverGroup">
+                                                <label class="form-label-bold" for="ExemptionApproverName">Approver</label>
+                                                <p class="form-hint">Name of the approver</p>
+                                                @Html.TextBoxFor(model => model.ReviewExemptionAR.ApproverName, new { id = "ExemptionApproverName", style = "width: 400px", disabled = "disabled" })
+                                                @Html.HiddenFor(model => model.ReviewExemptionAR.Approver)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="column-third">
+                                            <input id="ExemptionBtnAuthorisationAR" type="submit" value="Submit" class="button" onclick="ARExemptionApprovalPrintErrors(this);" />
+                                        </div>
+                                    </div>
+                                    <div class="PushDown">
+                                        <input type="hidden" id="ExemptSaveSuccess" value="@(ViewBag.ExemptApproveSuccess.ToString())" />
+                                        <div id="ExemptApproveSaveMessage" style="display: none">Save Successful</div>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+
+                        <div id="dvDeleteExemption" style="display: none" class="report-basics">
+                            @using (Html.BeginForm("DeleteExemption", "Project", FormMethod.Post, new { id = "DeleteExemptionForm" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true)
+                                //@Html.HiddenFor(model => model.ReviewExemptionAR.ProjectID, new { @value = @Model.ProjectHeader.ProjectID, id = "DeleteExceptionProjectID" })
+
+                                <input type="hidden" id="ARDeleteExemption_ProjectID" name="ReviewExemptionAR.ProjectID" value="@Model.ProjectHeader.ProjectID" />
+
+                                <input type="hidden" id="ExemptAuth_ReviewExemptionIDAR" name="ReviewExemptionAR.ID" value="@Model.ReviewExemptionAR.ID">
+                                <input type="hidden" id="ExemptAuth_ExemptionTypeAR" name="ReviewExemptionAR.ExemptionType" value="@Model.ReviewExemptionAR.ExemptionType">
+                                <input type="hidden" id="ExemptAuth_SubmissionCommentsAR" name="ReviewExemptionAR.SubmissionComment" value="@Model.ReviewExemptionAR.SubmissionComment">
+
+
+                                <h2>Delete AR Exemption</h2>
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        <p class="form-hint">Delete will delete all data entered and will delete the Exemption request</p>
+                                        <br />
+                                            @if (@Model.ReviewExemptionAR.ProjectID != null)
+                                            {
+                                                <button id="DeleteExemption" name="submitButton" class="red" value="Delete Exemption" type="submit">
+                                                    Delete Exemption
+                                                </button>
+                                            }
+                                          else 
+                                          {
+                                            <span>No AR Exemption request to Delete</span>
+                                            }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @* ------------ Exemption for PCR Starts *@
+                <div class="grid-row">
+
+                    <div class="column-half">
+                        @{
+                            if (@Model.ReviewExemptionPCR != null)
+                            {
+                                <input id="HasExemptionStagePCR" type="hidden" value="@Model.ReviewExemptionPCR.StageID" />
+                            }
+                            else
+                            {
+                                <input id="HasExemptionStagePCR" type="hidden" value="" />
+                            }
+
+                        }
+
+                        <div id="PCRExemptionCreateForm" style="display: none" class="report-basics">
+                            @using (Html.BeginForm("SubmitExemptionForApprovalPCR", "Project", FormMethod.Post, new { id = "PCRExemptionForm" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true)
+
+                                <input type="hidden" id="ReviewExemptionPCR_ProjectID" name="ReviewExemptionPCR.ProjectID" value="@Model.ProjectHeader.ProjectID" />
+
+                                @Html.HiddenFor(model => model.ReviewExemptionPCR.StageID )
+                             
+
+                                <input type="hidden" name="ReviewExemptionPCR.ExemptionType" id="ReviewExemptionPCR.ExemptionType-@Model.ReviewExemptionPCR.ProjectID" value="Project Completion Review" />
+                               
+                                 <div class="grid-row">
+                                    <div class="column-full">
+                                        <h3>Project Completion Review</h3>
+                                    </div>
+                                </div>
+
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        @Html.DateBlock("ReviewExemption.PCRDueDate", "PCR Due Date", @Model.Performance.PCRDueDate, "")
+                                        @{
+                                        }
+                                        <br/>
+                                    </div>
+                                </div>
+                                @Html.HiddenFor(model => model.ReviewExemptionPCR.ExemptionType)
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        <div class="form-group" id="exemptReviewReasonsPCR">
+                                            <label class="form-label-bold" for="ReviewExemption_ExemptionReasonPCR">Exemption Reason</label>
+                                            <p class="form-hint">The reason why reviews should be exempt</p>
+                                            @Html.DropDownListFor(model => model.ReviewExemptionPCR.ExemptionReason, new SelectList(Model.ExemptionReasons.Where(x => x.ExemptionType == "PCR"), "ExemptionID", "ExemptionReason1"), "-- Select Exemption reasons --", new { @class = "form-control", id = "ReviewExemption_ExemptionReasonPCR" })
+                                            @Html.ValidationMessageFor(model => model.ReviewExemptionPCR.ExemptionReason)
+                                        </div>
+                                        <div class="column-full SaveMessageFail" id="PCRExemptionReason-Error"></div>
+                                    </div>
+                                </div>
+                     
+                                if (@Model.ReviewExemptionPCR != null)
+                                {
+                                    if (@Model.ReviewExemptionPCR.Requester != null && @Model.ReviewExemptionPCR.ProjectID != null)
+                                    {
+                                        <div class="grid-row">
+                                            <div class="column-full">
+                                                <div class="form-group" id="dvPCRExemptionRequesterName">
+                                                    <label class="form-label-bold" for="PCRExemptionRequesterName">Requester</label>
+                                                    <p class="form-hint">Name of the requester</p>
+                                                    @Html.TextBoxFor(model => model.ReviewExemptionPCR.RequesterName, new { id = "PCRExemptionRequesterName", disabled = "disabled", style = "width: 400px" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="grid-row" style="display:none">
+                                            <div class="column-full">
+                                                <div class="form-group" id="dvPCRExemptionRequesterName">
+                                                    <label class="form-label-bold" for="PCRExemptionRequesterName">Requester</label>
+                                                    <p class="form-hint">Name of the requester</p>
+                                                    @Html.TextBoxFor(model => model.ReviewExemptionPCR.RequesterName, new { id = "PCRExemptionRequesterName", disabled = "disabled", style = "width: 400px" })
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+
+                                <div class="grid-row">
+                                    <div class="column-full">
+
+                                        <label class="form-label-bold" for="exemptionSubmissionCommentsPCR">Comments</label>
+                                        <p class="form-hint">Justification Comments</p>
+
+                                        @Html.TextAreaFor(model => model.ReviewExemptionPCR.SubmissionComment, new { id = "exemptionSubmissionCommentsPCR", @class = "form-control", maxlength = "200", rows = "4" })
+                                        @Html.ValidationMessageFor(model => model.ReviewExemptionPCR.SubmissionComment)
+                                        <div class="column-full SaveMessageFail" id="PCRExemptionSubmissionComments-Error"></div>
+                                         
+                                    </div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        @{
+                                            if (@Model.ReviewExemptionPCR.StageID == "1")
+                                            {
+                                                <button type="button" id="ToggleApproverButtonPCRExemption" onclick="TogglFunctionExemptionPCR('#PCRExemptionApproveForm', 'ToggleApproverButtonPCRExemption')" class="bluelightnight">Change Approver</button>
+                                            }
+                                            else
+                                            {
+                                                <script type="text/javascript">
+                                                    $(function () {
+                                                        $('#PCRExemptionApproveForm').show();
+                                                        $('#CancelBtnPCRExemption').hide();
+                                                    });
+                                                </script>
+                                            }
+                                        }
+
+                                        <div id="PCRExemptionApproveForm" style="display:none">
+                                            
+                                            <div class="form-group" id="dvExemptTypeAheadPCR">
+                                                <label class="form-label-bold" for="PCRExemptionAuthoriserBox">Approver</label>
+                                                <p class="form-hint">Start typing the name of the person you want to send the exemption request to</p>
+                                                <div id="ExemptionAuthoriserPCR">
+                                                    <input id="PCRExemptionAuthoriserBox" type="text" class="typeahead" placeholder="Search for an approver" style="width: 400px; height: 25px" />
+                                                    @Html.HiddenFor(model => model.ReviewExemptionPCR.Approver, new { id = "ExemptionAuthoriserPcrName" })
+                                                    <div class="column-full SaveMessageFail" id="PCRExemptionAuthoriser-Error"></div>
+                                                </div>
+                                            </div>
+                                            <br /><br />
+                                            <input id="ExemptionCreateBtnPCR" type="submit" value="Submit" class="button" onclick="submitPCRExemptionPrintErrors(this);" />
+                                            <button id="CancelBtnPCRExemption" class="red" onclick="TogglFunctionExemptionPCR('#PCRExemptionApproveForm', null)" value="Cancel" type="button">Cancel</button>
+
+
+                                        </div>
+
+                                            @{
+                                            if (@Model.CurrentUserMemberOfGroup == "Others")
+                                            {
+                                                <p class="form-hint">Only Team Members can submit an exemption request</p>
+                                            }
+                                            }
+                                        </div>
+                                </div>
+                           }
+                        </div>
+
+                    </div>
+                    <div class="column-half">
+
+                        <div id="ApprovePCRExemptionForm" style="display: none" class="report-basics">
+                            @using (Html.BeginForm("ApproveExemptionPCR", "Project", FormMethod.Post, new { id = "PCRExemptionApprovalForm" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true)
+
+                                <input type="hidden" id="PCRExemptionApproval_ProjectID" name="ReviewExemptionPCR.ProjectID" value="@Model.ProjectHeader.ProjectID" />
+
+                                <input type="hidden" id="PCRExemptionApproval_ID" name="ReviewExemptionPCR.ID" value="@Model.ReviewExemptionPCR.ID">
+                                <input type="hidden" id="PCRExemptionApproval_ExemptionType" name="ReviewExemptionPCR.ExemptionType" value="@Model.ReviewExemptionPCR.ExemptionType">
+                                <input type="hidden" id="PCRExemptionApproval_SubmissionComments" name="ReviewExemptionPCR.SubmissionComment" value="@Model.ReviewExemptionPCR.SubmissionComment">
+
+
+                                @*@Html.HiddenFor(model => @Model.ReviewExemptionPCR.ProjectID, new { @value = @Model.ProjectHeader.ProjectID, id="ApprovePCRExceptionProjectID" })
+
+                                <input type="hidden" id="ExemptAuth_ReviewExemptionIDPCR-@Model.ReviewExemptionPCR.ID" name="ReviewExemptionPCR.ID" value="@Model.ReviewExemptionPCR.ID">
+                                <input type="hidden" id="ExemptAuth_ExemptionTypePCR-@Model.ReviewExemptionPCR.ExemptionType" name="ReviewExemptionPCR.ExemptionType" value="@Model.ReviewExemptionPCR.ExemptionType">
+                                <input type="hidden" id="ExemptAuth_SubmissionCommentsPCR-@Model.ReviewExemptionPCR.SubmissionComment" name="ReviewExemptionPCR.SubmissionComment" value="@Model.ReviewExemptionPCR.SubmissionComment">*@
+
+                                <div id="ExemptionAuthorisationPCR">
+                                    <h2>Authorisation</h2>
+
+                                    <div class="grid-row">
+                                        <div class="column-full">
+                                            <label class="form-label-bold" for="PCRExemptionAppComment">Comments</label>
+                                            <p class="form-hint">Approval comments/rejection justification</p>
+                                            @Html.TextAreaFor(model => @Model.ReviewExemptionPCR.ApproverComment, new { @class = "form-control", id = "PCRExemptionAppComment", rows = "4" })
+                                            <div class="column-full SaveMessageFail" id="PCRExemptionApprovalComments-Error"></div>
+                                        </div>
+                                    </div>
+                                    <div class="grid-row">
+                                        <fieldset>
+                                            <div class="column-half">
+                                                <label class="block-label" style="margin-right: 20px" for="PCRisExemptionApproved-Y">
+                                                    @Html.RadioButtonFor(model => @Model.ReviewExemptionPCR.Approved, string.Format("1"), new { id = "PCRisExemptionApproved-Y" })
+                                                    Approve
+                                                </label>
+                                            </div>
+                                            <div class="column-half">
+                                                <label class="block-label" style="margin-right: 20px" for="PCRisExemptionApproved-N">
+                                                    @Html.RadioButtonFor(model => @Model.ReviewExemptionPCR.Approved, string.Format("0"), new { id = "PCRisExemptionApproved-N" })
+                                                    Reject
+                                                </label>
+                                            </div>
+                                            <div class="column-full SaveMessageFail" id="PCRExemptionApprovalRadio-Error"></div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="column-full">
+                                            <div class="form-group" id="ExApproverGroupPCR">
+                                                <label class="form-label-bold" for="PCRExemptionApproverName">Approver</label>
+                                                <p class="form-hint">Name of the approver</p>
+                                                @Html.TextBoxFor(model => @Model.ReviewExemptionPCR.ApproverName, new { id = "PCRExemptionApproverName", disabled = "disabled", style = "width: 400px" })
+                                                @Html.HiddenFor(model => model.ReviewExemptionPCR.Approver)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="column-third">
+
+                                            <input id="ExemptionBtnAuthorisationPCR" type="submit" value="Submit" class="button" onclick="PCRExemptionApprovalPrintErrors(this);" />
+                                        </div>
+                                    </div>
+                                    <div class="PushDown">
+                                        <input type="hidden" id="ExemptSaveSuccessPCR" value="@(ViewBag.ExemptApproveSuccess.ToString())" />
+                                        <div id="ExemptApproveSaveMessagePCR" style="display: none">Save Successful</div>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+
+                        <div id="dvDeleteExemptionPCR" style="display: none" class="report-basics">
+                            @using (Html.BeginForm("DeletePCRExemption", "Project", FormMethod.Post, new { id = "PCRDeleteExemptionForm" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true)
+                            
+                                <input type="hidden" id="PCRDeleteExemption_ProjectID" name="ReviewExemptionPCR.ProjectID" value="@Model.ProjectHeader.ProjectID" />
+
+                                <input type="hidden" id="ExemptAuth_ExemptionTypeDPCR-@Model.ReviewExemptionPCR.ExemptionType" name="ReviewExemptionPCR.ExemptionType" value="@Model.ReviewExemptionPCR.ExemptionType">
+                                <input type="hidden" id="ExemptAuth_SubmissionCommentsDPCR-@Model.ReviewExemptionPCR.SubmissionComment" name="ReviewExemptionPCR.SubmissionComment" value="@Model.ReviewExemptionPCR.SubmissionComment">
+
+                                <h2>Delete PCR Exemption</h2>
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        <p class="form-hint">Delete will delete all data entered and will delete the Exemption request</p>
+                                        <br />
+                                        @if (@Model.ReviewExemptionPCR.ProjectID != null)
+                                        {
+                                            <button id="DeleteExemptionPCR" name="submitButton" class="red" value="Delete Exemption" type="submit">
+                                                Delete Exemption
+                                            </button>
+                                        }
+                                        else 
+                                        {
+                                        <span>No PCR Exemption request to delete</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+
+                    @* ------------ Exemption for PCR End *@
+                </div>
+
+            </div>
+        </div>
+
+
+        @*Exemption section end*@
+
+        <div id="successDiv" class="SaveMessageSuccess"></div>
+
+        <span style="display: none" id="userMemberOfGroup">@Model.CurrentUserMemberOfGroup</span>
+
+        <div id="ReviewCreateForm" style="display: none" class="report-basics">
+            @*/ start of form /*@
+            @using (Html.BeginForm("ReviewCreate", "Project", FormMethod.Post, new { id = "ReviewForm" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true)
+
+                @*@Html.HiddenFor(model => model.ReviewMaster.ProjectID, new { @value = @Model.ProjectHeader.ProjectID, id = "Review-ProjectID" })*@
+                <input type="hidden" name="ReviewMaster.ProjectID" id="Review-ProjectID" value="@Model.ProjectHeader.ProjectID" />
+                <div class="grid-row">
+                    <div class="column-two-thirds" style="display: none">
+                        @Html.DateBlock("ReviewMaster.ReviewDate", "Annual Review Date", @Model.ReviewMaster.ReviewDate, "")
+                    </div>
+                    <div class="column-two-thirds">
+                        <label for="ReviewMaster_ReviewType" class="form-label-bold">Type of Review</label>
+                        <p class="form-hint">The type of review you want to create</p>
+
+                        @{
+                List<SelectListItem> listItems = new List<SelectListItem>();
+                listItems.Add(new SelectListItem
+                {
+                    Text = "Annual review",
+                    Value = "Annual Review"
+                });
+                listItems.Add(new SelectListItem
+                {
+                    Text = "Project completion review",
+                    Value = "Project Completion Review"
+                });
+
+
+                @Html.DropDownListFor(model => model.ReviewMaster.ReviewType, listItems, "-- Select type of review --", new { @class = "form-control", id = "ReviewMaster_ReviewType" })
+
+
+
+                            @Html.ValidationMessageFor(model => model.ReviewMaster.ReviewType)
+                            <br/><br/>
+                            <input id="reviewCreateBtn" type="submit" value="Create" class="button" />
+
+                        }
+                    </div>
+
+
+
+              
+
+                </div>
+            }
+            @*End of form *@
+        </div>
+
+        <div class="PushDown">
+            <input type="hidden" id="ReviewDeleted" value="@(ViewBag.ReviewDeleted.ToString())" />
+            <div id="ReviewDeletedMessageAuth" style="display:none">Delete Successful</div>
+
+        </div>
+
+        @Html.EditorFor(model => model, "ProjectReview")
+
+    </div>
+
+</div>
+
+<br />
+
+
+@section Scripts {
+
+    <script src="~/Scripts/govuk-template.js" type="text/javascript"></script>
+
+
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/typeahead")
+    @Scripts.Render("~/bundles/datetimepicker")
+
+    <script type="text/javascript">
+        /*
+            --Important--
+            Click event has been moved to AMPScript.js file in order to prevent create this block multiple time.
+            It was posting data multiple times.
+       */
+
+        function TogglFunctionExemption(divToToggle, buttonToToggle) {
+            $(divToToggle).toggle();
+            $(buttonToToggle).toggle();
+            //var ARex = buttonToToggle.val();
+            //alert(buttonToToggle);
+            if (buttonToToggle != null && buttonToToggle.toString() === "ToggleApproverButtonARExemption") {
+                $('#ToggleApproverButtonARExemption').hide();
+            } else {
+                $('#ToggleApproverButtonARExemption').show();
+            }
+
+        }
+
+        function TogglFunctionExemptionPCR(divToToggle, buttonToToggle) {
+            $(divToToggle).toggle();
+            $(buttonToToggle).toggle();
+            //var ARex = buttonToToggle.val();
+            //alert(buttonToToggle);
+            if (buttonToToggle != null && buttonToToggle.toString() === "ToggleApproverButtonPCRExemption") {
+                $('#ToggleApproverButtonPCRExemption').hide();
+            } else {
+                $('#ToggleApproverButtonPCRExemption').show();
+            }
+
+        }
+
+
+        function PostOutputData(form, reviewId, projectId, tableSuffix, thisObj) {
+            var thisform = form;
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: thisform.attr('action'),
+                data: thisform.serialize(),
+                success: function(result) {
+                    if (result.success === true) {
+                        //Reset the form if successful
+                        ToggleReviewOutputInsertForm('#btnAddOutputScoring-' + projectId + '-' + reviewId, projectId, reviewId);
+                        thisform[0].reset();
+                        $(".review-output-btn-click-action").removeAttr("disabled");
+                        var urltoRefresh;
+                        var delay = 1000;
+                        if (tableSuffix === "Pcr") {
+                            var TableTypePcr = tableSuffix;
+                            //passing random int 5000 to match route in the controller. need to investigate how can we avoid this.
+                            urltoRefresh = '@Html.Raw(@Url.Action("ReviewOutputScoringTableData", "Project"))' + "/" + projectId + "/" + reviewId + "/" + parseInt(5000) + "/" + TableTypePcr;
+                            $('#OutputTabDivPCR').load(urltoRefresh);
+
+                            //Update Proj.Score span
+                            //The partial view refreshes after 1 seconds.
+                            //That is why delay has been called to calculate the score with newly inputed data from table.
+                            setTimeout(function() {
+                                var PQScore = result.ProjScore;
+                                document.getElementById("ProjectScore-" + projectId + "-" + reviewId).innerText = PQScore;
+                                SetScoreAndUpdateColorAR(projectId, reviewId, result.OverallScore);
+                                //SetAggregatedRiskAndUpdateColor(projectId, reviewId, result.Risk);
+                                //check total output impact weight. If 100 then prompt user to select Risk
+                                CheckOutputTablesTotalPercentage(projectId, reviewId);
+                            }, delay);
+
+                        } else {
+                            urltoRefresh = '@Html.Raw(@Url.Action("ReviewOutputScoringTableData", "Project"))' + "/" + projectId + "/" + reviewId + "/" + parseInt(tableSuffix);
+                            $('#OutputTabDiv-' + projectId + '-' + reviewId).load(urltoRefresh);
+                            //Update Proj.Score span
+                            //The partial view refreshes after 1 seconds.
+                            //That is why delay has been called to calculate the score with newly inputed data from table.
+                            setTimeout(function() {
+                                var PQScore = result.ProjScore;
+                                document.getElementById("ProjectScore-" + projectId + "-" + reviewId).innerText = PQScore;
+                                SetScoreAndUpdateColorAR(projectId, reviewId, result.OverallScore);
+                                //SetAggregatedRiskAndUpdateColor(projectId, reviewId, result.Risk);
+                                //check total output impact weight. If 100 then prompt user to select Risk
+                                CheckOutputTablesTotalPercentage(projectId, reviewId);
+                            }, delay);
+                        }
+                        //clear any error messages
+                        $("#outputscoringSaveMessageFail-" + projectId + "-" + reviewId).html("");
+                        $("#outputscoringSaveMessageFail-" + projectId + "-" + reviewId).hide();
+                        $(".content-loading").fadeOut(1000);
+                        $("#outputscoringSaveMessageSuccess-" + projectId + "-" + reviewId).show();
+                        $("#outputscoringSaveMessageSuccess-" + projectId + "-" + reviewId).fadeOut(5000).html("Output was created successfully");
+
+                    }
+
+                    if (result.success === false) {
+                        thisObj.removeAttr("disabled");
+                        $(".content-loading").fadeOut(1000);
+                        $("#outputscoringSaveMessageFail-" + projectId + "-" + reviewId).show();
+                        $("#outputscoringSaveMessageFail-" + projectId + "-" + reviewId).html(result.response);
+
+                    }
+                },
+                error: function(result) { alert("failed"); }
+            });
+        };
+
+
+        function RemoveReviewOutput(projectId, reviewId, reviewOutputId, tableSuffix) {
+            var confirmed = confirm("Are you sure you want to delete this output?");
+            if (confirmed) {
+                //hide over all risk rating edit button if visible by other action
+                $('#btnShowOverallRiskForm-' + projectId + '-' + reviewId).hide();
+
+                $(".content-loading").show();
+                $.ajax({
+                    cache: false,
+                    async: true,
+                    type: "POST",
+                    url: "@Url.Action("RemoveReviewOutputScore", "Project")",
+                    data: { projectId: projectId, reviewId: reviewId, outputId: reviewOutputId },
+                    success: function(result) {
+
+                        if (result.success === true) {
+                            var urltoRefresh;
+                            var delay = 1000;
+
+                            if (tableSuffix === "Pcr") {
+                                //passing random int 5000 to match route in the controller. need to investigate how can we avoid this.
+                                urltoRefresh = '@Html.Raw(@Url.Action("ReviewOutputScoringTableData", "Project"))' + "/" + projectId + "/" + reviewId + "/" + parseInt(5000) + "/" + tableSuffix;
+                                $('#OutputTabDivPCR').load(urltoRefresh);
+
+                                setTimeout(function() {
+                                    var PQScore = result.ProjScore;
+                                    document.getElementById("ProjectScore-" + projectId + "-" + reviewId).innerText = PQScore;
+                                    // SetScoreAndUpdateColorAR(tableSuffix, result.OverallScore);
+                                    SetScoreAndUpdateColorAR(projectId, reviewId, result.OverallScore);
+                                    SetAggregatedRiskAndUpdateColor(projectId, reviewId, result.Risk);
+                                    //Hide overall Risk input form if visible 
+                                    CheckOutputTablesTotalPercentage(projectId, reviewId);
+                                    $(".content-loading").fadeOut(1000);
+                                }, delay);
+
+
+                            } else {
+                                urltoRefresh = '@Html.Raw(@Url.Action("ReviewOutputScoringTableData", "Project"))' + "/" + projectId + "/" + reviewId + "/" + parseInt(tableSuffix);
+                                $('#OutputTabDiv-' + projectId + '-' + reviewId).load(urltoRefresh);
+                                setTimeout(function() {
+                                    var PQScore = result.ProjScore;
+                                    document.getElementById("ProjectScore-" + projectId + "-" + reviewId).innerText = PQScore;
+                                    SetScoreAndUpdateColorAR(projectId, reviewId, result.OverallScore);
+                                    SetAggregatedRiskAndUpdateColor(projectId, reviewId, result.Risk);
+                                    //Hide overall Risk input form if visible 
+                                    CheckOutputTablesTotalPercentage(projectId, reviewId);
+                                    $(".content-loading").fadeOut(1000);
+                                }, delay);
+                            }
+                            //clear any error messages
+                            $("#outputscoringSaveMessageFail-" + projectId + "-" + reviewId).html("");
+                            $("#outputscoringSaveMessageFail-" + projectId + "-" + reviewId).hide();
+                            $("#outputscoringSaveMessageSuccess-" + projectId + "-" + reviewId).show();
+                            $("#outputscoringSaveMessageSuccess-" + projectId + "-" + reviewId).fadeOut(5000).html("Output was deleted successfully");
+
+                            //clear Overall risk input form 
+
+                        }
+
+                        if (result.success === false) {
+                            $(".content-loading").fadeOut(1000);
+                            $("#outputscoringSaveMessageFail-" + projectId + "-" + reviewId).show();
+                            $("#outputscoringSaveMessageFail-" + projectId + "-" + reviewId).html(result.response);
+                        }
+                    },
+                    error: function(result) { alert("failed"); }
+                });
+
+            } else {
+
+            }
+        };
+
+
+        //Get score for AR
+        function GetPQScore(projectId, reviewId) {
+            var outputPqScoreTotal = 0.0;
+            var impactWeightingPercentage = 0;
+            $("#" + "tblOutputScores-" + projectId + "-" + reviewId).children("tbody").children("tr").children(".colReviewScore").each(function() {
+                impactWeightingPercentage = parseInt($(this).prev("td").text()) / 100;
+                outputPqScoreTotal += parseFloat($(this).children('span').attr("data-reviewscoreweight")) * impactWeightingPercentage;
+            });
+            return toFixed(outputPqScoreTotal, 1);
+        }
+
+//Get score for PCR
+        function GetPCRPQScore(projectId, reviewId) {
+            var outputPqScoreTotal = 0.0;
+            var impactWeightingPercentage = 0;
+            $("#" + "tblOutputScores-" + projectId + "-" + reviewId).children("tbody").children("tr").children(".colReviewScore").each(function() {
+                impactWeightingPercentage = parseInt($(this).prev("td").text()) / 100;
+                outputPqScoreTotal += parseFloat($(this).children('span').attr("data-reviewscoreweight")) * impactWeightingPercentage;
+            });
+            return toFixed(outputPqScoreTotal, 1);
+        }
+
+        function toFixed(num, precision) {
+            return (+(Math.round(+(num + 'e' + precision)) + 'e' + -precision)).toFixed(precision);
+        }
+
+        var hasPCR = document.getElementById("PCRCount").value;
+        if (hasPCR === 'HasPCR') {
+            var thisprojectId = $('#hidden-projectID-pcr').val();
+            var thisreviewId = $('#hidden-reviewID-pcr').val();
+            var element = document.getElementById("ProjectScore-" + thisprojectId + "-" + thisreviewId);
+
+            if (element != null) {
+                var pcrOutputScore = document.getElementById("ReviewScore-" + thisprojectId + "-" + thisreviewId).innerText;
+
+                //check if empty
+                if (!pcrOutputScore) {
+                    document.getElementById("ReviewScore-" + thisprojectId + "-" + thisreviewId).innerText = "-";
+                }
+
+                var pcrOutputScoreHolder = document.getElementById("Score-" + thisprojectId + "-" + thisreviewId);
+                if (pcrOutputScore.indexOf("A") > -1) {
+                    pcrOutputScoreHolder.className = "score level-a";
+                } else if (pcrOutputScore.indexOf("B") > -1) {
+                    pcrOutputScoreHolder.className = "score level-b";
+                } else if (pcrOutputScore.indexOf("C") > -1) {
+                    pcrOutputScoreHolder.className = "score level-c";
+                } else {
+                    pcrOutputScoreHolder.className = "score level-c";
+                }
+
+                //Set the PCR proj.score
+                var PCRPQScore = GetPCRPQScore(thisprojectId, thisreviewId);
+                document.getElementById("ProjectScore-" + thisprojectId + "-" + thisreviewId).innerText = PCRPQScore;
+            }
+
+            //Set risk colours
+            var RiskScoreElement = document.getElementById("RiskScore-" + thisprojectId + "-" + thisreviewId).innerText;
+            var PcrRiskHolder = document.getElementById("Risk-" + thisprojectId + "-" + thisreviewId);
+            if (RiskScoreElement === "H") {
+                PcrRiskHolder.className = "risk high";
+            } else if (RiskScoreElement === "M") {
+                PcrRiskHolder.className = "risk med";
+            } else if (RiskScoreElement === "L") {
+                PcrRiskHolder.className = "risk low";
+            }
+            //for new RIsk rating 
+            else if (RiskScoreElement === "Minor") {
+                PcrRiskHolder.className = "risk low";
+            } else if (RiskScoreElement === "Moderate") {
+                PcrRiskHolder.className = "risk moderate";
+            } else if (RiskScoreElement === "Major" || RiskScoreElement === "-") {
+                PcrRiskHolder.className = "risk med";
+            } else if (RiskScoreElement === "Severe") {
+                PcrRiskHolder.className = "risk high";
+            } else {
+                document.getElementById("RiskScore-" + thisprojectId + "-" + thisreviewId).innerText = '-';
+                PcrRiskHolder.className = "risk med";
+            }
+
+            ////Check if total is 100%  for PCR and status is preparation. Then show OverallRisk form to force user to enter Overall risk rating 
+            ///*Begin*/
+            //if ($('#StageName-' + thisprojectId + "-" + thisreviewId).text().indexOf('In Preparation') >= 0 && $('#RiskScore-' + thisprojectId + "-" + thisreviewId).text() === '-') {
+            //    alert('here');
+            //    CheckOutputTablesTotalPercentage(thisprojectId, thisreviewId);
+            //}
+
+            //if ($('#RiskScore-' + thisprojectId + "-" + thisreviewId).text() !== '-' && $('#StageName-' + thisprojectId + "-" + thisreviewId).text().indexOf('In Preparation') >= 0) {
+            //    //if not approve then show the edit button 
+            //    if ($('#userMemberOfGroup').text() !== 'Approver') {
+            //        $('#btnShowOverallRiskForm-' + thisprojectId + '-' + thisreviewId).show();
+            //    }
+            //}
+
+            //if ($('#StageName-' + thisprojectId + "-" + thisreviewId).text().indexOf('Rejected') >= 0 && $('#RiskScore-' + thisprojectId + "-" + thisreviewId).text() !== '-') {
+
+            //    //if not approve then show the edit button 
+            //    if ($('#userMemberOfGroup').text() !== 'Approver') {
+            //        $('#btnShowOverallRiskForm-' + thisprojectId + '-' + thisreviewId).show();
+            //    }
+            //}
+            ///*End*/
+
+        }
+
+
+        var count = parseInt(document.getElementById("ReviewCount").value);
+        if (!isNaN(count)) {
+            for (i = 0; i < count; i++) {
+                var thisprojectId = $('#hidden-projectID-' + i).val();
+                var thisreviewId = $('#hidden-reviewID-' + i).val();
+                //Set the score colours
+                var Score = document.getElementById("ReviewScore-" + thisprojectId + "-" + thisreviewId).innerText;
+
+                //check if empty
+                if (!Score) {
+                    document.getElementById("ReviewScore-" + thisprojectId + "-" + thisreviewId).innerText = "-";
+                }
+                var ScoreHolder = document.getElementById("Score-" + thisprojectId + "-" + thisreviewId);
+                if (Score.indexOf("A") > -1) {
+                    ScoreHolder.className = "score level-a";
+                } else if (Score.indexOf("B") > -1) {
+                    ScoreHolder.className = "score level-b";
+                } else if (Score.indexOf("C") > -1) {
+                    ScoreHolder.className = "score level-c";
+                } else {
+                    ScoreHolder.className = "score level-c";
+                }
+
+                //Set risk colours
+                var Risk = document.getElementById("RiskScore-" + thisprojectId + "-" + thisreviewId).innerText;
+                var RiskHolder = document.getElementById("Risk-" + thisprojectId + "-" + thisreviewId);
+                if (Risk === "H") {
+                    RiskHolder.className = "risk high";
+                } else if (Risk === "M") {
+                    RiskHolder.className = "risk med";
+                } else if (Risk === "L") {
+                    RiskHolder.className = "risk low";
+                }
+                //for new RIsk rating 
+                else if (Risk === "Minor") {
+                    RiskHolder.className = "risk low";
+                } else if (Risk === "Moderate") {
+                    RiskHolder.className = "risk moderate";
+                } else if (Risk === "Major") {
+                    RiskHolder.className = "risk med";
+                } else if (Risk === "Severe") {
+                    RiskHolder.className = "risk high";
+                } else {
+                    document.getElementById("RiskScore-" + thisprojectId + "-" + thisreviewId).innerText = '-';
+                    RiskHolder.className = "risk med";
+                }
+            }
+        }
+
+        function SetScoreAndUpdateColorAR(projectId, reveiwId, scoreBand) {
+            //check if empty
+            if (!scoreBand) {
+                scoreBand = "-";
+            }
+            //Set the band score
+
+            document.getElementById("ReviewScore-" + projectId + "-" + reveiwId).innerText = scoreBand;
+            var score = document.getElementById("ReviewScore-" + projectId + "-" + reveiwId).innerText;
+
+            var className = $("#Score-" + projectId + "-" + reveiwId).attr('class');
+            if (score.indexOf("A") > -1) {
+                $("#Score-" + projectId + "-" + reveiwId).removeClass(className).addClass("score level-a");
+            } else if (score.indexOf("B") > -1) {
+                $("#Score-" + projectId + "-" + reveiwId).removeClass(className).addClass("score level-b");
+            } else if (score.indexOf("C") > -1) {
+                $("#Score-" + projectId + "-" + reveiwId).removeClass(className).addClass("score level-c");
+            } else {
+                $("#Score-" + projectId + "-" + reveiwId).removeClass(className).addClass("score level-c");
+            }
+
+        }
+
+        function SetAggregatedRiskAndUpdateColor(projectId, reviewId, aggregatedrisk) {
+            //check if empty
+            if (!aggregatedrisk) {
+                aggregatedrisk = "-";
+            }
+            //Set risk color
+            document.getElementById("RiskScore-" + projectId + "-" + reviewId).innerText = aggregatedrisk;
+            var className = $("#Risk-" + projectId + "-" + reviewId).attr('class');
+
+            if (aggregatedrisk === "H") {
+                $("#Risk-" + projectId + "-" + reviewId).removeClass(className).addClass("risk high");
+
+            } else if (aggregatedrisk === "M") {
+                $("#Risk-" + projectId + "-" + reviewId).removeClass(className).addClass("risk med");
+
+            } else if (aggregatedrisk === "L") {
+                $("#Risk-" + projectId + "-" + reviewId).removeClass(className).addClass("risk low");
+            }
+//for new Risk rating 
+            else if (aggregatedrisk === "Minor") {
+                $("#Risk-" + projectId + "-" + reviewId).removeClass(className).addClass("risk low");
+            } else if (aggregatedrisk === "Moderate") {
+                $("#Risk-" + projectId + "-" + reviewId).removeClass(className).addClass("risk moderate");
+            } else if (aggregatedrisk === "Major" || aggregatedrisk === "-") {
+                $("#Risk-" + projectId + "-" + reviewId).removeClass(className).addClass("risk med");
+            } else if (aggregatedrisk === "Severe") {
+                $("#Risk-" + projectId + "-" + reviewId).removeClass(className).addClass("risk high");
+            }
+        }
+
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var count = parseInt(document.getElementById("ReviewCount").value);
+
+            if (!isNaN(count)) {
+                for (var i = 0; i < count; i++) {
+                    var thisprojectId = $('#hidden-projectID-' + i).val();
+                    var thisreviewId = $('#hidden-reviewID-' + i).val();
+
+
+                    //Check if total is 100% and status is preparation. Then show OverallRisk form to force user to enter Overall risk rating 
+                    /*Begin*/
+                    if ($('#StageName-' + thisprojectId + "-" + thisreviewId).text().indexOf('In Preparation') >= 0 && $('#RiskScore-' + thisprojectId + "-" + thisreviewId).text() === '-') {
+                        CheckOutputTablesTotalPercentage(thisprojectId, thisreviewId);
+                    }
+
+                    if ($('#RiskScore-' + thisprojectId + "-" + thisreviewId).text() !== '-' && $('#StageName-' + thisprojectId + "-" + thisreviewId).text().indexOf('In Preparation') >= 0) {
+                        //if not approve then show the edit button 
+                        if ($('#userMemberOfGroup').text() !== 'Approver') {
+                            $('#btnShowOverallRiskForm-' + thisprojectId + '-' + thisreviewId).show();
+                        }
+                    }
+
+                    if ($('#StageName-' + thisprojectId + "-" + thisreviewId).text().indexOf('Rejected') >= 0 && $('#RiskScore-' + thisprojectId + "-" + thisreviewId).text() !== '-') {
+
+                        //if not approve then show the edit button 
+                        if ($('#userMemberOfGroup').text() !== 'Approver') {
+                            $('#btnShowOverallRiskForm-' + thisprojectId + '-' + thisreviewId).show();
+                        }
+                    }
+                    /*End*/
+
+                    var pqScore = GetPQScore(thisprojectId, thisreviewId);
+                    document.getElementById("ProjectScore-" + thisprojectId + "-" + thisreviewId).innerText = pqScore;
+
+                }
+            };
+
+
+            //For PCR New Risk Rating show 
+            var hasPCR = document.getElementById("PCRCount").value;
+            if (hasPCR === 'HasPCR') {
+
+                var thisprojectId = $('#hidden-projectID-pcr').val();
+                var thisreviewId = $('#hidden-reviewID-pcr').val();
+                //Check if total is 100% and status is preparation. Then show OverallRisk form to force user to enter Overall risk rating 
+                /*Begin*/
+                if ($('#StageName-' + thisprojectId + "-" + thisreviewId).text().indexOf('In Preparation') >= 0 && $('#RiskScore-' + thisprojectId + "-" + thisreviewId).text() === '-') {
+                    CheckOutputTablesTotalPercentage(thisprojectId, thisreviewId);
+                }
+
+                if ($('#RiskScore-' + thisprojectId + "-" + thisreviewId).text() !== '-' && $('#StageName-' + thisprojectId + "-" + thisreviewId).text().indexOf('In Preparation') >= 0) {
+                    //if not approve then show the edit button 
+                    if ($('#userMemberOfGroup').text() !== 'Approver') {
+                        $('#btnShowOverallRiskForm-' + thisprojectId + '-' + thisreviewId).show();
+                    }
+                }
+
+                if ($('#StageName-' + thisprojectId + "-" + thisreviewId).text().indexOf('Rejected') >= 0 && $('#RiskScore-' + thisprojectId + "-" + thisreviewId).text() !== '-') {
+
+                    //if not approve then show the edit button 
+                    if ($('#userMemberOfGroup').text() !== 'Approver') {
+                        $('#btnShowOverallRiskForm-' + thisprojectId + '-' + thisreviewId).show();
+                    }
+                }
+                /*End*/
+
+
+            }
+
+
+//Review create button click
+            $("#ReviewForm").submit(function() {
+                if ($('#ReviewForm').valid()) {
+                    $(':submit', this).prop("disabled", true);
+                    $(':submit', this).val('Creating...');
+                }
+            });
+
+
+            //Enable Add review button if previous review has been completed.
+            if ($('.control-bar:first span').length !== 0) {
+                if ($('.control-bar:first span').text().search('Approved') === -1) {
+                    $("#btnAddReview").attr("disabled", true);
+                    $("#btnAddReviewHints").text("Previous reviews must be completed in order to add new review.");
+                    $("#btnRequestExemptionAR").attr("disabled", true);
+                    $("#btnRequestExemptionPCR").attr("disabled", true);
+                }
+            }
+
+            // Show Hide AR/PCR Top Date Section if PCR is Created
+            //Exemption
+
+
+            //
+
+            if ($('#PCRcontrol-bar-0').length > 0) {
+                var Text = $('#PCRcontrol-bar-0').text();
+                if ($('#PCRcontrol-bar-0').text().trim() === "Project Completion ReportApproved".trim()) {
+                    $('.project-details-section').hide();
+
+                    $("#btnAddReview").attr("disabled", true);
+                    $("#btnAddReviewHints").text("Project Completed so no review required");
+                } else if ($('#PCRcontrol-bar-0').text().trim() === "Project Completion ReportAwaiting Approval".trim()) {
+                    $("#ARMaingrid").hide();
+                    $("#btnAddReview").attr("disabled", true);
+                } else if ($('#PCRcontrol-bar-0').text().trim() === "Project Completion ReportIn Preparation".trim()) {
+                    $("#ARMaingrid").hide();
+                    $("#btnAddReview").attr("disabled", true);
+                } else if ($('#PCRcontrol-bar-0').text().trim() === "Project Completion ReportRejected".trim()) {
+                    $("#ARMaingrid").hide();
+                    $("#btnAddReview").attr("disabled", true);
+                } else {
+                    $('.project-details-section').show();
+                }
+            }
+            $("#btnAddReview").click(function() {
+                ToggleOutputCreateForm();
+
+                if ($("#btnRequestExemptionPCR").html() == "<strong> Cancel </strong>") {
+                    ToggleOutputExemptionCreateFormPCR();
+                }
+                if ($("#btnRequestExemptionAR").html() == "<strong> Cancel </strong>") {
+                    ToggleOutputExemptionCreateForm();
+                }
+
+            });
+
+            $("#btnRequestExemptionAR").click(function() {
+                ToggleOutputExemptionCreateForm();
+
+                if ($("#btnRequestExemptionPCR").html() == "<strong> Cancel </strong>") {
+                    ToggleOutputExemptionCreateFormPCR();
+                }
+
+                if ($("#btnAddReview").html() == "<strong> Cancel Add review </strong>") {
+                    ToggleOutputCreateForm();
+                }
+
+            });
+
+            $("#btnRequestExemptionPCR").click(function() {
+                ToggleOutputExemptionCreateFormPCR();
+
+                if ($("#btnRequestExemptionAR").html() == "<strong> Cancel </strong>") {
+                    ToggleOutputExemptionCreateForm();
+                }
+
+                if ($("#btnAddReview").html() == "<strong> Cancel Add review </strong>") {
+                    ToggleOutputCreateForm();
+                }
+
+            });
+
+            //If the project status is Closed or Post Completion, disable the Add Review Button.
+            //Project Closure scripts - Set fields to read only when the project is at stage 6 or 7.
+            if (document.getElementById("Stage").value == 6 || document.getElementById("Stage").value == 7) {
+                $("#btnAddReview").attr("disabled", true);
+            }
+
+            // if the project is an ADMIN project then disable  the Add review button - check if Budget
+            // centre starts with an A or with C0
+            var checkIfAdminProject = ($("#BudgetCentreCheck").val());
+            var checkFirstLetterBudCent = checkIfAdminProject.substring(0, 1);
+            var checkFirstTwoLetterBudCent = checkIfAdminProject.substring(0, 2);
+            if (checkFirstLetterBudCent == "A" || checkFirstTwoLetterBudCent == "C0")//Axxx covers APxxx
+             {
+                 $("#btnAddReview").attr("disabled", true);
+             } 
+        });
+    </script>
+
+    <script type="text/javascript">
+
+            var staffList = [
+                { "EmpNo": "555555", "DisplayName": "A OfficeHead", "LOGON": "A-OfficeHead" }
+            ];
+
+
+            var staff = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('DisplayName'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                limit: 10,
+                local: staffList
+            });
+
+            // kicks off the loading/processing of `local` and `prefetch`
+            staff.initialize();
+
+            // passing in `null` for the `options` arguments will result in the default
+            // options being used
+            $('.Authoriser .typeahead').typeahead({ highlight: true }, {
+                name: 'staff',
+                displayKey: 'DisplayName',
+                // `ttAdapter` wraps the suggestion engine in an adapter that
+                // is compatible with the typeahead jQuery plugin
+                source: staff.ttAdapter()
+            }).bind('typeahead:selected', function (obj, datum) {
+                changeTypeahead(obj, datum);
+            }).bind('typeahead:autocompleted', function (obj, datum) {
+                changeTypeahead(obj, datum);
+            });
+            //Def TypeAhead
+            // kicks off the loading/processing of `local` and `prefetch`
+
+            // passing in `null` for the `options` arguments will result in the default
+            // options being used
+            $('.deferralAuthoriser .typeahead').typeahead({ highlight: true }, {
+                name: 'staff',
+                displayKey: 'DisplayName',
+                // `ttAdapter` wraps the suggestion engine in an adapter that
+                // is compatible with the typeahead jQuery plugin
+                source: staff.ttAdapter()
+            }).bind('typeahead:selected', function (obj, datum) {
+                changeDeferralTypeahead(obj, datum);
+            }).bind('typeahead:autocompleted', function (obj, datum) {
+                changeDeferralTypeahead(obj, datum);
+            });
+
+            $('.exemptionAuthoriserAr .typeahead').typeahead({ highlight: true }, {
+                name: 'staff',
+                displayKey: 'DisplayName',
+                // `ttAdapter` wraps the suggestion engine in an adapter that
+                // is compatible with the typeahead jQuery plugin
+                source: staff.ttAdapter()
+            }).bind('typeahead:selected', function (obj, datum) {
+                changeExemptionTypeahead(obj, datum);
+            }).bind('typeahead:autocompleted', function (obj, datum) {
+                changeExemptionTypeahead(obj, datum);
+            });
+
+            $('#ExemptionAuthoriserPCR .typeahead').typeahead({ highlight: true }, {
+                name: 'staff',
+                displayKey: 'DisplayName',
+                // `ttAdapter` wraps the suggestion engine in an adapter that
+                // is compatible with the typeahead jQuery plugin
+                source: staff.ttAdapter()
+            }).bind('typeahead:selected', function (obj, datum) {
+                changePCRExemptionTypeahead(obj, datum);
+            }).bind('typeahead:autocompleted', function (obj, datum) {
+                changePCRExemptionTypeahead(obj, datum);
+            });
+
+
+            $('.changeReviewAuthoriser .typeahead').typeahead({ highlight: true }, {
+                name: 'staff',
+                displayKey: 'DisplayName',
+                // `ttAdapter` wraps the suggestion engine in an adapter that
+                // is compatible with the typeahead jQuery plugin
+                source: staff.ttAdapter()
+            }).bind('typeahead:selected', function (obj, datum) {
+                changeReviewApproverAmendTypeahead(obj, datum);
+            }).bind('typeahead:autocompleted', function (obj, datum) {
+                changeReviewApproverAmendTypeahead(obj, datum);
+            });
+        
+
+        function changeTypeahead(obj, datum) {
+
+            var NumberofReviews = parseInt(document.getElementById("ReviewCount").value);
+            if (document.getElementById("PCRCount").value === 'HasPCR') {
+                NumberofReviews = NumberofReviews + 1;
+            }
+            NumberofReviews = NumberofReviews - 1;
+            $('#AuthoriserName-' + NumberofReviews).val(datum.EmpNo);
+        };
+
+        function changeDeferralTypeahead(obj, datum) {
+            var NumberofReviews = parseInt(document.getElementById("ReviewCount").value);
+
+            if (document.getElementById("PCRCount").value === 'HasPCR') {
+                NumberofReviews = NumberofReviews + 1;
+            }
+            NumberofReviews = NumberofReviews - 1;
+            $('#DeferralAuthoriserName-' + NumberofReviews).val(datum.EmpNo);
+        };
+
+        function changeExemptionTypeahead(obj, datum) {
+            $('#ExemptionAuthoriserArName').val(datum.EmpNo);
+        };
+
+        function changePCRExemptionTypeahead(obj, datum) {
+            $('#ExemptionAuthoriserPcrName').val(datum.EmpNo);
+        };
+
+        function changeReviewApproverAmendTypeahead(obj, datum) {
+            var NumberofReviews = parseInt(document.getElementById("ReviewCount").value);
+            if (document.getElementById("PCRCount").value === 'HasPCR') {
+                NumberofReviews = NumberofReviews + 1;
+            }
+            NumberofReviews = NumberofReviews - 1;
+            $('#AuthoriserNameChange-' + NumberofReviews).val(datum.EmpNo);
+        };
+
+
+
+        // passing in `null` for the `options` arguments will result in the default
+        // options being used
+        $('#PCRAuthoriser .typeahead').typeahead({ highlight: true }, {
+            name: 'staff',
+            displayKey: 'DisplayName',
+            // `ttAdapter` wraps the suggestion engine in an adapter that
+            // is compatible with the typeahead jQuery plugin
+            source: staff.ttAdapter()
+        }).bind('typeahead:selected', function(obj, datum) {
+            changeTypeaheadForPCR(obj, datum);
+        }).bind('typeahead:autocompleted', function(obj, datum) {
+            changeTypeaheadForPCR(obj, datum);
+        });
+
+        function changeTypeaheadForPCR(obj, datum) {
+            $('input#ProjectPcrScore_Approver').val(datum.EmpNo);
+        };
+
+        /*End Bloodhound typeahead for Staff*/
+
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#Performance_ARDueDate_Day").prop("readonly", true);
+            $("#Performance_ARDueDate_Month").prop("readonly", true);
+            $("#Performance_ARDueDate_Year").prop("readonly", true);
+
+            $("#Performance_ARPromptDate_Day").prop("readonly", true);
+            $("#Performance_ARPromptDate_Month").prop("readonly", true);
+            $("#Performance_ARPromptDate_Year").prop("readonly", true);
+
+            $("#Performance_PCRDueDate_Day").prop("readonly", true);
+            $("#Performance_PCRDueDate_Month").prop("readonly", true);
+            $("#Performance_PCRDueDate_Year").prop("readonly", true);
+
+            $("#Performance_PCRPrompt_Day").prop("readonly", true);
+            $("#Performance_PCRPrompt_Month").prop("readonly", true);
+            $("#Performance_PCRPrompt_Year").prop("readonly", true);
+
+            $("#ReviewExemption_ARDueDate_Day").prop("readonly", true);
+            $("#ReviewExemption_ARDueDate_Month").prop("readonly", true);
+            $("#ReviewExemption_ARDueDate_Year").prop("readonly", true);
+
+
+            $("#ReviewExemption_PCRDueDate_Day").prop("readonly", true);
+            $("#ReviewExemption_PCRDueDate_Month").prop("readonly", true);
+            $("#ReviewExemption_PCRDueDate_Year").prop("readonly", true);
+
+            $('[id^=originalReviewdate_]').prop("readonly", true);
+
+            $("#arrequired-Y").attr('disabled', true);
+            $("#arrequired-N").attr('disabled', true);
+
+            $("#pcrrequired-Y").attr('disabled', true);
+            $("#pcrrequired-N").attr('disabled', true);
+
+
+            //Show/Hide Save Message  -- AR Authorisation
+
+            var NumberofReviews = parseInt(document.getElementById("ReviewCount").value);
+
+
+            if (parseInt(document.getElementById("PCRCount").value) === 'HasPCR') {
+                NumberofReviews = NumberofReviews + 1;
+            }
+            NumberofReviews = NumberofReviews - 1;
+
+
+            var ARSaveSuccess = $("#SaveSuccessAuth-" + NumberofReviews);
+            var ARSaveMessage = $("#SaveMessageAuth-" + NumberofReviews);
+
+            if (ARSaveSuccess.val() == "1") {
+                ARSaveMessage.toggleClass("SaveMessageSuccess");
+                ARSaveMessage.toggle();
+            }
+
+            if (ARSaveSuccess.val() == "0") {
+                ARSaveMessage.toggleClass("SaveMessageFail");
+                ARSaveMessage.html("Your Changes have not been saved.");
+                ARSaveMessage.toggle();
+            }
+
+            //Show/Hide Save Message  -- AR Submission
+
+            var ARSaveSuccessSub = $("#SaveSuccessSubmission-" + NumberofReviews);
+            var ARSaveMessageSub = $("#SaveMessageSubmission-" + NumberofReviews);
+
+            if (ARSaveSuccessSub.val() == "1") {
+                ARSaveMessageSub.toggleClass("SaveMessageSuccess");
+                ARSaveMessageSub.toggle();
+            }
+
+            if (ARSaveSuccessSub.val() == "0") {
+                ARSaveMessageSub.toggleClass("SaveMessageFail");
+                ARSaveMessageSub.html("Your Changes have not been saved.");
+                ARSaveMessageSub.toggle();
+            }
+
+            //Show/Hide Save Message  -- PCRSubmission- coming from Project Controller
+
+            var PCRSaveSuccessSub = $("#PCRSaveSuccessSubmission");
+            var PCRSaveMessageSub = $("#PCRSaveMessageSubmission");
+
+
+            if (PCRSaveSuccessSub.val() == "1") {
+                PCRSaveMessageSub.toggleClass("SaveMessageSuccess");
+                PCRSaveMessageSub.toggle();
+            }
+            if (PCRSaveSuccessSub.val() == "2") {
+                PCRSaveMessageSub.toggleClass("SaveMessageFail");
+                PCRSaveMessageSub.html("You need to add a project inputter before sending the PCR for authorisation.");
+                PCRSaveMessageSub.toggle();
+                var topReview = $('.accordion-toggle').first();
+                $(topReview).removeClass("accordion-toggle");
+                $(topReview).addClass("accordion-toggle visible");
+                $('.accordion-content').first().css("display", "block");
+            }
+
+            if (PCRSaveSuccessSub.val() == "0") {
+                PCRSaveMessageSub.toggleClass("SaveMessageFail");
+                PCRSaveMessageSub.html("Your Changes have not been saved.");
+                PCRSaveMessageSub.toggle();
+            }
+
+
+            //Show/Hide Save Message  -- PCRAuthorisation
+
+            var PCRSaveSuccess = $("#PCRSaveSuccessAuth");
+            var PCRSaveMessage = $("#PCRSaveMessageAuth");
+
+            if (PCRSaveSuccess.val() == "1") {
+                PCRSaveMessage.toggleClass("SaveMessageSuccess");
+                PCRSaveMessage.toggle();
+            }
+
+            if (PCRSaveSuccess.val() == "0") {
+                PCRSaveMessage.toggleClass("SaveMessageFail");
+                PCRSaveMessage.html("Your Changes have not been saved.");
+                PCRSaveMessage.toggle();
+            }
+
+            var ReviewDeletedSuccess = $("#ReviewDeleted");
+            var ReviewDeletedMessage = $("#ReviewDeletedMessageAuth");
+
+            if (ReviewDeletedSuccess.val() == "1") {
+                ReviewDeletedMessage.toggleClass("SaveMessageSuccess");
+                ReviewDeletedMessage.toggle();
+            }
+
+            if (ReviewDeletedSuccess.val() == "0") {
+                ReviewDeletedMessage.toggleClass("SaveMessageFail");
+                ReviewDeletedMessage.html("Your Review was not deleted.");
+                ReviewDeletedMessage.toggle();
+            }
+
+
+            SetSubmissionAndAuthorisationViewMode();
+            SetPCRSubmissionAndAuthorisationViewMode();
+
+            SetExemptionAuthorisationviewMode();
+            SetExemptionButtonviewMode();
+
+            ChangeApproverARExemptionviewMode();
+            //open accordion when review in 'Awaiting Approval' stage for usergroup = Approver
+
+            //alert($('#PCRSubmission-UserGroup').val());
+
+            var openAccordion = false;
+            if ($('#PCRSubmission-UserGroup').length && ($('#PCRSubmission-Stage').val() === "Awaiting Approval") && ($('#PCRSubmission-UserGroup').val() === "Approver")) {
+                openAccordion = true;
+            } 
+            else {if ((!$('#PCRSubmission-UserGroup').length) && $('#UserGroup-0').length && ($('#Submission-Stage-0').val() == "Awaiting Approval") && ($('#UserGroup-0').val() == "Approver"))
+                        openAccordion = true;
+                }
+
+                if (openAccordion == true) {
+                    var topReview = $('.accordion-toggle').first();
+                    $(topReview).removeClass("accordion-toggle");
+                    $(topReview).addClass("accordion-toggle visible");
+                    $('.accordion-content').first().css("display", "block");
+                }
+            
+        });
+
+//Show/Hide form
+        function ToggleOutputCreateForm() {
+            if ($("#btnAddReview").html() === "<strong> Add review </strong>") {
+                $("#btnAddReview").html("<strong> Cancel Add review </strong>");
+            } else {
+                $("#btnAddReview").html("<strong> Add review </strong>");
+            }
+            $("#ReviewCreateForm").slideToggle("slow");
+        };
+
+//Show/hide exemption request form
+        function ToggleOutputExemptionCreateForm() {
+
+            if ($("#btnRequestExemptionAR").html() == "<strong> View/Request AR exemption </strong>") {
+                $("#btnRequestExemptionAR").html("<strong> Cancel </strong>");
+            } else {
+                $("#btnRequestExemptionAR").html("<strong> View/Request AR exemption </strong>");
+            }
+            $("#ExemptionCreateForm").slideToggle("slow");
+            $("#ApproveExemptionForm").slideToggle("slow");
+            $("#dvDeleteExemption").slideToggle("slow");
+
+        }
+
+        function ToggleOutputExemptionCreateFormPCR() {
+
+            if ($("#btnRequestExemptionPCR").html() == "<strong> View/Request PCR exemption </strong>") {
+                $("#btnRequestExemptionPCR").html("<strong> Cancel </strong>");
+            } else {
+                $("#btnRequestExemptionPCR").html("<strong> View/Request PCR exemption </strong>");
+            }
+            $("#PCRExemptionCreateForm").slideToggle("slow");
+            $("#ApprovePCRExemptionForm").slideToggle("slow");
+            $("#dvDeleteExemptionPCR").slideToggle("slow");
+
+        }
+
+        function ToggleReviewOutputInsertForm(btnObj, projectId, ReviewId) {
+
+            if ($(btnObj).html() == "Add Output") {
+                $(btnObj).html("Cancel Add Output");
+                $(btnObj).removeClass("bluelightnight").addClass("red");
+            } else {
+                $(btnObj).html("Add Output");
+                $(btnObj).removeClass("red").addClass("bluelightnight");
+            }
+            $("#ReviewOutputInsertForm-" + projectId + "-" + ReviewId).slideToggle("slow");
+        }
+
+        //AR scripts
+        function SetOutputEntryMode(IsEnabled, accordionNumber) {
+            if (!IsEnabled) {
+                $('#UserGroup-' + accordionNumber).parent('Form').parent('div').children('.grid-row').each(function() {
+                    $(this).find("input[type=text]").attr('disabled', true);
+                    $(this).find("input[type=number]").attr('disabled', true);
+                });
+            }
+        }
+
+        function SetSubmissionAndAuthorisationViewMode() {
+
+            for (i = 0; i <= ($('[id^=control-bar-]').length - 1); i++) //count how many accordion items are there by counting hidden elements starting with 'UserGroup-'
+            {
+                switch ($('#Stage-' + i).val()) {
+
+                case 'In Preparation':
+                    $("#dvAuthorisation-" + i).hide();
+                    if ($('#userMemberOfGroup').text() === 'Team') {
+                        $('#SubmissionComment-' + i).attr('disabled', false);
+                        $('#CreateBtnSubmission-' + i).show();
+                        $('#AuthoriserBox-' + i).show();
+                        $('#dvARTypeAhead-' + i).show();
+                    }
+                    break;
+
+                case 'Awaiting Approval':
+                    SetOutputEntryMode(false, i);
+                    if ($('#userMemberOfGroup').text() !== 'Approver') {
+                        SetAuthorisationToViewOnly(i);
+                    }
+                    break;
+
+                case 'Approved':
+                    SetOutputEntryMode(false, i);
+                    SetAuthorisationToViewOnly(i);
+                    HideCancelReviewButton(i);
+                    break;
+
+                case 'Rejected':
+                    if ($('#userMemberOfGroup').text() === 'Approver') {
+                        SetOutputEntryMode(false, i);
+                    } else {
+                        SetOutputEntryMode(true, i);
+                    }
+                    SetAuthorisationToViewOnly(i);
+                    if ($('#userMemberOfGroup').text() === 'Team') {
+                        $('#SubmissionComment-' + i).attr('disabled', false);
+                        $('#CreateBtnSubmission-' + i).show();
+                        $('#AuthoriserBox-' + i).show();
+                        $('#dvARTypeAhead-' + i).show();
+                    }
+                    break;
+
+                default:
+                    SetOutputEntryMode(true, i);
+                    SetAuthorisationToViewOnly(i);
+                }
+                //Set the DeleteReview button to read only for non team members
+                SetDeleteReviewToReadOnly(i);
+            }
+
+
+        }
+
+        function SetDeleteReviewToReadOnly(index) {
+            if ($('#userMemberOfGroup').text() !== 'Team') {
+                $('#DeleteAR-' + index).prop('disabled', true);
+
+            }
+        }
+
+        function SetDeletePCRToReadOnly() {
+            if ($('#userMemberOfGroup').text() !== 'Team') {
+                $('#DeletePCR').prop('disabled', true);
+
+            }
+        }
+
+        function SetAuthorisationToViewOnly(index) {
+            $('#CreateBtnAuthorisation-' + index).hide();
+            $("#dvAuthorisation-" + index + " " + "#AuthComment-" + index).attr('disabled', true);
+            $("#dvAuthorisation-" + index + " " + "#isApproved-Y-" + index).attr('disabled', true);
+            $("#dvAuthorisation-" + index + " " + "#isApproved-N-" + index).attr('disabled', true);
+        }
+
+        function HideCancelReviewButton(index) {
+            $('#dvDelete-' + index).hide();
+        }
+
+        function HideDeletePCRButton() {
+            $('#dvDeletePCR').hide();
+        }
+
+        function FormReviewAuthorisationPrintErrors(accordionNumber, event) {
+            $('#CommentError-' + accordionNumber).html("");
+            if (($('#AuthComment-' + accordionNumber).val().length < 20) || ($('#AuthComment-' + accordionNumber).val().length > 500)) {
+                $('#CommentError-' + accordionNumber).html("Comment/justification must be within 20 to 500 characters");
+                event.preventDefault();
+            } else {
+                $('#CreateBtnAuthorisation-' + accordionNumber).attr('disabled', true);
+                $('#CreateBtnAuthorisation-' + accordionNumber).closest('form').submit();
+                //return true;
+
+            }
+        }
+
+        function CheckOutputTablesTotalPercentage(ProjectID, reviewId) {
+
+
+            var sum = 0,
+                tbl = $('#tblOutputScores-' + ProjectID + '-' + reviewId);
+            tbl.find('.edit-mode').each(function(index, elem) {
+                var val = parseFloat($(elem).val());
+                if (!isNaN(val)) {
+                    sum += val;
+                }
+            });
+
+
+            if (sum >= 100) {
+                $('#btnAddOutputScoring-' + ProjectID + '-' + reviewId).hide();
+                $('#outputOverallScoreInfoMessage-' + ProjectID + '-' + reviewId).slideDown("slow");
+            } else {
+                $('#btnAddOutputScoring-' + ProjectID + '-' + reviewId).show();
+                $('#outputOverallScoreInfoMessage-' + ProjectID + '-' + reviewId).slideUp("slow");
+            }
+
+        }
+
+        //Change Approver  AR
+        function FormReviewChangeApproverError(accordionNumber, event) {
+            var hiddenAuth = $('#AuthoriserNameChange-' + accordionNumber);
+            if (hiddenAuth.val() === '') {
+                $('#Submission-ChangeAuthoriserError-' + accordionNumber).html("Authoriser can not be empty");
+                event.preventDefault();
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        //Change Approver  pcr
+        function FormReviewPCRChangeApproverError(accordionNumber, event) {
+            var hiddenAuth = $('#AuthoriserNameChange-' + accordionNumber);
+            if (hiddenAuth.val() === '') {
+                $('#Submission-ChangeAuthoriserPCRError-' + accordionNumber).html("Authoriser can not be empty");
+                event.preventDefault();
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+
+        //AR Script for validation for output scoring table
+        function FormReviewSubmissionPrintErrors(accordionNumber, event) {
+            $('#Submission-CommentError-' + accordionNumber).html("");
+            $('#Submission-AuthoriserError-' + accordionNumber).html("");
+            $('#Submission-TableError-' + accordionNumber).html("");
+            var ProjectID = $('#ProjectID').val();
+
+            var rowCount = $('#tblOutputScores-' + ProjectID + '-' + accordionNumber + ' ' + 'tr').length - 1;
+            var sum = 0,
+                tbl = $('#tblOutputScores-' + ProjectID + '-' + accordionNumber);
+            tbl.find('.edit-mode').each(function(index, elem) {
+                var val = parseFloat($(elem).val());
+                if (!isNaN(val)) {
+                    sum += val;
+                }
+            });
+
+            var hiddenAuth = $('#AuthoriserName-' + accordionNumber);
+
+            if (($('#SubmissionComment-' + accordionNumber).val().length < 20) || ($('#SubmissionComment-' + accordionNumber).val().length > 500)) {
+                $('#Submission-CommentError-' + accordionNumber).html("Comments must be within 20 to 500 characters");
+                event.preventDefault();
+                return false;
+            } else if (hiddenAuth.val() === '') {
+                $('#Submission-AuthoriserError-' + accordionNumber).html("Authoriser can not be empty");
+                event.preventDefault();
+                return false;
+            } else if (rowCount > 0 && sum < 100) {
+
+                $('#Submission-TableError-' + accordionNumber).html("Total Impact weight in output table can not be less than 100");
+                event.preventDefault();
+                return false;
+            } else if (rowCount < 1) {
+                $('#Submission-TableError-' + accordionNumber).html("No row in the output scoring table");
+                alert($('#RiskScore-' + ProjectID + '-' + accordionNumber).text());
+                event.preventDefault();
+                return false;
+            } else if ($('#RiskScore-' + ProjectID + '-' + accordionNumber).text() === '-') {
+                $('#Submission-TableError-' + accordionNumber).html("Please add overall risk rating for this review");
+                $('#btnAddOutputScoring-' + ProjectID + '-' + accordionNumber).hide();
+                $('#outputOverallScoreInfoMessage-' + ProjectID + '-' + accordionNumber).slideDown("slow");
+                event.preventDefault();
+                return false;
+            }
+
+            $('#CreateBtnSubmission-' + accordionNumber).attr('disabled', true);
+            $('#CreateBtnSubmission-' + accordionNumber).closest('form').submit();
+
+            return true;
+        }
+
+        //PCR scripts:
+        function PCRSubmissionPrintErrors(accordionNumber, event) {
+            $('#PCRSubmission-CommentError').html("");
+            $('#PCRSubmission-CommentErrorForApprover').html("");
+            $('#PCRSubmission-TableErrorForApprover').html("");
+
+
+            var ProjectID = $('#ProjectID').val();
+            var rowCount = $('#tblOutputScores-' + ProjectID + '-' + accordionNumber + ' ' + ' tr').length - 1;
+            var sum = 0,
+                tbl = $('#tblOutputScores-' + ProjectID + '-' + accordionNumber);
+            tbl.find('.edit-mode').each(function(index, elem) {
+                var val = parseFloat($(elem).val());
+                if (!isNaN(val)) {
+                    sum += val;
+                }
+            });
+
+            var hiddenAuth = $('#ProjectPcrScore_Approver');
+
+
+            if (($('#PCRSubmissionComment').val().length < 20) || ($('#PCRSubmissionComment').val().length > 500)) {
+                $('#PCRSubmission-CommentError').html("Comment must be within 20 to 500 characters");
+                event.preventDefault();
+                return false;
+            } else if (hiddenAuth.val() === '') {
+                $('#PCRSubmission-CommentErrorForApprover').html("Authoriser can not be empty");
+                event.preventDefault();
+                return false;
+            } else if (rowCount > 0 && sum < 100) {
+
+                $('#PCRSubmission-TableErrorForApprover').html("Total Impact weight can not be less than 100");
+                event.preventDefault();
+                return false;
+
+            } else if (rowCount < 1) {
+                $('#PCRSubmission-TableErrorForApprover').html("No row in the output scoring table");
+                event.preventDefault();
+                return false;
+            } else if ($('#RiskScore-' + ProjectID + '-' + accordionNumber).text() === '-') {
+                $('#PCRSubmission-TableErrorForApprover').html("Please add overall risk rating for this review");
+                $('#btnAddOutputScoring-' + ProjectID + '-' + accordionNumber).hide();
+                $('#outputOverallScoreInfoMessage-' + ProjectID + '-' + accordionNumber).slideDown("slow");
+                event.preventDefault();
+                return false;
+            }
+
+
+            $('#PCRCreateBtnSubmission').attr('disabled', true);
+            $('#PCRCreateBtnSubmission').closest('form').submit();
+
+            return true;
+        }
+
+        function PCRAuthorisationPrintErrors(event) {
+            $('#PCRCommentError').html("");
+            if (($('#PCRAuthComment').val().length < 20) || ($('#PCRAuthComment').val().length > 500)) {
+                $('#PCRCommentError').html("Comment must be within 20 to 500 characters");
+                event.preventDefault();
+            } else {
+                $('#PCRCreateBtnAuthorisation').attr('disabled', true);
+                $('#PCRCreateBtnAuthorisation').closest('form').submit();
+                //return true;
+            }
+        }
+
+        function SetPCROutputEntryMode(IsEnabled, accordionNumber) {
+            if (!IsEnabled) {
+                $('#UserGroup-' + accordionNumber).parent('Form').parent('div').children('.grid-row').each(function() {
+                    $(this).find("input[type=text]").attr('disabled', true);
+                    $(this).find("input[type=number]").attr('disabled', true);
+                });
+            }
+        }
+
+        function SetPCRAuthorisationToViewOnly() {
+            $('#PCRCreateBtnAuthorisation').hide();
+            $("#PCRAuthComment").attr('disabled', true);
+            $("#isPCRApproved-Y").attr('disabled', true);
+            $("#isPCRApproved-N").attr('disabled', true);
+        }
+
+        function submitexemption(obj) {
+
+            $('#exemptionSubmissionComments-Error').html("");
+            $('#ExemptionAuthoriserName-Error').html("");
+            $('#ExemptionReason-Error').html("");
+
+            //alert($('#ReviewExemption_ExemptionReasonPCR').val());
+            //alert($('#ReviewExemption_ExemptionReasonAR').val());
+            var ExemptionType = $("#ReviewExemption_ExemptionType").val();
+            var hiddenAuth = $('#ExemptionAuthoriserArName');
+            var ARExapprover = $('#ReviewExemptionAR_Approver');
+
+            //alert(hiddenAuth.val());
+            //alert(ARExapprover.val());
+
+            if (($('#exemptionSubmissionComments').val().length < 20) || ($('#exemptionSubmissionComments').val().length > 500)) {
+                $('#exemptionSubmissionComments-Error').html("Comment must be within 20 to 500 characters");
+                event.preventDefault();
+                return false;
+            } else if (hiddenAuth.val() === '') {
+                $('#ExemptionAuthoriserName-Error').html("Authoriser can not be empty");
+                event.preventDefault();
+                return false;
+            }
+            //else if (hiddenAuth.val() === ARExapprover.val())
+            //{
+            //    alert("here");
+            //    $('#ExemptionAuthoriserName-Error').html("Authoriser can not be empty");
+            //    event.preventDefault();
+            //    return false;
+            //}
+            else if ($('#ReviewExemption_ExemptionReasonAR').val().length < 1) {
+                $('#ExemptionReason-Error').html("Select Exemption reason for AR");
+                event.preventDefault();
+                return false;
+            } else {
+
+                if ($(obj).closest('form').valid() === true) {
+
+                    $(obj).closest('form').submit();
+                    $(obj).closest('form').find("input,button,textarea,select").attr("disabled", "disabled");
+                    $(obj).replaceWith("<span><i class='fa fa-hourglass-half'></i> Submitting exemption for approval.Please wait... </span>");
+                }
+
+            }
+
+        }
+
+        function submitPCRExemptionPrintErrors(obj) {
+
+            $('#PCRExemptionSubmissionComments-Error').html("");
+            $('#PCRExemptionAuthoriser-Error').html("");
+            $('#PCRExemptionReason-Error').html("");
+
+            //alert($('#ReviewExemption_ExemptionReasonPCR').val());
+            //alert($('#ReviewExemption_ExemptionReasonAR').val());
+            var ExemptionType = $("#ReviewExemptionPCR_ExemptionType").val();
+            var hiddenAuth = $('#ExemptionAuthoriserPcrName');
+            var PCRExApprover = $('#ReviewExemptionPCR_Approver');
+
+            //alert(hiddenAuth.val());
+            //alert(PCRExApprover.val());
+
+            if (($('#exemptionSubmissionCommentsPCR').val().length < 20) || ($('#exemptionSubmissionCommentsPCR').val().length > 200)) {
+                $('#PCRExemptionSubmissionComments-Error').html("Comment must be within 20 to 200 characters");
+                event.preventDefault();
+                return false;
+            } else if (hiddenAuth.val() === '') {
+                $('#PCRExemptionAuthoriser-Error').html("Authoriser can not be empty");
+                event.preventDefault();
+                return false;
+            }
+            //else if(hiddenAuth.val() === PCRExApprover.val())
+            //{
+            //    $('#PCRExemptionAuthoriser-Error').html("Authoriser can not be empty");
+            //    event.preventDefault();
+            //    return false;
+            //}
+
+            else if ($('#ReviewExemption_ExemptionReasonPCR').val().length < 1) {
+                $('#PCRExemptionReason-Error').html("Select Exemption reason PCR");
+                event.preventDefault();
+                return false;
+            } else {
+
+                if ($(obj).closest('form').valid() === true) {
+
+                    $(obj).closest('form').submit();
+                    $(obj).closest('form').find("input,button,textarea,select").attr("disabled", "disabled");
+                    $(obj).replaceWith("<span><i class='fa fa-hourglass-half'></i> Submitting exemption for approval.Please wait... </span>");
+                }
+
+            }
+
+        }
+
+        function PCRExemptionApprovalPrintErrors(obj) {
+            $('#PCRExemptionApprovalComments-Error').html("");
+            $('#PCRExemptionApprovalRadio-Error').html("");
+
+            if (($('#PCRExemptionAppComment').val().length < 20) || ($('#PCRExemptionAppComment').val().length > 200)) {
+                $('#PCRExemptionApprovalComments-Error').html("Comment must be within 20 to 200 characters");
+                event.preventDefault();
+                return false;
+            } else if (!$("input[name='ReviewExemptionPCR.Approved']:checked").val()) {
+                $('#PCRExemptionApprovalRadio-Error').html("You must select to Approve or Reject");
+                event.preventDefault();
+                return false;
+            } else {
+                if ($(obj).closest('form').valid() === true) {
+
+                    $(obj).closest('form').submit();
+
+                }
+            }
+        }
+
+        function ARExemptionApprovalPrintErrors(obj) {
+            $('#ARExemptionApprovalComments-Error').html("");
+            $('#ARExemptionApprovalRadio-Error').html("");
+
+            if (($('#ExemptionAppComment').val().length < 20) || ($('#ExemptionAppComment').val().length > 200)) {
+                $('#ARExemptionApprovalComments-Error').html("Comment must be within 20 to 200 characters");
+                event.preventDefault();
+                return false;
+            } else if (!$("input[name='ReviewExemptionAR.Approved']:checked").val()) {
+                $('#ARExemptionApprovalRadio-Error').html("You must select to Approve or Reject");
+                event.preventDefault();
+                return false;
+            } else {
+                if ($(obj).closest('form').valid() === true) {
+
+                    $(obj).closest('form').submit();
+
+                }
+            }
+        }
+
+        // Show hide Exemptions
+        function ChangeApproverARExemptionviewMode() {
+            var PCRExemptionStage = $('#ReviewExemptionPCR_StageID').val();
+            var ARExemptionStage = $('#HasExemptionStage').val();
+
+        }
+
+        function SetExemptionButtonviewMode() {
+            var PCRExemptionStage = $('#ReviewExemptionPCR_StageID').val();
+            var ARExemptionStage = $('#HasExemptionStage').val();
+            //alert(ARExemptionStage+':AR stage');
+            //alert(PCRExemptionStage+'PCR Stage');
+
+            if (ARExemptionStage.toString().trim() === "" && PCRExemptionStage.toString().trim() === "") {
+
+                $("btnRequestExemptionPCR").prop("disabled", false);
+                $("btnRequestExemptionAR").prop("disabled", false);
+            }
+
+            if (ARExemptionStage.toString().trim() === "1") {
+                $("#btnRequestExemptionPCR").prop("disabled", true); //PCR button Disabled 
+                $("#btnAddReview").prop("disabled", true);
+            }
+            if (PCRExemptionStage.toString().trim() === "1") {
+                $("#btnRequestExemptionAR").prop("disabled", true); //AR button Disabled
+                $("#btnAddReview").prop("disabled", true);
+            }
+            SetExemptionAuthorisationviewMode();
+
+        }
+
+        function SetExemptionAuthorisationviewMode() {
+
+            //alert($('#userMemberOfGroup').text().trim());
+            //alert($('#ReviewExemptionPCR_StageID').val().trim());
+            //alert($('#HasExemptionStage').val().trim());
+
+            var PCRExemptionStage = $('#ReviewExemptionPCR_StageID').val();
+
+            switch (PCRExemptionStage) {
+            case '1': //PCR Exemption awaiting approval
+                if ($('#userMemberOfGroup').text().trim() === 'Others') {
+                    DisablePCRExemptionRequestForm();
+                    DisablePCRExemptionAuthorisationForm();
+                    DisablePCRExemptionDeleteForm();
+                } else if ($('#userMemberOfGroup').text().trim() === 'Approver') {
+                    DisablePCRExemptionDeleteForm();
+                    DisablePCRExemptionRequestForm();
+                    $('#ApprovePCRExemptionForm').prop("disabled", false); //Request approve form enable
+                } else if ($('#userMemberOfGroup').text().trim() === 'Team') {
+                    DisablePCRExemptionAuthorisationForm();
+                    DisablePCRExemptionRequestFormP();
+                    //$('#PCRExemptionCreateForm').prop("disabled", true); //Request create form disabled
+
+
+                }
+                break;
+            case '2': //approved
+                DisablePCRExemptionAuthorisationForm();
+                DisablePCRExemptionRequestForm();
+                DisablePCRExemptionDeleteForm();
+                break;
+            case '3': //Rejected
+                if ($('#userMemberOfGroup').text().trim() === 'Team') {
+                    $('#PCRExemptionCreateForm').prop("disabled", false); //Enable create form
+                    DisablePCRExemptionAuthorisationForm();
+                } else {
+                    DisablePCRExemptionAuthorisationForm();
+                    DisablePCRExemptionRequestForm();
+                    DisablePCRExemptionDeleteForm();
+                }
+                break;
+            default:
+                if ($('#userMemberOfGroup').text().trim() === 'Team') {
+                    $('#PCRExemptionCreateForm').prop("disabled", false); //Enable create form
+                    DisablePCRExemptionAuthorisationForm();
+                } else {
+                    DisablePCRExemptionAuthorisationForm();
+                    DisablePCRExemptionRequestForm();
+                    DisablePCRExemptionDeleteForm();
+                }
+
+            }
+
+
+            switch ($('#HasExemptionStage').val().trim()) {
+            case '1': //awaiting approval
+                if ($('#userMemberOfGroup').text().trim() === 'Others') {
+                    DisableExemptionAuthorisationForm();
+                    DisableExemptionRequestForm();
+                    DisableExemptionDeleteForm();
+                } else if ($('#userMemberOfGroup').text().trim() === 'Approver') {
+                    DisableExemptionDeleteForm();
+                    DisableExemptionRequestForm();
+                    $('#ApproveExemptionForm').prop("disabled", false); //Request approve form enable                    
+                } else if ($('#userMemberOfGroup').text().trim() === 'Team') {
+                    DisableExemptionAuthorisationForm();
+                    DisableExemptionRequestFormA();
+                    //$('#ExemptionCreateForm').prop("disabled", true); //Request create form disabled
+                }
+                break;
+            case '2': //approved
+                DisableExemptionAuthorisationForm();
+                DisableExemptionRequestForm();
+                DisableExemptionDeleteForm();
+                break;
+            case '3': //Rejected
+                //alert($('#userMemberOfGroup').text().trim());
+
+                if ($('#userMemberOfGroup').text().trim() === 'Team') {
+                    $('#ExemptionCreateForm').prop("disabled", false); //Enable create form
+                    DisableExemptionAuthorisationForm();
+                } else {
+                    DisableExemptionAuthorisationForm();
+                    DisableExemptionRequestForm();
+                    DisableExemptionDeleteForm();
+                }
+                break;
+            default:
+                if ($('#userMemberOfGroup').text().trim() === 'Team') {
+                    $('#ExemptionCreateForm').prop("disabled", false); //Enable create form
+                    DisableExemptionAuthorisationForm();
+                } else {
+                    DisableExemptionAuthorisationForm();
+                    DisableExemptionRequestForm();
+                    DisableExemptionDeleteForm();
+                }
+            }
+
+            if ($('#HasExemptionStage').val().trim() === '1') {
+                $("#btnAddExemptionHints").html("<span class='form-hint'> <i class='fa fa-hourglass-half'></i> Annual Review Exemption  Awaiting Review  </span>");
+            }
+            if (PCRExemptionStage.toString().trim() === '1') {
+                $("#btnAddExemptionHints").html("<span class='form-hint'> <i class='fa fa-hourglass-half'></i> Project Completion Review Exemption Awaiting Review  </span>");
+            }
+
+
+        }
+
+        function DisableExemptionAuthorisationForm() {
+            $("#ApproveExemptionForm").find("input,button,textarea,select").attr("disabled", "disabled");
+        }
+
+        function DisableExemptionRequestForm() {
+            $("#ExemptionCreateForm").find("input,button,textarea,select").attr("disabled", "disabled");
+        }
+
+        function DisableExemptionRequestFormA() {
+            $("#ExemptionCreateForm").find("textarea,select").attr("disabled", "disabled");
+        }
+
+        function DisableExemptionDeleteForm() {
+            $("#dvDeleteExemption").find("input,button,textarea,select").attr("disabled", "disabled");
+            //$('#ExemptionCreateBtnPCR').css("display", "none");
+        }
+
+        function DisablePCRExemptionRequestForm() {
+            $("#PCRExemptionCreateForm").find("input,button,textarea,select").attr("disabled", "disabled");
+        }
+
+        function DisablePCRExemptionRequestFormP() {
+            $("#PCRExemptionCreateForm").find("textarea,select").attr("disabled", "disabled");
+        }
+
+        function DisablePCRExemptionAuthorisationForm() {
+            $("#ApprovePCRExemptionForm").find("input,button,textarea,select").attr("disabled", "disabled");
+        }
+
+        function DisablePCRExemptionDeleteForm() {
+            $("#dvDeleteExemptionPCR").find("input,button,textarea,select").attr("disabled", "disabled");
+        }
+
+        function SetPCRSubmissionAndAuthorisationViewMode() {
+
+            //    alert($('#userMemberOfGroup').text());
+            switch ($('#PCRSubmission-Stage').val()) {
+
+            case 'In Preparation':
+                $("#dvPCRAuthorisation").hide();
+                if ($('#userMemberOfGroup').text() === 'Team') {
+                    $('#PCRSubmissionComment').attr('disabled', false);
+                    $('#PCRCreateBtnSubmission').show();
+                    $('#PCRAuthoriserBox').show();
+                    $('#dvPCRTypeAhead').show();
+
+                }
+                break;
+
+            case 'Awaiting Approval':
+                SetOutputEntryMode(false, i); //???change
+                if ($('#userMemberOfGroup').text() !== 'Approver') {
+                    SetPCRAuthorisationToViewOnly();
+                }
+
+                break;
+
+            case 'Approved':
+                SetOutputEntryMode(false, i);
+                SetPCRAuthorisationToViewOnly();
+                HideDeletePCRButton();
+                break;
+
+            case 'Rejected':
+                if ($('#userMemberOfGroup').text() === 'Approver') {
+                    SetOutputEntryMode(false, i);
+                } else {
+                    SetOutputEntryMode(true, i);
+                }
+                SetPCRAuthorisationToViewOnly();
+                if ($('#userMemberOfGroup').text() === 'Team') {
+                    $('#PCRSubmissionComment').attr('disabled', false);
+                    $('#PCRCreateBtnSubmission').show();
+                    $('#PCRAuthoriserBox').show();
+                    $('#dvPCRTypeAhead').show();
+                }
+                break;
+
+            default:
+                SetOutputEntryMode(true, i);
+                SetPCRAuthorisationToViewOnly();
+            }
+            SetDeletePCRToReadOnly();
+
+        }
+
+        //Set the AR Req Yes Radio Button
+        var label = document.getElementById("ARReq-Y-Label");
+        var option = document.getElementById("arrequired-Y");
+        if (option.getAttribute("checked") == "checked") {
+            label.className = "block-label selected";
+        }
+
+        //Set the AR Req No Radio Button
+        var label = document.getElementById("ARReq-N-Label");
+        var option = document.getElementById("arrequired-N");
+        if (option.getAttribute("checked") == "checked") {
+            label.className = "block-label selected";
+        }
+
+        //Set the PCR Req Yes Radio Button
+        var label = document.getElementById("PCRReq-Y-Label");
+        var option = document.getElementById("pcrrequired-Y");
+        if (option.getAttribute("checked") == "checked") {
+            label.className = "block-label selected";
+        }
+
+        //Set the PCR Req No Radio Button
+        var label = document.getElementById("PCRReq-N-Label");
+        var option = document.getElementById("pcrrequired-N");
+        if (option.getAttribute("checked") == "checked") {
+            label.className = "block-label selected";
+        }
+
+        //Set the PCR Approved Yes Radio Button
+        var label = document.getElementById("PCR-Approved-Y-Label");
+        var option = document.getElementById("isPCRApproved-Y");
+        if (option.getAttribute("checked") == "checked") {
+            label.className = "block-label selected";
+        }
+
+        //Set the PCR Approved No Radio Button
+        var label = document.getElementById("PCR-Approved-N-Label");
+        var option = document.getElementById("isPCRApproved-N");
+        if (option.getAttribute("checked") == "checked") {
+            label.className = "block-label selected";
+        }
+
+
+    </script>
+
+}

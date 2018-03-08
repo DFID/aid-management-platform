@@ -1,0 +1,87 @@
+﻿@model AMP.ViewModels.RiskItemsVM
+
+<div class="column-full">
+    <table id="RiskItemTable" class="table-main" border="1" title="A data table that contains a list of Risks that apply to the project. The table contains the Description, Category, Mitigation Strategy, Rating, Status and Last Update Date of each risk. It also contains a button to open a detailed description of each risk and a button to edit each risk.">
+        <tr>
+            <th id="Risk_Register_Description">Description</th>
+            <th id="Risk_Register_Category">Category</th>
+            <th id="Risk_Register_Mitigation">Mitigation Strategy</th>
+            <th id="Risk_Register_Rating">Residual Risk</th>
+            <th id="Risk_Register_Status">Status</th>
+            <th id="Risk_Register_LastUpdate">Last Update</th>
+            <th id="Risk_Register_Action">Action</th>
+        </tr>
+        @{
+            var index = 0;
+            if (Model.projectRisks.Count > 0)
+            {
+                foreach (var item in Model.projectRisks)
+                {
+                    <tr style="word-break:normal">
+                        <td id="Risk-Description-@index" headers="Risk_Register_Description">@Html.DisplayFor(modelItem => item.RiskDescription)</td>
+                        <td id="Risk-Category-@index" headers="Risk_Register_Category">@Html.DisplayFor(modelItem => item.RiskCategoryDescription)</td>
+                        <td id="Risk-Mitigation-@index" headers="Risk_Register_Mitigation">@Html.DisplayFor(modelItem => item.MitigationStrategy)</td>
+
+                        <td id="Risk-Rating-@index" headers="Risk_Register_Rating" style="width: 9%">
+                            @Html.DisplayFor(modelItem => item.ResidualRiskDescription)
+
+                            @switch (item.ResidualRiskDescription)
+                            {
+                                case "Minor":
+                                    <script type="text/javascript">
+                                        $("td:contains('Minor')").removeClass().addClass('risk low');
+                                    </script>
+                                    break;
+
+                                case "Moderate":
+                                    <script type="text/javascript">
+                                        $("td:contains('Moderate')").removeClass().addClass('risk moderate');
+                                    </script>
+                                    break;
+
+                                case "Major":
+                                    <script type="text/javascript">
+                                        $("td:contains('Major')").removeClass().addClass('risk med');
+                                    </script>
+                                    break;
+                              
+                                case "Severe":
+                                    <script type="text/javascript">
+                                        $("td:contains('Severe')").removeClass().addClass('risk high');
+                                    </script>
+                                    break;
+
+                                default:
+                                    break;
+                            }
+
+                        </td>
+
+
+
+                        <td id="Risk-Status-@index" headers="Risk_Register_Status" style="width: 6%">@Html.DisplayFor(modelItem => item.StatusDescription)</td>
+                        <td id="Risk-LastUpdate-@index" headers="Risk_Register_LastUpdate" style="width: 9%">@Html.DisplayFor(modelItem => item.LastUpdated)</td>
+                        
+                        <td id="Risk-Register-Action-@index" headers="Risk_Register_Action" style="width: 12%">
+                            <button data-url='@Url.Action("DisplayRiskItem", "Project", new {id =  item.RiskID})' class="load-riskItem">Details</button>
+
+                            @if (item.Status == "C")
+                            {
+                                <button class="button" @*style = "pointer-events: none; background-color: lightslategray; "*@ disabled="disabled">Edit</button>
+                            }
+                            else
+                            {
+                               <button data-url='@Url.Action("EditRiskItem", "Project", new {id = item.RiskID})' class="load-riskItem-Editor">Edit</button>
+                            }
+
+
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+        }
+    </table>
+</div>
+
+

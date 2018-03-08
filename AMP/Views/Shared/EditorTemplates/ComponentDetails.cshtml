@@ -1,0 +1,136 @@
+﻿@model AMP.ViewModels.ComponentVM
+@using AMP.Helpers
+@using Microsoft.Ajax.Utilities
+<div class="page-container secondary">
+    <div class="project-details-section">
+        <div class="grid-row">
+            <div class="column-two-thirds">
+                <div class="form-group">
+                    <label class="form-label-bold" for="ComponentDescription">Title</label>
+                    <p class="form-hint">This should describe the component and be free from acronyms. Between 20 and 250 characters. </p>
+                    <textarea id="ComponentDescription" name="ComponentDescription" rows="3" maxlength="250" onkeyup="countChar(this, 'ComponentDescription-characterCount', 250);" style="width:inherit;">@Model.ComponentDescription</textarea>
+                    <span class="form-hint" id="ComponentDescription-characterCount"></span>
+                    @Html.ValidationMessageFor(model => model.ComponentDescription)
+                </div>
+                <!-- Budget Centre -->
+                <div class="form-group">
+                    <label class="form-label-bold" for="BudgetCentreBox">Budget Centre</label>
+                    <p class="form-hint">This is where the budget is charged</p>
+                    <div id="BudCen">
+                        <input id="BudgetCentreBox" type="text" class="typeahead" name="BudgetCentreDescription" placeholder="Type to search" style="width: 500px; height: 25px" value="@Model.BudgetCentreDescription"/>
+                    </div>
+                    @Html.HiddenFor(model => model.BudgetCentreID)
+                    @Html.ValidationMessageFor(model => model.BudgetCentreID)
+
+                    @*@{
+                        if (Model.ComponentDate.OperationalEndDate > DateTime.Today)
+                        {
+                            Model.ComponentDate.OperationalEndDate.ToString(); 
+                        }
+                    }*@
+                </div>
+                <!-- admin Approver-->
+                <div id="AdminGroup" class="form-group" style="display:none">
+                    <label class="form-label-bold" for="AdminBox">Admin Approver</label>
+                    <p class="form-hint">This person will approve admin budget changes</p>
+                    <div id="AdminSection">
+                        <input id="AdminBox" type="text" class="typeahead" name="AdminApproverDescription" placeholder="Type to search" style="width: 500px; height: 25px" value="@Model.AdminApproverDescription" />
+                    </div>
+                    @Html.HiddenFor(model => model.AdminApprover)
+                    @Html.ValidationMessageFor(model => model.AdminApprover)
+                </div>
+                <!-- Approval Status -->
+                <div class="form-group">
+                    <div class="form-label-bold">Component Status</div>
+                    <p class="form-hint">Whether the component has been approved.</p>
+                    <div id="ApprovalStatus">
+                        @switch(Model.Approved)
+                            {
+                                case "Y":
+                                    <div>Approved</div>
+                                    break;
+                                case "N":
+                                    <div>In Preparation</div>
+                                    break;
+                                default:
+                                    <div>In Preparation</div>
+                                    break;
+                            }
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="project-details-section">
+        <div class="grid-row">
+            <div class="column-third">
+                <!-- Operational status -->
+                <div class="status-select">
+                    <label class="form-label-bold" for="FundingMechdd">Funding Type</label>
+                    @*<p class="form-hint">The channel through which the programme is delivered e.g. government or multilateral organisation. </p>*@
+                    <p class="form-hint"> Indicates the channel through which aid is delivered e.g. multilateral or not for profit. Each component must have a single funding type. It is important to get this right because it impacts on the input sector codes and account codes that can be selected.</p>
+                    <div id="FundingMechSelect" class="RightColumnTwoThirds">
+                        @Html.DropDownList("FundingMechdd", "")
+                    </div>
+                    @Html.ValidationMessageFor(model => model.FundingMechanism)
+                </div>
+            </div>
+            <div class="column-third">
+                <!-- Start date -->
+                @Html.DateBlock("ComponentDate.OperationalStartDate", "Planned Start Date", @Model.ComponentDate.OperationalStartDate, "Date the component is created")
+                @Html.HiddenFor(model => model.ComponentDate.OperationalStartDate)
+                @*<input type="hidden" id="Component_OpStartDate" name="Component.OpStartDate" value="@Model.ComponentDate.OperationalStartDate" />*@
+                @Html.ValidationMessageFor(model => model.ComponentDate.OperationalStartDate)
+
+
+                @Html.DateBlock("ComponentDate.StartDate", "Financial Start", @Model.ComponentDate.StartDate, "Financial Start Date")
+                @Html.HiddenFor(model => model.ComponentDate.StartDate)
+                @Html.ValidationMessageFor(model => model.ComponentDate.StartDate)
+            </div>
+            <div class="column-third">
+                <!-- end date -->
+                @Html.DateBlock("ComponentDate.OperationalEndDate", "Planned End Date", @Model.ComponentDate.OperationalEndDate, "Defaulted to your project end date")
+                @Html.HiddenFor(model => model.ComponentDate.OperationalEndDate)
+                @Html.ValidationMessageFor(model => model.ComponentDate.OperationalEndDate)
+
+                @Html.DateBlock("ComponentDate.EndDate", "Financial End", @Model.ComponentDate.EndDate, "Financial End Date")
+                @Html.HiddenFor(model => model.ComponentDate.EndDate)
+                @Html.ValidationMessageFor(model => model.ComponentDate.EndDate)
+            </div>
+        </div>
+
+        <div class="grid-row">
+            <div class="column-full">
+                <p style="background-color: #f499be;">
+                    The Funding Type will be replaced by two new fields as part of the data architecture review.
+                    Please can you choose a "Type of Funding Arrangement" and "Type of Partner Organisation".
+                    Your original Funding Type will remain as the prime source of reporting until we are satisfied
+                    that the new information is tested. <strong> These can be amended and re-saved</strong>
+                </p>
+            </div>
+
+            <div class="column-half">
+                <label class="form-label-bold" for="FundingArrangementdd">Type of Funding Arrangement</label>
+                <p class="form-hint"> Click on the dropdown below and choose a Funding Arrangement. Click on save. </p>
+                <div id="FundingArrangementSelect">
+                    @Html.DropDownList("FundingArrangementdd", "")
+                </div>
+                @Html.ValidationMessageFor(model => model.FundingArrangementValue)
+
+
+            </div>
+            <div class="column-half">
+                <label class="form-label-bold" for="PartnerOrgdd">Type of Partner Organisation</label>
+
+                <p class="form-hint"> Click on the dropdown below and choose a Partner Organisation. Click on save. </p>
+                <div id="PartnerOrgSelect">
+                    @Html.DropDownList("PartnerOrgdd", "")
+                </div>
+                @Html.ValidationMessageFor(model => model.PartnerOrganisationValue)
+
+            </div>
+        </div>
+
+    </div>
+</div>

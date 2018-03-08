@@ -1,0 +1,66 @@
+﻿@model  AMP.ViewModels.ProjectDocumentsVM
+@{
+    ViewBag.Title = "Documents";
+}
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml", Model.ProjectHeader)
+<div class="page-container">
+    <div id="FinanceMessageContainer">
+        <label id="ARIESFinanceWSMessage" class="LabelAlert">@Model.WebServiceMessage</label>
+    </div>
+    <h3>Key Documents</h3>
+    <p class="form-hint">This table displays project documents from the document system</p>
+    <table id="Document-list" class="table-main" title="Documents table displaying data from document system." border="1">
+        <thead>
+            <tr id="ProcurementHeader">
+                <th id="headerContentType">Content Type</th>
+                <th id="headerID">ID</th>
+                <th id="headerTitle">Title</th>
+                <th id="headerCreatedDate">Created Date</th>
+                <th id="headerLastUpdated">Last Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var index = 0;
+                foreach (var item in Model.ProjectDocument)
+                {
+                    <tr>
+                        <td id="ContentType-@index" headers="headerContentType" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.ContentType)
+                        </td>
+                        <td id="DocumentID-@index" headers="headerID" style="text-align: left">
+                            <a id="DocumentLink-@index" href="http://documentSystem/GetDocument.aspx?docid=@Html.DisplayFor(modelItem => item.DocumentID)"> @Html.DisplayFor(modelItem => item.DocumentID)</a>
+                        </td>
+                        <td id="DocumentTitle-@index" headers="headerTitle" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.DocumentTitle)
+                        </td>
+                        <td id="CreatedDate-@index" headers="headerCreatedDate" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.CreatedDate)
+                        </td>
+                        <td id="LastUpdatedDate-@index" headers="headerLastUpdated" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.LastUpdatedDate)
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+
+    //Update navigation to active
+    var x = document.getElementById("documents-tab");
+    x.className = "active";
+
+    //This bit of script hides the Web Service Messages Div if there is no return message from the web service.
+    if (document.getElementById("ARIESFinanceWSMessage").innerHTML == "") {
+        document.getElementById("FinanceMessageContainer").style.display = "none";
+        //document.getElementById("FinanceContainer").style.display = "block";
+    } else {
+        document.getElementById("FinanceMessageContainer").style.display = "block";
+        //document.getElementById("FinanceContainer").style.display = "none";
+    }
+
+
+</script>

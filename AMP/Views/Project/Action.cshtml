@@ -1,0 +1,873 @@
+﻿@model AMP.ViewModels.ProjectVM
+@using System.Linq.Expressions
+@using System.Web.UI.WebControls
+@using AMP.Helpers
+@using AMP.Models
+
+@{
+    ViewBag.Title = "Workflow Actions";
+}
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml", Model.ProjectHeader)
+
+<div class="page-container secondary">
+   
+
+    @if (Convert.ToInt32(Model.ProjectHeader.Stage) == 8)
+    {
+        @*Simple page for when in archive - no actions available*@
+        <div class="grid-row">
+            <div class="column-half" id="ArchivedProjectText">
+                <div>This project has reached Archive stage so no further changes can be made.</div>
+            </div>
+        </div>
+    }
+
+    else
+    {
+
+        using (Html.BeginForm("Action", "Project", FormMethod.Post, new { id = "FormWorkflowAction" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.WFCheck.Status, new { @id = "IsActiveWorkflow" })
+            @Html.HiddenFor(model => model.WFCheck.WorkFlowDescription, new { @id = "ActiveWorkflowDescription" })
+            @Html.HiddenFor(model => model.WFCheck.TaskId, new { @id = "ActiveWorkflowTaskId" })
+            @Html.HiddenFor(model => model.WFCheck.IsWorkFlowApprover, new { @id = "IsWorkflowApprover" })
+            @Html.HiddenFor(model => model.CanSendForClosure, new { @id = "CanSendForClosure" })
+            @Html.HiddenFor(model => model.IsProjectTeam, new { @id = "IsProjectTeam" })
+            @Html.HiddenFor(model => model.ProjectID, new { @id = "ProjectID2" })
+            @*@Html.HiddenFor(model => model.ProjectID)*@
+            @Html.HiddenFor(model => model.CanSendForApproval)
+            @*@Html.HiddenFor(model => model.RiskLookups)*@
+
+
+            @*Section showing "Workflow in Progress error message*@
+
+            @*<div id="WFMessage" class="InfoMessage" style="display: none">
+                <br />@String.Format("This Project is in {0} workflow. No other workflows can be started.", Model.WFCheck.WorkFlowDescription)<br />
+            </div>
+            <div id="TeamMessage" class="InfoMessage" style="display: none">
+                <br />@String.Format("You cannot start any workflows as you are not a member of this team.")<br />
+            </div>*@
+
+
+            @*Error section showing validation errors*@
+
+            if (!ViewContext.ViewData.ModelState.IsValid || Model.IsProjectTeam == false || Model.WFCheck.Status == true)
+            {
+                <div class="error-summary" role="group" tabindex="-1" id="warningSection">
+                    <h2>
+                        Missing Information or Corrections Required
+                    </h2>
+                    <p>
+                        The following information is either missing or incorrect for the workflow you have requested:
+                    </p>
+
+                    <div id="WFMessage" class="InfoMessage" style="display: none">
+                        <br/>@String.Format("This Project is in {0} workflow. No other workflows can be started.", Model.WFCheck.WorkFlowDescription)<br/>
+                    </div>
+                    <div id="TeamMessage" class="InfoMessage" style="display: none">
+                        <br/>@String.Format("You cannot start any workflows as you are not a member of this team.")<br/>
+                    </div>
+                    @Html.ValidationSummary()
+                </div>
+            }
+
+            @*First Accordion showing workflows available at current project stage*@
+
+            <div id="accordion" class="reports">
+                <div class="accordion-toggle visible">
+                    <div class="title-bar">
+                        <div class="control-bar" style="max-width: inherit" id="current-stage-options">
+                            @String.Format("Workflow Options For {0} Stage", Model.StageDescription)
+                            <div class="arrow white medium"></div>
+                        </div>
+                        <p id="CurrentStageHintText">The following workflows are available for this stage of the project.  The "Why Can't I" section below details why certain workflows are not available.</p>
+                    </div>
+                </div>
+                <div id="AvailableWFAccordion" class="accordion-content ar-wrapper">
+                    <div id="ActionListStage">
+                        <div class="grid-row" style="background-color: #DEE0E2">
+                            <div class="form-label-bold column-three-quarters" id="StageWFDescHeader">
+                                What do you want to do?
+                            </div>
+                            <div class="form-label-bold column-quarter bold" id="StageWFActionHeader">
+                                Action
+                            </div>
+                        </div>
+                        <div>
+                            @if (Convert.ToInt32(Model.ProjectHeader.Stage) == 0)
+                    {
+                                <div class="grid-row">
+                                    <div class="column-three-quarters" id="StageToADDesc"><strong>I want to send my project to Appraisal & Design stage</strong></div>
+                                    <div class="column-quarter">
+                                        <button id="btnToggleApproveADProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="7" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-three-quarters" id="StageFTDesc">
+                                        <strong>
+                                            I want to fast track/rapid response my project to Implementation stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter">
+                                        <button id="btnToggleApproveFastTrack-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="8" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-three-quarters" id="StageCloseDesc">
+                                        <strong>
+                                            I want to close my project (move to Completion stage)
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter">
+                                        <button id="btnToggleCloseProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="1" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                            }
+
+
+                            else if (Convert.ToInt32(Model.ProjectHeader.Stage) == 3)
+                            {
+                                <div class="grid-row">
+                                    <div class="column-three-quarters" id="StageReApproveADDesc">
+                                        <strong>
+                                            I want more Appraisal & Design budget approved
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter">
+                                        <button id="btnToggleReApproveADProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="7" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-three-quarters" id="StageADToImpDesc">
+                                        <strong>
+                                            I want to send my project to Implementation stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter">
+                                        <button id="btnToggleApproveProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="11" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-three-quarters" id="StageCloseDesc">
+                                        <strong>
+                                            I want to close my project (move to Completion stage)
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter">
+                                        <button id="btnToggleCloseProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="1" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                            }
+
+
+
+                            else if (Convert.ToInt32(Model.ProjectHeader.Stage) == 5 && Model.CanSendForClosure == true)
+                            {
+                                <div class="grid-row">
+                                    <div class="column-three-quarters" id="StageReApproveBudgetDesc">
+                                        <strong>
+                                            I want new project components/budget changes approved (Reapproval)
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter" id="StageReApproveBudgetBtn">
+                                        <button id="btnToggleReApproveProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="2" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-three-quarters" id="StageCloseDesc">
+                                        <strong>
+                                            I want to close my project (move to Completion stage)
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter">
+                                        <button id="btnToggleCloseProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="1" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+
+                                <div class="grid-row">
+                                    <div class="column-three-quarters" id="StageEndDateDesc">
+                                        <strong>
+                                            I want to change my planned end date
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter" id="StageEndDateBtn">
+                                        <button id="btnToggleExtendProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="12" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                            }
+
+
+                            else if (Convert.ToInt32(Model.ProjectHeader.Stage) == 5 && Model.CanSendForClosure != true)
+                            {
+                                <div class="grid-row">
+                                    <div class="column-three-quarters" id="StageReApproveBudgetDesc">
+                                        <strong>
+                                            I want new project components/budget changes approved (Reapproval)
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter" id="StageReApproveBudgetBtn">
+                                        <button id="btnToggleReApproveProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="2" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+
+                                <div class="grid-row">
+                                    <div class="column-three-quarters" id="StageEndDateDesc">
+                                        <strong>
+                                            I want to change my planned end date
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter" id="StageEndDateBtn">
+                                        <button id="btnToggleExtendProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="12" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                            }
+
+
+
+                            else if (Convert.ToInt32(Model.ProjectHeader.Stage) == 7)
+                            {
+                                <div class="grid-row">
+                                    <div class="column-three-quarters" id="StageReApproveBudgetDesc">
+                                        <strong>
+                                            I want new project components/budget changes approved (Reapproval)
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter" id="StageReApproveBudgetBtn">
+                                        <button id="btnToggleReApproveProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="2" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-three-quarters" id="StageReopenDesc">
+                                        <strong>
+                                            I want to re-open my project (move to Implementation stage)
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter">
+                                        <button id="btnToggleReOpenProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="10" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                                <div class="grid-row" id="StageArchive">
+                                    <div class="column-three-quarters" id="StageArchiveDesc">
+                                        <strong>
+                                            I want to send my project to Archive stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-quarter">
+                                        <button id="btnToggleArchiveProject-stage" name="submitButton" class="button" style="vertical-align: text-bottom" value="9" type="submit"><strong>Go</strong></button>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                @*Second Accordion showing all possible workflows*@
+
+                <div class="accordion-toggle">
+                    <div class="title-bar">
+                        <div class="control-bar-Purple" style="max-width: inherit" id="all-stage-options">
+                            @String.Format("Full List of Workflow Options")
+                            <div class="arrow white medium"></div>
+                        </div>
+                        <p id="AllWFHintText">This lists all possible workflows over the lifecycle of a project.  The "Why Can't I?" section below details why certain workflows are not available.</p>
+                    </div>
+                </div>
+                <div id="FullWFAccordion" class="accordion-content ar-wrapper">
+
+                    <div id="ActionListFull">
+                        <div class="grid-row" id="AllWFsHeader" style="background-color: #DEE0E2">
+                            <div class="form-label-bold column-three-quarters" id="AllWFDescHeader">
+                                What do you want to do?
+                            </div>
+                            <div class="form-label-bold column-quarter bold" id="AllWFActionHeader">
+                                Action
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-three-quarters" id="AllWFToADDesc"><strong>I want to send my project to Appraisal & Design stage</strong></div>
+                            <div class="column-quarter" id="AllWFToADBtn">
+                                <button id="btnToggleApproveADProject" name="submitButton" class="button" style="vertical-align: text-bottom" value="7" type="submit"><strong>Go</strong></button>
+                            </div>
+                        </div>
+                        <div class="grid-row" style="background-color: #F8F8F8">
+                            <div class="column-three-quarters" id="AllWFFTDesc">
+                                <strong>
+                                    I want to fast track/rapid response my project to Implementation stage
+                                </strong>
+                            </div>
+                            <div class="column-quarter" id="AllWFFTBtn">
+                                <button id="btnToggleApproveFastTrack" name="submitButton" class="button" style="vertical-align: text-bottom" value="8" type="submit"><strong>Go</strong></button>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-three-quarters" id="AllWFReApproveADDesc">
+                                <strong>
+                                    I want more Appraisal & Design budget approved
+                                </strong>
+                            </div>
+                            <div class="column-quarter" id="AllWFReApproveADBtn">
+                                <button id="btnToggleReApproveADProject" name="submitButton" class="button" style="vertical-align: text-bottom" value="7" type="submit"><strong>Go</strong></button>
+                            </div>
+                        </div>
+                        <div class="grid-row" style="background-color: #F8F8F8">
+                            <div class="column-three-quarters" id="AllWFADToImpDesc">
+                                <strong>
+                                    I want to send my project to Implementation stage
+                                </strong>
+                            </div>
+                            <div class="column-quarter" id="AllWFADToImpBtn">
+                                <button id="btnToggleApproveProject" name="submitButton" class="button" style="vertical-align: text-bottom" value="11" type="submit"><strong>Go</strong></button>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-three-quarters" id="AllWFReApproveBudgetDesc">
+                                <strong>
+                                    I want new project components/budget changes approved (Reapproval)
+                                </strong>
+                            </div>
+                            <div class="column-quarter" id="AllWFReApproveBudgetBtn">
+                                <button id="btnToggleReApproveProject" name="submitButton" class="button" style="vertical-align: text-bottom" value="2" type="submit"><strong>Go</strong></button>
+                            </div>
+                        </div>
+                        <div class="grid-row" style="background-color: #F8F8F8">
+                            <div class="column-three-quarters" id="AllWFCloseDesc">
+                                <strong>
+                                    I want to close my project (move to Completion stage)
+                                </strong>
+                            </div>
+                            <div class="column-quarter" id="AllWFCloseBtn">
+                                <button id="btnToggleCloseProject" name="submitButton" class="button" style="vertical-align: text-bottom" value="1" type="submit"><strong>Go</strong></button>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-three-quarters" id="AllWFReopenDesc">
+                                <strong>
+                                    I want to re-open my project (move to Implementation stage)
+                                </strong>
+                            </div>
+                            <div class="column-quarter" id="AllWFReopenBtn">
+                                <button id="btnToggleReOpenProject" name="submitButton" class="button" style="vertical-align: text-bottom" value="10" type="submit"><strong>Go</strong></button>
+                            </div>
+                        </div>
+                        <div class="grid-row" style="background-color: #F8F8F8">
+                            <div class="column-three-quarters" id="AllWFArchiveDesc">
+                                <strong>
+                                    I want to send my project to Archive stage
+                                </strong>
+                            </div>
+                            <div class="column-quarter" id="AllWFArchiveBtn">
+                                <button id="btnToggleArchiveProject" name="submitButton" class="button" style="vertical-align: text-bottom" value="9" type="submit"><strong>Go</strong></button>
+                            </div>
+                        </div>
+
+                        <div class="grid-row">
+                            <div class="column-three-quarters" id="AllWFEndDateDesc">
+                                <strong>
+                                    I want to change my planned end date
+                                </strong>
+                            </div>
+                            <div class="column-quarter" id="AllWFEndDateBtn">
+                                <button id="btnToggleExtendProject" name="submitButton" class="button" style="vertical-align: text-bottom" value="12" type="submit"><strong>Go</strong></button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+
+                @*Third Accordion showing invalid workflows with reasons why*@
+
+                <div class="accordion-toggle">
+                    <div class="title-bar">
+                        <div class="control-bar-Purple" style="max-width: inherit" id="invalid-options">
+                            @String.Format("Why Can't I?")
+                            <div class="arrow white medium"></div>
+                        </div>
+                        <p id="WhyCantIHintText">This lists why some workflows are not available.  Workflows will also be unavailable if you are not a team member or if another workflow is still in progress.  In these situations, a warning message will be shown at the top of this page.</p>
+                    </div>
+                </div>
+                <div id="InvalidWFAccordion" class="accordion-content ar-wrapper">
+
+                    <div id="ActionListInvalid">
+                        <div class="grid-row" style="background-color: #DEE0E2">
+                            <div class="form-label-bold column-two-thirds" id="InvalidDescHeader">
+                                What do you want to do?
+                            </div>
+                            <div class="form-label-bold column-third bold" id="InvalidActionHeader">
+                                Reason
+                            </div>
+                        </div>
+                        <div>
+                            @if (Convert.ToInt32(Model.ProjectHeader.Stage) == 0)
+                    {
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFReApproveADDesc">
+                                        <strong>
+                                            I want more Appraisal & Design budget approved
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFReApproveADReason">This is only applicable for projects at Appraisal & Design stage</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFADToImpDesc">
+                                        <strong>
+                                            I want to send my project to Implementation stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFADToImpReason">This is only applicable for projects at Appraisal & Design stage</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFReApproveBudgetDesc">
+                                        <strong>
+                                            I want new project components/budget changes approved (Reapproval)
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFReApproveBudgetReason">This is only applicable for projects at Implementation & Completion stages</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFReopenDesc">
+                                        <strong>
+                                            I want to re-open my project (move to Implementation stage)
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFReopenReason">This is only applicable for projects at Completion stage</div>
+                                </div>
+                        <div class="grid-row">
+                            <div class="column-half" id="InvalidWFArchiveDesc">
+                                <strong>
+                                    I want to send my project to Archive stage
+                                </strong>
+                            </div>
+                            <div class="column-half" id="InvalidWFArchiveReason">This is only applicable for projects at Completion stage</div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-half" id="InvalidWFExtendProjectDesc">
+                                <strong>
+                                    I want to change my planned end date
+                                </strong>
+                            </div>
+                            <div class="column-half" id="InvalidWFExtendProjectReason">As this project has not reached Implementation stage, you can change this date directly on the Project Details page</div>
+                        </div>
+                            }
+
+
+                            else if (Convert.ToInt32(Model.ProjectHeader.Stage) == 3)
+                            {
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFToADDesc"><strong>I want to send my project to Appraisal & Design stage</strong></div>
+                                    <div class="column-half" id="InvalidWFToADReason">This is only applicable for projects at Pre-Pipeline stage</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFFTDesc">
+                                        <strong>
+                                            I want to fast track/rapid response my project to Implementation stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFFTReason">This is only applicable for projects at Pre-Pipeline stage</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFReApproveBudgetDesc">
+                                        <strong>
+                                            I want new project components/budget changes approved (Reapproval)
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFReApproveBudgetReason">This is only applicable for projects at Implementation & Completion stages</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFReopenDesc">
+                                        <strong>
+                                            I want to re-open my project (move to Implementation stage)
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFReopenReason">This is only applicable for projects at Completion stage</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFArchiveDesc">
+                                        <strong>
+                                            I want to send my project to Archive stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFArchiveReason">This is only applicable for projects at Completion stage</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFExtendProjectDesc">
+                                        <strong>
+                                            I want to change my planned end date
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFExtendProjectReason">As this project has not reached Implementation stage, you can change this date directly on the Project Details page</div>
+                                </div>
+                            }
+
+
+
+                            else if (Convert.ToInt32(Model.ProjectHeader.Stage) == 5 && Model.CanSendForClosure == true)
+                            {
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFToADDesc"><strong>I want to send my project to Appraisal & Design stage</strong></div>
+                                    <div class="column-half" id="InvalidWFToADReason">This is only applicable for projects at Pre-Pipeline stage</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFFTDesc">
+                                        <strong>
+                                            I want to fast track/rapid response my project to Implementation stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFFTReason">This is only applicable for projects at Pre-Pipeline stage</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFReApproveADDesc">
+                                        <strong>
+                                            I want more Appraisal & Design budget approved
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFReApproveADReason">This is only applicable for projects at Appraisal & Design stage</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFADToImpDesc">
+                                        <strong>
+                                            I want to send my project to Implementation stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFADToImpReason">This is only applicable for projects at Appraisal & Design stage</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFReopenDesc">
+                                        <strong>
+                                            I want to re-open my project (move to Implementation stage)
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFReopenReason">This is only applicable for projects at Completion stage</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFArchiveDesc">
+                                        <strong>
+                                            I want to send my project to Archive stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFArchiveReason">This is only applicable for projects at Completion stage</div>
+                                </div>
+                            }
+
+
+                            else if (Convert.ToInt32(Model.ProjectHeader.Stage) == 5 && Model.CanSendForClosure != true)
+                            {
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFToADDesc"><strong>I want to send my project to Appraisal & Design stage</strong></div>
+                                    <div class="column-half" id="InvalidWFToADReason">This is only applicable for projects at Pre-Pipeline stage</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFFTDesc">
+                                        <strong>
+                                            I want to fast track/rapid response my project to Implementation stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFFTReason">This is only applicable for projects at Pre-Pipeline stage</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFReApproveADDesc">
+                                        <strong>
+                                            I want more Appraisal & Design budget approved
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFReApproveADReason">This is only applicable for projects at Appraisal & Design stage</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFADToImpDesc">
+                                        <strong>
+                                            I want to send my project to Implementation stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFADToImpReason">This is only applicable for projects at Appraisal & Design stage</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFCloseDesc">
+                                        <strong>
+                                            I want to close my project (move to Completion stage)
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFCloseReason">This project can only be closed by entering a PCR on the Reviews page</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFReopenDesc">
+                                        <strong>
+                                            I want to re-open my project (move to Implementation stage)
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFReopenReason">This is only applicable for projects at Completion stage</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFArchiveDesc">
+                                        <strong>
+                                            I want to send my project to Archive stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFArchiveReason">This is only applicable for projects at Completion stage</div>
+                                </div>
+                            }
+
+
+
+                            else if (Convert.ToInt32(Model.ProjectHeader.Stage) == 7)
+                            {
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFToADDesc"><strong>I want to send my project to Appraisal & Design stage</strong></div>
+                                    <div class="column-half" id="InvalidWFToADReason">This is only applicable for projects at Pre-Pipeline stage</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFFTDesc">
+                                        <strong>
+                                            I want to fast track/rapid response my project to Implementation stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFFTReason">This is only applicable for projects at Pre-Pipeline stage</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFReApproveADDesc">
+                                        <strong>
+                                            I want more Appraisal & Design budget approved
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFReApproveADReason">This is only applicable for projects at Appraisal & Design stage</div>
+                                </div>
+                                <div class="grid-row" style="background-color: #F8F8F8">
+                                    <div class="column-half" id="InvalidWFADToImpDesc">
+                                        <strong>
+                                            I want to send my project to Implementation stage
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFADToImpReason">This is only applicable for projects at Appraisal & Design stage</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFCloseDesc">
+                                        <strong>
+                                            I want to close my project (move to Completion stage)
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFCloseReason">This project is already closed (Completion stage)</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-half" id="InvalidWFExtendProjectDesc">
+                                        <strong>
+                                            I want to change my planned end date
+                                        </strong>
+                                    </div>
+                                    <div class="column-half" id="InvalidWFExtendProjectReason">This project is already closed (Completion stage)</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        }
+    }
+</div>
+
+
+@*<div class="PushDown">
+    @Html.ActionLink("Back to List", "Index", null, new { id = "BackToList" })
+</div>*@
+
+
+<script src="~/Scripts/govuk-template.js" type="text/javascript"></script>
+@section Scripts {
+
+
+
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+        ////This Javascript will change the DOM, specificly the page the user is on.
+        // window.alert($("#IsActiveWorkflow").val());
+        $(document).ready(function () {
+
+            //var x = document.getElementById("project-tab");
+            // x.className = "active";
+
+
+            /*Stage Lock downs-------------------------------------------------------------------------------*/
+            SetControlsByStage();
+            SetWorkflowControlByRole();
+            WorkflowLockDown();
+            SetAccordionState();
+            //ShowErrorMessages();
+        });
+
+
+        @*function ShowErrorMessages() {
+            if(@Html.ValidationSummary() != null) {
+                $('#warningSection').show();
+            }
+        }*@
+
+
+        function WorkflowLockDown() {
+
+            if ($("#IsActiveWorkflow").val() === "True") {
+                $("#WFMessage").css("display", "block");
+                $("input").prop('disabled', true);
+                $("textarea").prop('disabled', true);
+                $("button").prop('disabled', true);
+                $("input[type = 'hidden']").prop('disabled', false);
+                $('#GOMI').prop('disabled', false);
+                var IsApprover = $("#IsWorkflowApprover").val();
+                var ActiveWorkflowTaskId = $("#ActiveWorkflowTaskId").val();
+
+                $("button[name = 'submitButton'][value = '" + ActiveWorkflowTaskId + "']").prop('disabled', false);
+                if (IsApprover === "True" && ActiveWorkflowTaskId !== "7") {
+                    $("button[name = 'submitButton'][value = '" + ActiveWorkflowTaskId + "'] strong").text('Approve/Reject');
+                }
+                else if (IsApprover === "True" && ActiveWorkflowTaskId === "7") {
+                    if ($("#Stage").val() === "0") {
+                        $("#btnToggleApproveADProject-stage").prop('disabled', false);
+                        $("#btnToggleApproveADProject-stage strong").text('Approve/Reject');
+                        $("#btnToggleApproveADProject").prop('disabled', false);
+                        $("#btnToggleApproveADProject strong").text('Approve/Reject');
+                        $("#btnToggleReApproveADProject").prop('disabled', true);
+                    }
+                    if ($("#Stage").val() === "3") {
+                        $("#btnToggleReApproveADProject-stage").prop('disabled', false);
+                        $("#btnToggleReApproveADProject-stage strong").text('Approve/Reject');
+                        $("#btnToggleReApproveADProject").prop('disabled', false);
+                        $("#btnToggleReApproveADProject strong").text('Approve/Reject');
+                        $("#btnToggleApproveADProject").prop('disabled', true);
+                    }
+                }
+                else if (IsApprover !== "True" && ActiveWorkflowTaskId === "7") {
+                    if ($("#Stage").val() === "0") {
+                        $("#btnToggleApproveADProject-stage").prop('disabled', false);
+                        $("#btnToggleApproveADProject-stage strong").text('View');
+                        $("#btnToggleApproveADProject").prop('disabled', false);
+                        $("#btnToggleApproveADProject strong").text('View');
+                        $("#btnToggleReApproveADProject").prop('disabled', true);
+                    }
+                    if ($("#Stage").val() === "3") {
+                        $("#btnToggleReApproveADProject-stage").prop('disabled', false);
+                        $("#btnToggleReApproveADProject-stage strong").text('View');
+                        $("#btnToggleReApproveADProject").prop('disabled', false);
+                        $("#btnToggleReApproveADProject strong").text('View');
+                        $("#btnToggleApproveADProject").prop('disabled', true);
+                    }
+                }
+                else {
+                    $("button[name = 'submitButton'][value = '" + ActiveWorkflowTaskId + "'] strong").text('View');
+
+                }
+            }
+
+        }
+
+
+        function SetWorkflowControlByRole() {
+            if ($("#IsProjectTeam").val() !== "True") {
+                //Lock it all down!
+                $("button[name = 'submitButton']").prop('disabled', true);
+                //$('#warningSection').show();
+                $("#TeamMessage").css("display", "block");
+            }
+        }
+
+
+        function SetAccordionState() {
+            $('#AvailableWFAccordion').toggle();
+        }
+
+
+        function SetControlsByStage() {
+
+            switch ($("#Stage").val()) {
+
+                case "0":
+                    $("button[name = 'submitButton'][value = '1']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '2']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '7']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '8']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '9']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '10']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '11']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '12']").prop('disabled', true);
+                    $("button[id = 'btnToggleReApproveADProject-stage']").prop('disabled', true);
+                    $("button[id = 'btnToggleReApproveADProject']").prop('disabled', true);
+                    break;
+
+                case "3":
+                    $("button[name = 'submitButton'][value = '1']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '2']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '7']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '8']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '9']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '10']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '11']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '12']").prop('disabled', true);
+                    $("button[id = 'btnToggleApproveADProject-stage']").prop('disabled', true);
+                    $("button[id = 'btnToggleApproveADProject']").prop('disabled', true);
+                    break;
+
+                case "5":
+                    $("button[name = 'submitButton'][value = '2']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '7']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '8']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '9']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '10']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '11']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '12']").prop('disabled', false);
+
+                    if ($("#CanSendForClosure").val() == "True") {
+                        $("button[name = 'submitButton'][value = '1']").prop('disabled', false);
+                       }
+                    else {
+                        $("button[name = 'submitButton'][value = '1']").prop('disabled', true);
+                    }
+                    break;
+
+                case "7":
+                    $("button[name = 'submitButton'][value = '1']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '2']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '7']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '8']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '9']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '10']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '11']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '12']").prop('disabled', true);
+                    break;
+
+                case "8":
+                    $("button[name = 'submitButton'][value = '1']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '2']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '7']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '8']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '9']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '10']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '11']").prop('disabled', false);
+                    $("button[name = 'submitButton'][value = '12']").prop('disabled', true);
+                    break;
+
+                default:
+                    $("button[name = 'submitButton'][value = '1']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '2']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '7']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '8']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '9']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '10']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '11']").prop('disabled', true);
+                    $("button[name = 'submitButton'][value = '12']").prop('disabled', true);
+                    break;
+            }
+
+            $("#GOMI").prop('disabled', false);
+        }
+
+
+    </script>
+}

@@ -1,0 +1,124 @@
+﻿@model  AMP.ViewModels.ProjectProcurementVM
+@{
+    ViewBag.Title = "Procurement";
+}
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml",Model.ProjectHeader)
+<div class="page-container">
+    <div id="FinanceMessageContainer">
+        <label id="ARIESFinanceWSMessage" class="LabelAlert">@Model.FinanceWebServiceMessage</label>
+    </div>
+    <h3>Current Purchase Orders</h3>
+    <p class="form-hint">This table displays active purchase orders from ARIES. Values are based on lines which relate to your project so other lines may exists against other projects.</p>
+    <button id="InvoicesNotYetPaidButton" class="punchoutgrey" type="button" onclick="GoInvoicesNotYetPaid()">
+        Invoices not yet paid
+    </button>
+    <button id="ReceiptedandPaidButton" class="punchoutgrey" type="button" onclick="GoReceiptedandPaid()">
+       Ordered, Receipted and Paid
+    </button>
+    <table id="Procurment-list" class="table-main" title="Procurment table displaying data from ARIES." border="1">
+        <thead>
+            <tr id="ProcurementHeader">
+                <th id="headerOrderID">Order ID</th>
+                <th id="headersupplierID">Supplier ID</th>
+                <th id="headersupplierName">Supplier Name</th>
+                <th id="headerSupplierComponent">Component</th>
+                <th id="headerOrderedAmount">Ordered</th>
+                <th id="headerReceiptedAmount">ReceiptedAmount</th>
+                <th id="headerInvoiced">Paid</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var index = 0;
+                foreach (var item in Model.ProjectProcurement)
+                {
+                    <tr>
+                        <td id="OrderID-@index" headers="headerOrderID" style="text-align: left">
+                            <a id="POLink-@index" target="_blank" href=""> @Html.DisplayFor(modelItem => item.order_id)</a>
+                        </td>
+                        <td id="SupplierID-@index" headers="headersupplierID" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.SupplierID)
+                        </td>
+                        <td id="SupplierName-@index" headers="headersupplierName" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.SupplierName)
+                        </td>
+                        <td id="SupplierComponent-@index" headers="headerSupplierComponent" style="text-align: left">
+                            <a id="ComponentLink-@index" href="../../Component/Edit/@Html.DisplayFor(modelItem => item.ComponentID)"> @Html.DisplayFor(modelItem => item.ComponentID)</a>
+                        </td>
+                        <td id="OrderedAmount-@index" headers="headerOrderedAmount" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.OrderedAmount)
+                        </td>
+                        <td id="ReceiptedAmount-@index" headers="headerReceiptedAmount" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.ReceiptedAmount)
+                        </td>
+                        <td id="Invoiced-@index" headers="headerInvoiced" style="text-align: right">
+                            @Html.DisplayFor(modelItem => item.Invoiced)
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    //Update navigation to active
+    //var x = document.getElementById("project-menu-procurement");
+    //x.className = "active";
+
+    var x = document.getElementById("finance-tab");
+    x.className = "active";
+
+    var x = document.getElementById("project-menu-finance");
+    x.className = "active";
+    //This bit of script hides the Web Service Messages Div if there is no return message from the web service.
+    if (document.getElementById("ARIESFinanceWSMessage").innerHTML == "") {
+        document.getElementById("FinanceMessageContainer").style.display = "none";
+        //document.getElementById("FinanceContainer").style.display = "block";
+    } else {
+        document.getElementById("FinanceMessageContainer").style.display = "block";
+        //document.getElementById("FinanceContainer").style.display = "none";
+    }
+
+    // Colour code negative values
+    //Get all TD's
+    var Cells = document.getElementById("Procurment-list").getElementsByTagName("td");
+
+    //Loop through every cell in the table
+    for (i = 0; i < Cells.length; i++) {
+
+        // alert(Cells[i].innerHTML.substring(1,20));
+        try {
+
+            var currency = Cells[i].innerHTML;
+
+            var number = parseFloat(currency.replace(/[^0-9\.-]+/g, ""));
+
+            //console.log(number);
+
+            //Apply conditional formmating.
+            if (number < 0) {
+                Cells[i].style.color = "Red";
+            }
+        }
+        catch (x) {
+
+        }
+    }
+
+
+
+    function GoInvoicesNotYetPaid() {
+        var win = window.open('', '_blank');
+
+        win.focus();
+    }
+
+    function GoReceiptedandPaid() {
+        var win = window.open('', '_blank');
+
+
+        win.focus();
+    }
+</script>

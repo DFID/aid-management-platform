@@ -1,0 +1,1008 @@
+﻿@using AMP.Models
+@using AMP.ViewModels
+@using MoreLinq
+@model AMP.ViewModels.RiskRegisterVM
+
+@{
+    ViewBag.Title = "RiskRegister";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml", Model.ProjectHeader)
+
+
+<div class="page-container">
+
+    <div id="accordion-1" class="reports">
+    <h3>Risk Register</h3>
+
+
+    <p class="form-hint">
+            A risk register clearly states the identified risks in a programme, who is responsible for them, what mitigating actions are in place and how and when they will be monitored and
+            reported. It should also clearly show the current risk rating being applied. Risks should be discussed regularly and the register reviewed following such discussions.
+        </p>
+       
+        <div class="grid-row">
+            <div class="column-full">
+                <div class="column-two-thirds">
+
+                </div>
+                <div class="column-third" style="display: none">
+
+                    <div class="grid-row pad-right">
+
+                        <div class="column-two-thirds">
+                            <p class="form-hint">Last updated overall risk rating</p>
+
+                            @{
+
+                                if (Model.OverallRiskRatingsVm != null)
+                                {
+                                    @*<span id="lastupdatedDatetime">@Model.OverallRiskRatingVm.LastUpdated.Value.ToLongDateString()</span>*@
+                                    <span id="lastupdatedDatetime">@Model.OverallRiskRatings.MaxBy(x => x.OverallRiskRatingId).LastUpdated.Value.ToLongDateString()</span>
+                                }
+                                else
+                                {
+                                    <span id="lastupdatedDatetime">N/A</span>
+                                }
+                            }
+
+                        </div>
+
+
+                        <div class="column-third">
+                            <div id="Risk-@Model.ProjectHeader.ProjectID">
+                                <span class="title">Risk</span><br /><br />
+                                @{
+                                    if (Model.OverallRiskRatingsVm != null)
+                                    {
+                                        switch (Model.OverallRiskRatings.MaxBy(x => x.OverallRiskRatingId).RiskScore)
+                                        {
+                                            case "R1":
+                                                <span id="RiskScore-@Model.ProjectHeader.ProjectID" class="risk-rating" style="padding-left: 3.5px">Minor</span>
+                                                break;
+                                            case "R2":
+                                                <span id="RiskScore-@Model.ProjectHeader.ProjectID" class="risk-rating">Moderate</span>
+                                                break;
+                                            case "R3":
+                                                <span id="RiskScore-@Model.ProjectHeader.ProjectID" class="risk-rating" style="padding-left: 3.5px">Major</span>
+                                                break;
+                                            case "R4":
+                                                <span id="RiskScore-@Model.ProjectHeader.ProjectID" class="risk-rating" style="padding-left: 2px">Severe</span>
+                                                break;
+                                            default:
+                                                <span id="RiskScore-@Model.ProjectHeader.ProjectID" class="risk-rating">Empty</span>
+                                                break;
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        <span id="RiskScore-@Model.ProjectHeader.ProjectID" class="risk-rating">Empty</span>
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="instruction"> Click on each section to expand </p>
+            </div>
+        </div>
+
+        <div class="accordion-toggle">
+            <div class="title-bar">
+                <div class="control-bar" id="control-bar-onlineRiskRegister" style="background-color: #28a197">
+                    On-line risk register
+                    <div class="arrow"></div>
+                </div>
+                <p class="form-hint">
+                    The on-line risk register will support enhanced analysis of risk across the portfolio. You should export information from your existing risk register to the online template.
+                    Once complete, you will no longer be required to maintain a separate offline register.
+                </p>
+
+
+            </div>
+        </div>
+
+        <div class="accordion-content">
+            <div id="RiskTableDiv" class="grid-row">
+                @{
+                    if (Model.RiskItemsVm != null)
+                    {
+                        @Html.Partial("_RiskTable", Model.RiskItemsVm)
+                    }
+                }
+
+            </div>
+     
+            @{
+                if (Model.IsTeamMember)
+                {
+                    <div id="NewRiskItemControls" class="column-full">
+                        <button id="ShowCreateRiskItem" class="bluelightnight" type="button" onclick="NewRiskItem(@Model.ProjectHeader.ProjectID);">Add new risk</button>
+                    </div>
+                }
+                else
+                {
+
+                    <div id="NewRiskItemControls" class="column-full">
+                        <button id="ShowCreateRiskItem" class="bluelightnight" type="button" disabled="disabled">Add new risk</button>
+                        <p class="form-hint">Only team members can add risk register item</p>
+                    </div>
+                }
+            }
+
+            <div class="column-full">
+                <div id="RiskDetailsBookMark" style="display: none">
+                    <h3 id="RiskDetails">Risk Details</h3>
+                </div>
+                <div id="RiskFormLoading" class="content-loading" style="width: 60px; display: none;">
+
+                    <img class="content-loading" src="~/Content/GovUKStyle/images/spinner.gif" style="display: block" alt="please wait.."/>
+                </div>
+                <div id="EditRiskItem">
+                </div>
+            </div>
+
+            <div class="column-full">
+                @if (Convert.ToInt32(Model.ProjectHeader.Stage) == 8)
+                {
+                    <a href="#" class="disabled"  style="color : #808080;" title="Export risk log to a spreadsheet" id="tab-project-details" >Export to Spreadsheet</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("ExportRiskLogToExcel", "Project", new {id = @Model.ProjectID})" title="Export risk log to a spreadsheet" id="risk-register-export">Export to Spreadsheet</a>
+                }
+            </div>
+
+        </div>
+
+        <div class="accordion-toggle">
+            <div class="title-bar">
+                <div class="control-bar" style="max-width: inherit; background-color: #28a197" id="control-bar-RiskRegisterDocuments">
+                    View/Upload a Risk Register
+                    <div class="arrow"></div>
+                </div>
+                <p class="form-hint">
+                    Uploading your risk register will make it easier to locate and share. You can also upload more than one register for those more complex programs with multiple registers.
+                </p>
+            </div>
+        </div>
+
+        <div class="accordion-content">
+
+            <div class="grid-row">
+                <div class="column-full">
+                    <h3>Documents</h3>
+                    <p class="form-hint"> Please add links to you risk register. Multiple documents can be added. Click on Document ID to view it </p>
+
+                    <input type="hidden" id="projID" value="@Model.ProjectHeader.ProjectID"/>
+                    <input type="hidden" id="IsTeamMember" value="@Model.IsTeamMember.ToString()" />
+                    <div id="RiskDocumentDiv">
+                        @*@Html.Action("RiskRegisterDocuments", "Project", new { projectId = @Model.ProjectHeader.ProjectID })*@
+                       
+                         @{
+                             if (Model.RiskDocumentsVm != null)
+                             {
+                                 @Html.Partial("_riskDocumentTable", Model.RiskDocumentsVm)
+                             }
+                        }
+                        
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="grid-row">
+                <div class="column-full">
+                    @{
+                        if (Model.IsTeamMember)
+                        {
+                            <button id="ShowAdd-@Model.ProjectHeader.ProjectID" class="bluelightnight add-risk-document" onclick="ToggleFormFunction('#documentInsertFormRisk-@Model.ProjectHeader.ProjectID', '#ShowAdd-@Model.ProjectHeader.ProjectID')" value="Show Add Document" type="button">
+                                Add document
+                            </button><br />
+                        }
+                        else
+                        {
+                            <script type="text/javascript">
+                                $("#Risk-Document-list :button").attr("disabled", true);
+                                //$(':button').prop('disabled', true);
+                            </script>
+                            <p class="form-hint">
+                                Only team members can add or remove document(s).
+                            </p>
+                        }
+
+                    }
+                </div>
+
+                <div id="documentInsertFormRisk-@Model.ProjectHeader.ProjectID" style="display: none">
+
+                    @using (Html.BeginForm("PostRiskRegisterDocument", "Project", FormMethod.Post, new {id = "RiskRegisterForm"}))
+                    {
+                        @Html.AntiForgeryToken()
+                       // @Html.HiddenFor(model => model.RiskDocumentVm.ProjectID, new { id = "projectID", @Value = @Model.ProjectHeader.ProjectID })
+                        @Html.Hidden("RiskDocumentVm.ProjectID", @Model.ProjectHeader.ProjectID)
+                        <div class="column-third">
+                            <label class="form-label-bold" for="RiskDocumentVm_DocumentID">Document ID</label>
+                            <p>The Vault number of the document</p>
+                            @Html.TextBoxFor(model => model.RiskDocumentVm.DocumentID)
+                            @Html.ValidationMessageFor(model => model.RiskDocumentVm.DocumentID)
+                        </div>
+                        <div class="column-two-thirds">
+                            <label class="form-label-bold" for="RiskDocumentVm_Description">Description</label>
+                            <p>A description of the document</p>
+                            @Html.TextBoxFor(model => model.RiskDocumentVm.Description, new {@class = "column-full"})
+                            @Html.ValidationMessageFor(model => model.RiskDocumentVm.Description)
+                        </div>
+                        <div class="column-two-thirds">
+                            <input type="submit" style="display: none"/>
+                            <button type="button" value="Save" class="button" id="btnRiskRegDocumentAdd">save</button>
+                            <button id="CancelBtn" class="red" onclick="ToggleFormFunctionCancel('#documentInsertFormRisk-@Model.ProjectHeader.ProjectID', '#ShowAdd-@Model.ProjectHeader.ProjectID')" value="Cancel" type="button">
+                                Cancel
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                <br />
+            </div>
+
+            <div id="RiskDocumentFormLoading" class="content-loading" style="width: 60px; display: none;">
+                <img class="content-loading" src="~/Content/GovUKStyle/Images/spinner.gif" style="display: block" alt="please wait.." />
+            </div>
+            <div id="resultmessageRisk" class="SaveMessageSuccess"> </div>
+            <br />
+
+        </div>
+
+    </div>
+    <br />
+
+</div>
+
+
+@section Scripts {
+
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/typeahead")
+    @Scripts.Render("~/bundles/datetimepicker")
+    <script src="~/Scripts/govuk-template.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+        function SetControlsByStage() {
+                
+            switch ($("#Stage").val()) {
+                
+                case "8":
+                    //Disable these controls
+                    //Edit Button - Online Risk Register
+                    //Add new risk - Online Risk Register
+                    //Delete - View/Upload Risk Register
+                    //Add Document - View/Upload Risk Register
+                    $(".load-riskItem-Editor").prop('disabled', true);
+                    $("#ShowCreateRiskItem").prop('disabled', true);
+                    $('.Delete-risk-document').prop("disabled", true);
+                    $('.add-risk-document').prop('disabled',true);
+
+
+                    break;
+                default :
+                    break;
+            }
+
+            $("#GOMI").prop('disabled', false);
+
+        }
+
+
+        function NewRiskItem(projectId) {
+            $('#RiskRatingsForm').remove();
+            $('#NewRiskItemControls').toggle();
+            ShowRiskFormLoading();
+            var $editRiskItemDiv = $('#EditRiskItem'),
+                url = $(this).data('url');
+
+            $.ajax({
+                url: '@Url.Action("CreateRiskItem", "Project")',
+                data: { 'id': projectId },
+                type: 'GET',
+                cache: false,
+                dataType: 'html',
+                success: function(data) {
+                    $editRiskItemDiv.append(data);
+                    SetTypeAhead();
+                    HideRiskFormLoading();
+                }
+            });
+        }
+
+        function NewOverallRiskRating(projectId) {
+            $('#OverallRiskRatingForm').remove();
+            $('#NewOverallRiskRatingControls').toggle();
+            $("#OverallRiskRatingFormLoading").show();
+            var $editOverallRiskRatingDiv = $('#EditOverallRiskRating'),
+                url = $(this).data('url');
+
+            $.ajax({
+                url: '@Url.Action("CreateOverallRiskRating", "Project")',
+                data: { 'id': projectId },
+                type: 'GET',
+                cache: false,
+                dataType: 'html',
+                success: function(data) {
+                    $editOverallRiskRatingDiv.append(data);
+                    $("#OverallRiskRatingFormLoading").hide();
+                }
+            });
+        }
+
+
+        function RiskItemValidation(projectId) {
+            if ($('#Comments').val() === '' && $('#Risk_Status :selected').val() === 'C') {
+                //alert("OK");
+                $("#resultmessageOnlineRisk").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html('Cannot close the risk without comment.');
+                return false;
+            } else if ($('#RiskDescription').val() === '') {
+                $("#resultmessageOnlineRisk").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html('Risk Description cannot be empty.');
+                return false;
+            } else if ($('#MitigationStrategy').val() === '') {
+                $("#resultmessageOnlineRisk").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html('Mitigation Strategy cannot be empty.');
+                return false;
+            } else if ($('#Risk_Status :selected').val() === '') {
+                $("#resultmessageOnlineRisk").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html('Select current status.');
+                return false;
+            } else if ($('#Gross_Risk_Rating :selected').val() === '') {
+                $("#resultmessageOnlineRisk").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html('Select a gross risk.');
+                return false;
+            } else if ($('#Residual_Risk_Rating :selected').val() === '') {
+                $("#resultmessageOnlineRisk").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html('Select a residual risk.');
+                return false;
+            } else if ($('#RiskOwnerName').val() === '') {
+                $("#resultmessageOnlineRisk").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html('You must select a risk owner.');
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        function OverallRiskRatingValidation(projectId) {
+            if ($('#overallRiskRatingComments').val() === '') {
+                $("#resultmessageOnlineRiskRating").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html('Comments cannot be empty');
+                return false;
+            } else if ($('#RiskScore :selected').val() === '') {
+                $("#resultmessageOnlineRiskRating").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html('Select a risk.');
+                return false;
+            } else {
+                return true;
+            }
+
+        }
+
+
+        function PostRiskItem(projectId) {
+            $(function() {
+                //$("#btnSaveOnlineRiskRegister").toggle();
+                //$("#btnOnlineRiskCancel").toggle();
+                if (RiskItemValidation(projectId)) {
+                    ShowRiskFormLoading();
+                    $.ajax({
+                        url: '@Url.Action("PostRiskRegisterItem", "Project")',
+                        type: 'POST',
+                        data: $('#RiskRatingsForm').serialize(),
+                        cache: false,
+                        dataType: 'html',
+                        success: function(data) {
+                            $("#resultmessageOnlineRisk").removeClass("SaveMessageFail").addClass("SaveMessageSuccess").html(data);
+
+                            if (data === 'Saved') {
+
+                                RefreshRiskTable(projectId);
+                                HideRiskFormLoading();
+                                UnloadEditRiskItem();
+                                if ($('#ShowCreateRiskItem').is(':hidden')) {
+                                    $('#ShowCreateRiskItem').show();
+                                }
+
+                            } else {
+                                $("#resultmessageOnlineRisk").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html(data);
+                                HideRiskFormLoading();
+                            }
+                        }
+                    });
+                } else {
+
+                }
+            });
+        }
+
+        //post PostOverallRiskRating
+        function PostOverallRiskRating(projectId) {
+            $(function() {
+
+                if (OverallRiskRatingValidation(projectId)) {
+                    $(".content-loading").show();
+
+                    $.ajax({
+                        url: '@Url.Action("PostOverallRiskRating", "Project")',
+                        type: 'POST',
+                        data: $('#OverallRiskRatingForm').serialize(),
+                        cache: false,
+                        dataType: 'html',
+                        success: function(data) {
+                            $("#resultmessageOnlineRiskRating").removeClass("SaveMessageFail").addClass("SaveMessageSuccess").html(data);
+
+                            if (data === 'Saved') {
+
+                                var e = document.getElementById("RiskScore");
+                                var selectedValue = e.options[e.selectedIndex].value;
+                                SetRiskAndUpdateColor($("#projID").val(), selectedValue);
+
+                                RefreshOverallRiskRatingTable(projectId);
+                                $(".content-loading").hide();
+                                UnloadOverallRiskRating();
+
+                                //Change set overall risk color
+
+                            } else {
+                                $("#resultmessageOnlineRiskRating").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html(data);
+                                $(".content-loading").hide();
+                            }
+                        }
+                    });
+                } else {
+
+                }
+            });
+        }
+
+        function RefreshRiskTable(projectId) {
+            //$("#RiskTableDiv").load("/project/RefreshRiskTable",
+            //{ id: projectId, viewName: "_RiskTable" });
+
+            $.ajax({
+                url: '@Url.Action("RefreshRiskTable", "Project")',
+                cache: false,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8',
+                data: { 'id': projectId },
+                dataType: "html",
+                success: function(data) {
+                    $("#RiskTableDiv").html(data);
+                }
+            });
+        }
+
+        function UnloadEditRiskItem() {
+            $("#EditRiskItem").empty();
+            if ($('#NewRiskItemControls').css('display') === 'none') {
+                $('#NewRiskItemControls').toggle();
+            }
+            HideRiskDetailsBookMark();
+        }
+
+        function toggleCancelButton() {
+            if ($('#ShowCreateRiskItem').is(':hidden')) {
+                $('#ShowCreateRiskItem').show();
+            }
+        }
+
+        function UnloadOverallRiskRating() {
+            $("#EditOverallRiskRating").empty();
+            var id = $("#projID").val();
+            if ($('#NewOverallRiskRatingControls').css('display') === 'none') {
+                $('#NewOverallRiskRatingControls').toggle();
+            }
+
+        }
+
+        function HideRiskDetailsBookMark() {
+            if ($('#RiskDetailsBookMark').css('display') !== 'none') {
+                $('#RiskDetailsBookMark').toggle();
+            }
+        }
+
+        function ShowRiskDetailsBookMark() {
+            if ($('#RiskDetailsBookMark').css('display') === 'none') {
+                $('#RiskDetailsBookMark').toggle();
+            }
+        }
+
+        function HideRiskFormLoading() {
+            if ($("#RiskFormLoading").css('display') !== 'none') {
+                $("#RiskFormLoading").toggle();
+            }
+        }
+
+        function ShowRiskFormLoading() {
+            if ($("#RiskFormLoading").css('display') === 'none') {
+                $("#RiskFormLoading").toggle();
+            }
+
+        }
+
+        function RefreshOverallRiskRatingTable(projectId) {
+            $.ajax({
+                url: '@Url.Action("RefreshOverallRiskRatingTable", "Project")',
+                cache: false,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8',
+                data: { 'id': projectId },
+                dataType: "html",
+                success: function(data) {
+                    $("#OverallRiskRatingTableDiv").html(data);
+
+                }
+            });
+        }
+
+        function RefreshRiskDocumentTable(projectId) {
+            $.ajax({
+                url: '@Url.Action("RefreshRiskDocumentTable", "Project")',
+                cache: false,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8',
+                data: { 'id': projectId },
+                dataType: "html",
+                success: function(data) {
+
+                    $("#RiskDocumentDiv").html(data);
+
+                }
+            });
+        }
+
+// Functions to hide and show sections.
+        function ToggleFormFunction(divToToggle, buttonToToggle) {
+            $("#overallRiskRatingComments").val("");
+            $('#OverallRiskRatingVm_RiskScore option:eq(0)').attr('selected', 'selected');
+
+            $(divToToggle).toggle();
+            $(buttonToToggle).toggle();
+
+            if ($('#OverallRiskRatingVm_RiskScore option:selected').text() === "Select risk type") {
+                $('#overallRiskRatingComments').prop('disabled', false);
+                $("#OverallRiskRatingVm_RiskScore").prop('disabled', false);
+                $('#btnOverAllRiskRatingAdd').prop('disabled', false);
+            }
+        }
+
+        function ToggleFormFunctionCancel(divToToggle, buttonToToggle) {
+            $(divToToggle).toggle();
+            $(buttonToToggle).toggle();
+
+        }
+
+        function ShowRiskRating(projectId, comments, riskScore) {
+
+            if ($('#OverallRisratingInsertFormRisk-' + projectId).is(':hidden')) {
+                $('#OverallRisratingInsertFormRisk-' + projectId).toggle();
+                $('#btnOverAllRiskRatingAdd').hide();
+            }
+            $("#overallRiskRatingComments").val(comments);
+            $("#OverallRiskRatingVm_RiskScore").val(riskScore);
+
+            if ($('#overallRiskRatingComments').val() !== '') {
+                $('#overallRiskRatingComments').prop('disabled', true);
+                $("#OverallRiskRatingVm_RiskScore").prop('disabled', true);
+                $('#btnOverAllRiskRatingAdd').prop('disabled', true);
+            }
+
+        }
+
+
+        function HideClearDiv() {
+            $('#DocumentID').val("");
+            $('#Description').val("");
+            var id = $("#projID").val();
+            ToggleFormFunctionCancel('#documentInsertFormRisk-' + id, '#ShowAdd-' + id);
+        }
+
+        function SetRiskAndUpdateColor(projectId, aggregatedrisk) {
+
+            if (!aggregatedrisk) {
+                aggregatedrisk = "-";
+            }
+            //Set risk color
+            var className = $("#Risk-" + projectId).attr('class');
+
+
+            var today = new Date();
+            var dd = today.getDate();
+            var mm = today.getMonth() + 1; //January is 0!
+
+            var yyyy = today.getFullYear();
+            if (dd < 10) {
+                dd = '0' + dd;
+            }
+            if (mm < 10) {
+                mm = '0' + mm;
+            }
+            today = dd + '/' + mm + '/' + yyyy;
+            //alert(aggregatedrisk);
+            //var d = dd + '/' + (today.getMonth() + 1) + '/' + yyyy;
+
+
+            //$("#lastupdated").html(today);
+            $("#lastupdatedDatetime").html(today);
+            //$("#comments").html($("#overallRiskRatingComments").val());
+            //$("#tblRiskScore").show();
+            //$("#UpdateRiskRatingS-" + projectId).show();
+
+            if (aggregatedrisk === "-") {
+                $("#Risk-" + projectId).removeClass(className).addClass("Empty");
+                $("#RiskScore-" + projectId).text("Empty");
+            } else if (aggregatedrisk === "R1") {
+                $("#Risk-" + projectId).removeClass(className).addClass("risk low");
+                $("#RiskScore-" + projectId).text("Minor");
+            } else if (aggregatedrisk === "R2") {
+                $("#Risk-" + projectId).removeClass(className).addClass("risk moderate");
+                $("#RiskScore-" + projectId).text("Moderate");
+            } else if (aggregatedrisk === "R3") {
+                $("#Risk-" + projectId).removeClass(className).addClass("risk med");
+                $("#RiskScore-" + projectId).text("Major");
+            } else if (aggregatedrisk === "R4") {
+                $("#Risk-" + projectId).removeClass(className).addClass("risk high");
+                $("#RiskScore-" + projectId).text("Severe");
+            }
+        }
+
+        //function EditRiskItem(riskId) {
+
+        //}
+
+
+        var count = parseInt(document.getElementById("projID").value);
+        if (!isNaN(count)) {
+            //Set risk colours
+            var Risk = document.getElementById("RiskScore-" + @Model.ProjectHeader.ProjectID).innerText;
+            //alert(Risk);
+            var RiskHolder = document.getElementById("Risk-" + @Model.ProjectHeader.ProjectID);
+            //alert(RiskHolder);
+            if (Risk === "H") {
+                RiskHolder.className = "risk high";
+            } else if (Risk === "M") {
+                RiskHolder.className = "risk med";
+            } else if (Risk === "L") {
+                RiskHolder.className = "risk low";
+            }
+            //for new RIsk rating
+            else if (Risk === "Minor") {
+                RiskHolder.className = "risk low";
+            } else if (Risk === "Moderate") {
+                RiskHolder.className = "risk moderate";
+            } else if (Risk === "Major") {
+                RiskHolder.className = "risk med";
+            } else if (Risk === "Severe") {
+                RiskHolder.className = "risk high";
+            } else if (Risk === "Empty") {
+                RiskHolder.className = "Empty";
+            } else {
+                document.getElementById("RiskScore-" + projID).innerText = '-';
+                RiskHolder.className = "Empty";
+            }
+        }
+
+
+    </script>
+
+    <script type="text/javascript">
+        $(document).on("click", '.load-riskItem-Editor', function(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            $('#RiskRatingsForm').remove();
+            $('#DisplayRiskRatingsForm').remove();
+            ShowRiskDetailsBookMark();
+            $('#NewRiskItemControls').toggle();
+            $('#ShowCreateRiskItem').toggle();
+            ShowRiskFormLoading();
+            var $editRiskItemDiv = $('#EditRiskItem'),
+                url = $(this).data('url');
+
+            var id = url.substring(url.lastIndexOf('/') + 1);
+
+
+            $.ajax({
+                url: '@Url.Action("EditRiskItem", "Project")',
+                cache: false,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8',
+                data: { 'id': id },
+                dataType: "html",
+                success: function(data) {
+                    // $("#EditRiskItem").html(data);
+                    $editRiskItemDiv.append(data);
+                    SetTypeAhead();
+                    HideRiskFormLoading();
+                }
+            });
+            window.location.href = '#RiskDetails';
+
+        });
+
+        $(document).on("click", '.load-riskItem', function(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            $('#RiskRatingsForm').remove();
+            $('#DisplayRiskRatingsForm').remove();
+            ShowRiskDetailsBookMark();
+            ShowRiskFormLoading();
+            var $editRiskItemDiv = $('#EditRiskItem'),
+                url = $(this).data('url');
+
+            var id = url.substring(url.lastIndexOf('/') + 1);
+
+            $.ajax({
+                url: '@Url.Action("DisplayRiskItem", "Project")',
+                cache: false,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8',
+                data: { 'id': id },
+                dataType: "html",
+                success: function(data) {
+
+                    HideRiskFormLoading();
+                    $editRiskItemDiv.append(data);
+                    $("#RiskRatingsForm input, textarea, select").prop("disabled", true);
+                    //DisplayRiskRatingsForm
+                }
+            });
+            window.location.href = '#RiskDetails';
+
+        });
+
+
+        $(document).on("click", '.load-overallrisk-Item', function(evt) {
+            evt.preventDefault();
+            evt.stopPropagation();
+            //$('#AddOverallRiskRating').remove();
+            $('#OverallRiskRatingForm').remove();
+            $('#NewOverallRiskRatingControls').toggle();
+            $("#OverallRiskRatingFormLoading").show();
+            var $editOverallRiskRatingDiv = $('#EditOverallRiskRating'),
+                url = $(this).data('url');
+
+            var id = url.substring(url.lastIndexOf('/') + 1);
+
+            $.ajax({
+                url: '@Url.Action("DisplayOverallRiskRating", "Project")',
+                cache: false,
+                type: 'GET',
+                contentType: 'application/json; charset=utf-8',
+                data: { 'id': id },
+                dataType: "html",
+                success: function(data) {
+                    $("#OverallRiskRatingFormLoading").hide();
+                    $editOverallRiskRatingDiv.append(data);
+                    $("#OverallRiskRatingForm input, textarea, select").prop("disabled", true);
+                }
+            });
+        });
+
+
+    </script>
+
+    <script type="text/javascript">
+
+        $("#btnRiskRegDocumentAdd").click(function() {
+
+            $("#RiskDocumentFormLoading").show();
+
+            $.ajax({
+                url: '@Url.Action("PostRiskRegisterDocument", "Project")',
+                type: 'POST',
+                data: $('#RiskRegisterForm').serialize(),
+                cache: false,
+                dataType: 'html',
+                success: function(data) {
+                    $("#resultmessageRisk").removeClass("SaveMessageFail").addClass("SaveMessageSuccess").html(data);
+                    if (data === 'Saved') {
+
+                        $("#RiskDocumentFormLoading").hide();
+                        RefreshRiskDocumentTable($("#projID").val());
+                        HideClearDiv();
+                    } else {
+                        $("#RiskDocumentFormLoading").hide();
+                        $("#resultmessageRisk").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").html(data);
+                    }
+                }
+            });
+        });
+
+        //remove risk table document 
+        function RemoveRiskDocument(docId, projectId) {
+            var confirmed = confirm("Are you sure you want to delete this document?");
+            if (confirmed) {
+                $("#RiskDocumentFormLoading").show();
+                $.ajax({
+                    cache: false,
+                    async: true,
+                    type: "POST",
+                    url: "@Url.Action("RemoveRiskDocument", "Project")",
+                    data: {
+                        documentId: docId,
+                        projectId: projectId
+                    },
+                    success: function(result) {
+                        //alert(result);
+                        if (result === 'True') {
+
+                            $("#RiskDocumentFormLoading").hide();
+                            var rowCount = $('#Risk-Document-list tr').length;
+                            RefreshRiskDocumentTable($("#projID").val());
+                            $("#resultmessageRisk").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").fadeOut(5000).html("Deleted");
+                            if (rowCount === 2) { //hack need to fix
+                                $('#Risk-Document-list').hide();
+                            }
+
+
+                        }
+                        if (result.item1 === 'False') {
+                            //alert('Failed');
+                            $("#resultmessageRisk").removeClass("SaveMessageSuccess").addClass("SaveMessageFail").fadeOut(5000).html("Failed");
+                        }
+                    },
+                    error: function(result) { alert("failed"); }
+                });
+            }
+        };
+
+
+    </script>
+
+    <script type="text/javascript">
+
+        $(document).ready(function($) {
+
+            $(".accordion-content").slideUp('fast');
+            $('#accordion-1').find('.accordion-toggle').click(function() {
+                //Expand or collapse this panel
+                $(this).next().slideToggle('medium');
+                $(this).toggleClass('visible');
+                //$(".accordion-toggle").not(this).removeClass('visible');
+                //Hide the other panels
+                //$(".accordion-content").not($(this).next()).slideUp('slow');
+            });
+
+            SetControlsByStage();
+
+            if ($('#IsTeamMember').val() === 'False') {
+                //Find and disable edit buttons
+                $('.load-riskItem-Editor').attr("disabled", true);
+
+            }
+
+        });
+
+
+    </script>
+
+    <style type="text/css">
+        .risk.moderate {
+            background-color: #ffbf47;
+        }
+
+        .risk.high {
+            background-color: #b10e1e;
+            padding-left: 11px;
+        }
+
+        .risk.med {
+            background-color: #FF8C00;
+            padding-left: 15px;
+        }
+
+        .risk.low {
+            background-color: #007850;
+            padding-left: 15px;
+        }
+
+        .Empty {
+            background-color: #ffefd5;
+            padding-left: 15px;
+        }
+
+        .title {
+            padding-left: 10px;
+            color: #FFF;
+            font-size: 1em;
+            padding-top: 5px;
+            position: relative;
+        }
+
+        .risk-rating {
+            padding-top: 5px;
+            padding-bottom: 10px;
+            font-size: 0.90em;
+            display: block;
+            font-weight: bold;
+            color: #FFF;
+        }
+    </style>
+
+    <script type="text/javascript">
+
+        /*Bloodhound typeahead for Staff*/
+
+            var staffList = [
+                { "EmpNo": "111111", "DisplayName": "A Inputter", "LOGON": "A-INPUTTER" },
+                { "EmpNo": "222222", "DisplayName": "A SRO", "LOGON": "A-SRO" },
+                { "EmpNo": "333333", "DisplayName": "An Adviser", "LOGON": "A-Adviser" },
+                { "EmpNo": "444444", "DisplayName": "A TeamMember", "LOGON": "A-TeamMemver" },
+                { "EmpNo": "555555", "DisplayName": "A OfficeHead", "LOGON": "A-OfficeHead" }
+            ];
+
+
+        var staff = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('DisplayName'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            limit: 10,
+            local: staffList
+        });
+
+        // kicks off the loading/processing of `local` and `prefetch`
+        staff.initialize();
+
+
+        $('.NameRiskOwner .typeahead').typeahead({ highlight: true }, {
+            name: 'staff',
+            displayKey: 'DisplayName',
+            // `ttAdapter` wraps the suggestion engine in an adapter that
+            // is compatible with the typeahead jQuery plugin
+            source: staff.ttAdapter()
+        }).bind('typeahead:selected', function (obj, datum) {
+            changeTypeahead(obj, datum);
+        }).bind('typeahead:autocompleted', function (obj, datum) {
+            changeTypeahead(obj, datum)
+        });
+
+        function changeTypeahead(obj, datum) {
+            $('#RiskOwnerName').val(datum.EmpNo);
+        };
+
+        /*End Bloodhound typeahead for Staff*/
+
+        function SetTypeAhead() {
+
+            var staffList = [
+                { "EmpNo": "111111", "DisplayName": "A Inputter", "LOGON": "A-INPUTTER" },
+                { "EmpNo": "222222", "DisplayName": "A SRO", "LOGON": "A-SRO" },
+                { "EmpNo": "333333", "DisplayName": "An Adviser", "LOGON": "A-Adviser" },
+                { "EmpNo": "444444", "DisplayName": "A TeamMember", "LOGON": "A-TeamMemver" },
+                { "EmpNo": "555555", "DisplayName": "A OfficeHead", "LOGON": "A-OfficeHead" }
+            ];
+
+            /*Bloodhound typeahead for Staff*/
+            var staff = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('DisplayName'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                limit: 10,
+                local: staffList
+            });
+
+            // kicks off the loading/processing of `local` and `prefetch`
+            staff.initialize();
+
+
+            $('.NameRiskOwner .typeahead').typeahead({ highlight: true }, {
+                name: 'staff',
+                displayKey: 'DisplayName',
+                // `ttAdapter` wraps the suggestion engine in an adapter that
+                // is compatible with the typeahead jQuery plugin
+                source: staff.ttAdapter()
+            }).bind('typeahead:selected', function (obj, datum) {
+                changeTypeahead(obj, datum);
+            }).bind('typeahead:autocompleted', function (obj, datum) {
+                changeTypeahead(obj, datum)
+            });
+
+            function changeTypeahead(obj, datum) {
+                $('#RiskOwnerName').val(datum.EmpNo);
+            };
+
+        }
+
+    </script>
+    }

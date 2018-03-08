@@ -1,0 +1,57 @@
+﻿@model  AMP.ViewModels.ProjectViewModel
+
+
+    @{
+        var grid = new WebGrid(Model.ReviewVm.ReviewDocuments, canPage: false);
+
+ 
+            @grid.GetHtml(
+             tableStyle: "table-main",
+                      htmlAttributes: new { Id = "Document-list-" + @Model.ReviewVm.ProjectID + "-" + @Model.ReviewVm.ReviewID, title = "Documents for reviews" },
+             mode: WebGridPagerModes.All,
+            columns:
+            grid.Columns(
+            grid.Column("ID", "ID", format: @<text><span class="display-mode" id="quest-number-@item.ProjectID-@item.ReviewID-@item.WebGrid.Rows.IndexOf(item)"> <a target="blank" href="@item.DocumentLink"> @item.DocumentID</a>  </span> </text>, style: "col2Width",  canSort: false),
+            grid.Column("Description", "Description", format: @<text><span class="display-mode"><span class="lblDescription" id="document-description-@item.ProjectID-@item.ReviewID-@item.WebGrid.Rows.IndexOf(item)">@item.Description</span></span></text>, style: "col1Width",  canSort: false),
+            grid.Column("Action", format: @<text>
+            <button class="Delete-review-document display-mode" id="document-delete-@item.ProjectID-@item.ReviewID-@item.WebGrid.Rows.IndexOf(item)" title="Delete" data-reviewid="@item.ReviewID" data-docid="@item.ReviewDocumentsID" data-proejctid="@item.ProjectID" data-review-type="@ViewBag.tabletype">Delete </button>
+              </text>, style: "col3Width", canSort: false)
+))
+
+
+    }
+
+
+@*onclick="RemoveReviewDocument(@item.ReviewDocumentsID)"*@ 
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('.edit-mode').hide();
+        $('.review-document-btn-click-action').off().on('click', function (e) {
+            e.preventDefault();
+            var reviewId = $(this).attr("data-reviewid");
+            var projectId = $(this).attr("data-projectid");
+            var thisTableSuffix = $(this).attr("data-table-suffix");
+            if ($(this).closest('form').valid()) {
+                this.disabled = true;
+                PostReviewDocument($(this).closest('form'), reviewId, projectId, thisTableSuffix, $(this));
+            }
+        });
+
+
+        $('.Delete-review-document').off().on('click', function () {
+            var reviewId = $(this).attr("data-reviewid");
+            var projectId = $(this).attr("data-proejctid");
+            var docID = $(this).attr("data-docid");
+            var thisTableSuffix = $(this).attr("data-review-type");
+            RemoveReviewDocument(docID, reviewId, projectId, thisTableSuffix);
+
+        });
+
+    });
+
+</script>
+      

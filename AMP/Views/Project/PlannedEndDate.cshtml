@@ -1,0 +1,135 @@
+﻿@model AMP.ViewModels.WorkflowPlannedEndDateVM
+@using System.Linq.Expressions
+@using System.Web.UI.WebControls
+@using AMP.Helpers
+@using AMP.Models
+
+@{
+    ViewBag.Title = "Workflow Actions";
+}
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml", Model.ProjectHeaderVm)
+<div class="page-container">
+
+    @using (Html.BeginForm("PlannedEndDate", "Project", FormMethod.Post, new { id = "PlannedEndDate" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.ProjectHeaderVm.ProjectID, new { @id = "View_ProjectID" })
+
+        <input type="hidden" id="WorkflowRequest_ProjectID" name="WorkflowRequest.ProjectID" value="@Model.ProjectHeaderVm.ProjectID" />
+
+
+        <p class="form-hint">
+            Updating the planned end date of your project will also:<br/>
+            <ul class="form-hint">
+                <li>Update the Financial End Date</li>
+                <li>Update the PCR Date</li>
+                <li>May remove an AR Exemption if applicable</li>
+            </ul>
+        </p>
+        <p class="form-hint">
+            This workflow will not approve any new budget.<br/>
+        </p>
+
+            <div class="grid-row">
+                <div class="column-half">
+
+                    @Html.DateBlock("ExistingPlannedEndDate.ExistingPlannedEndDate", "Current Planned End Date", @Model.ExistingPlannedEndDate, "Current Planned End Date")
+                    @Html.HiddenFor(model => model.ExistingPlannedEndDate)
+                </div>
+
+                <div class="column-half">
+
+                    @Html.DateBlock("NewPlannedEndDate", "New Planned End Date", @Model.NewPlannedEndDate, "New Planned End Date")
+                    @Html.HiddenFor(model => model.NewPlannedEndDate)
+                    @Html.HiddenFor(model => model.NewPlannedEndDate_Day)
+                    @Html.HiddenFor(model => model.NewPlannedEndDate_Month)
+                    @Html.HiddenFor(model => model.NewPlannedEndDate_Year)
+                    @Html.ValidationMessageFor(model => model.NewPlannedEndDate)
+                    <br />
+                    <br />
+                    @Html.ValidationSummary()
+                </div>
+            </div>
+
+            <div class="grid-row" style="padding:15px ">
+                <button id="btnPlannedEndDate" name="submitButton" class="button" type="submit" onclick="ValidateDates(event)">Next</button>
+                <input type="hidden" id="SaveSuccess" value="@TempData["Success"].ToString()" />
+                <button id="btnCancel" value="Cancel" class="bluelightnight" type="button" onclick="Cancel()">Cancel</button>
+            </div>
+
+
+
+            }
+</div>
+
+<script type="text/javascript">
+
+    function Cancel() {
+
+        window.location.href = "@Url.Action("Action", "Project", new {id = @Model.ProjectHeaderVm.ProjectID})";
+    }
+
+
+    $(document).ready(function() {
+
+            $('#ExistingPlannedEndDate_ExistingPlannedEndDate_Day').prop('disabled', true);
+            $('#ExistingPlannedEndDate_ExistingPlannedEndDate_Month').prop('disabled', true);
+            $('#ExistingPlannedEndDate_ExistingPlannedEndDate_Year').prop('disabled', true);
+        }
+    );
+
+                   function ValidateDates(event) {
+
+                       var newDateError = $("[data-valmsg-for='NewPlannedEndDate']");
+
+                       var newDateDay = $("#NewPlannedEndDate_Day");
+                       var newDateMonth = $("#NewPlannedEndDate_Month");
+                       var newDateYear = $("#NewPlannedEndDate_Year");
+
+                       var newDate = newDateDay.val().concat('/', newDateMonth.val(), '/', newDateYear.val());
+
+                        newDateError.html("");
+                        newDateError.removeClass();
+                        newDateError.addClass('field-validation-valid');
+
+                        if (!isValidDate(newDate)) {
+                            newDateError.html("New Planned End Date is not valid.");
+                            newDateError.removeClass();
+                            newDateError.addClass('field-validation-error');
+                            event.preventDefault();
+                            return false;
+                        }
+                        return true;
+                   }
+
+                   // Validates that the input string is a valid date formatted as "mm/dd/yyyy"
+                   function isValidDate(dateString) {
+                       // First check for the pattern
+                       if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateString))
+                           return false;
+
+                       // Parse the date parts to integers
+                       var parts = dateString.split("/");
+                       var day = parseInt(parts[0], 10);
+                       var month = parseInt(parts[1], 10);
+                       var year = parseInt(parts[2], 10);
+
+                       // Check the ranges of month and year
+                       if (year < 1000 || year > 3000 || month == 0 || month > 12)
+                           return false;
+
+                       var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+                       // Adjust for leap years
+                       if (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
+                           monthLength[1] = 29;
+
+                       // Check the range of the day
+                       return day > 0 && day <= monthLength[month - 1];
+                   };
+</script>     

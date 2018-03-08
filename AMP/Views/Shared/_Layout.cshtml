@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="en-gb">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <title>@ViewBag.Title - Aid Management Platform {Beta}</title>
+
+    <!-- Load c3.css -->
+    <link href="~/Content/GovUKStyle/stylesheets/c3.css" rel="stylesheet" type="text/css">
+    <!-- Load d3.js and c3.js -->
+    <script src="~/Content/GovUKStyle/javascripts/d3.min.js" charset="utf-8"></script>
+    <script src="~/Content/GovUKStyle/javascripts/c3.min.js"></script>
+
+   
+
+    <!--Lots of hidden css and js in these files-->
+    @Styles.Render("~/Content/css")
+    @*@Styles.Render("~/Content/fontawesome")*@
+    @Scripts.Render("~/bundles/modernizr")
+
+    <!-- New stylesheets and links from Designer Demo site -->
+    <!--DFID Style-->
+    <link href="~/Content/GovUKStyle/stylesheets/dfid-template.css" rel="stylesheet" type="text/css" />
+   
+    <!--JQuery-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+    <!--Vis JS for timeline, Could be added to details page only-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.css" rel="stylesheet" type="text/css" />
+
+    <!--Fav Icon-->
+    <link rel="shortcut icon" href="~/favicon.ico" type="image/x-icon" />
+
+    <!--Scale for device width-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Cool Fonts-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/3.0.2/css/font-awesome.min.css" media="all" rel="stylesheet" type="text/css" />
+
+    <!--DFID AMP Custom Scripts-->
+    <script src="~/Scripts/CustomScripts/AMPScripts.js"></script>
+    <link href="~/Content/PagedList.css" rel="stylesheet"/>
+
+</head>
+<body>
+    <script type="text/javascript">
+        document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
+    </script>
+    <div id="skiplink-container">
+        <div>
+            <a href="#content" class="skiplink">Skip to main content</a>
+        </div>
+    </div>
+    <div id="global-cookie-message">
+        <p>
+            GOV.UK uses cookies to make the site simpler. <a href="https://www.gov.uk/help/cookies">
+                Find out more about
+                cookies
+            </a>
+        </p>
+    </div>
+    <!--end global-cookie-message-->
+    <header role="banner" id="global-header">
+        <div class="header-wrapper">
+            <div class="header-global">
+                <div class="header-logo">
+                    <a href="@Url.Action("Index", "Dashboard/Index")" title="Go to homepage" id="logo" class="content">
+                        <img src="~/Content/GovUKStyle/Images/DfID-logo-01.png" alt="Link to DFID web page">
+                    </a>
+                </div>
+                <div class='header-proposition'>
+                    <div class='content'>
+                        <nav id='proposition-menu'>
+                            <a id='proposition-name' href="@Url.Action("Index", "Dashboard/Index")">Aid Management Platform </a><a href="https://www.gov.uk/service-manual/phases/beta.html" style="text-decoration: none" id="BetaLink" title="What is Beta?">
+                                <span class="BetaLink">@ViewBag.Environment </span>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+                @if (@ViewBag.Environment.ToString() != "BETA Live")
+                {
+                    <div class='header-proposition'>
+                    <div class='content'>
+                  
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </header>
+    <!--end header-->
+    <!-- hide this on pages with full-width top panel colour -->
+    <div id="global-header-bar"></div>
+   
+    @RenderBody()
+    <!-- footer-->
+    <footer class="group js-footer" id="footer" role="contentinfo">
+        <div class="footer-wrapper">
+            <div class="footer-meta">
+                <div class="footer-meta-inner">
+                  
+                    <div class="open-government-licence">
+                     
+                        <p>
+                            <a id="about-link" href="" target="_blank" style="color:blue">Whats New</a>| 
+                            <a id="help-link" href="" target="_blank">FAQs</a>| 
+                            <a id="SmartRules" href="" target="_blank">Smart Rules</a> | 
+                            <a id="feedback" href="" target="_top">Feedback</a> | 
+                            <a id="feedback2" href="" target="_blank">Support</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="copyright">
+                    <a id="CrownCopyRight" href="https://www.nationalarchives.gov.uk/information-management/our-services/crown-copyright.htm">
+                        &copy;
+                        Crown copyright
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!--end footer-->
+    <div id="global-app-error" class="app-error hidden"></div>
+    <script type="text/javascript">
+        (function () {
+            if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+                var d = document, c = "appendChild", a = d.createElement("style");
+                a[c](d.createTextNode("@@-ms-viewport{width:auto!important}"));
+                d.getElementsByTagName("head")[0][c](a);
+            }
+        })();
+    </script>
+    <script>
+        function feedbackjs() {
+            alert("Thanks for the feedback! Please feel free to use the feedback link at the bottom of the page to tell us more.");
+        }
+
+        function GoMI() {
+            var win = window.open('', '_blank');
+
+            win.focus();
+        }
+
+        if ($('.BetaLink').html() != "Beta ")
+        {
+            $('#global-header').css("background-color", "#4682b4");
+            $('.header-wrapper').css("background-color", "#4682b4");
+            
+        }
+
+        if ($('.BetaLink').html() != "BETA Live ") {
+            $('#aries-menu').css("color", "#FF0000");
+            $('#aries-name').css("color", "#FFFFFF");
+            $('#aries-name').css("font-weight", "bold");
+        }
+
+    </script>
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

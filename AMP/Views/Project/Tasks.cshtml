@@ -1,0 +1,18 @@
+﻿@model AMP.ViewModels.ProjectViewModel
+@using AMP.Helpers
+@{
+    ViewBag.Title = "Tasks";
+}
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml")
+<div class="page-container">
+    <h2>My Tasks</h2>
+    </div>
+
+
+    <script type="text/javascript">
+        //This Javascript will change the DOM, specificly the page the user is on.
+
+        var x = document.getElementById("project-menu-tasks");
+        x.className = "active";
+
+    </script>

@@ -1,0 +1,258 @@
+﻿@model  AMP.ViewModels.ProjectStatementVM
+@{
+    ViewBag.Title = "Statements";
+}
+@using AMP.Helpers
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml",Model.ProjectHeader)
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    @Html.HiddenFor(model => model.ProjectHeader.ProjectID, new { @id = "View_ProjectID" })
+    @Html.HiddenFor(model => model.WFCheck.Status, new { @id = "IsActiveWorkflow" })
+    @Html.HiddenFor(model => model.WFCheck.WorkFlowDescription, new { @id = "ActiveWorkflowDescription" })
+
+<div class="page-container">
+    <div id="WFMessage" class="InfoMessage" style="display: none"><br />@String.Format("This Project is in {0} workflow. Changes cannot be made.", Model.WFCheck.WorkFlowDescription)<br /></div>
+    <h3>Audited Financial Statements</h3>
+
+
+    <p class="form-hint">Audit requirements depend on the aid instrument used, and should be set out in the formal agreements with partners.  Where audited financial statements are required, they should contain primary accounts including the statement of financial position (also known as a balance sheet), the statement of comprehensive income and expenditure (also known as a profit and loss account), cash flow statement and notes to the accounts.  They should also contain an opinion from an independent auditor on the financial statements.</p>
+    <button id="ShowCreate" class="bluelightnight" onclick="CreateFunction()" value="Add" type="button">
+        Add
+    </button>
+    <div id="AddSection" style="display:none">
+        <div class="grid-row">
+            <div class="column-half">
+                <fieldset>
+                    <legend class="form-label-bold">Type</legend>
+                    <p class="form-hint">Unqualified - The true and fair opinion</p>
+                    <p class="form-hint">Qualified – True and fair except for qualification over a particular disagreement of a treatment or disclosure </p>
+                    <div id="StatementType">
+                        <div class="status-select">
+                            @foreach (var types in Model.StatementTypes)
+                            {
+                                <label class="block-label" id="label-role-@types.Replace(" ", "-")" for="Role-@types.Replace(" ", "-")" style="width: 200px">
+                                    @Html.RadioButtonFor(m => m.NewProjectStatement.StatementType, types, new { @id = String.Format("Role-{0}", types).Replace(" ", "-") }) @types
+                                </label>
+                            }
+                        </div>
+                        @Html.ValidationMessageFor(model => model.NewProjectStatement.StatementType)
+                    </div>
+                </fieldset>
+            </div>
+            <div class="column-half">
+                <label class="form-label-bold" for="reason_action">Comments</label>
+                <p class="form-hint">If the accounts are qualified, please provided additional information</p>
+                <textarea id="reason_action" name="NewProjectStatement.reason_action" style="width: 600px; height: 150px;">@Model.NewProjectStatement.reason_action</textarea>
+                @Html.ValidationMessageFor(model => model.NewProjectStatement.reason_action)
+            </div>
+
+        </div>
+        <div class="grid-row">
+            <div class="column-third">
+                <label class="form-label-bold" for="Value">Amount</label>
+                <p class="form-hint">The amount of DFID expenditure covered by the statement</p>
+                <input id="Value" name="NewProjectStatement.Value" type="text" value="@Model.NewProjectStatement.Value" />
+                @Html.ValidationMessageFor(model => model.NewProjectStatement.Value)
+            </div>
+
+
+            <div class="column-third">
+                <label class="form-label-bold" for="currency-search">Currency</label>
+                <p class="form-hint">Currency of the statement</p>
+                <br />
+                <div id="Currsearch">
+                    <input id="currency-search" type="text" class="typeahead" name="Currency" placeholder="Search for a currency" style="width: 200px" value="@Model.NewProjectStatement.Currency" />
+                    @Html.HiddenFor(model => model.NewProjectStatement.Currency)
+                    @Html.ValidationMessageFor(model => model.NewProjectStatement.Currency)
+                </div>
+            </div>
+        <div class="column-third">
+            <label class="form-label-bold" for="DocumentID">Document ID</label>
+            <p class="form-hint">Statement document id</p>
+            <br />
+            <input id="DocumentID" name="NewProjectStatement.DocumentID" type="text" value="@Model.NewProjectStatement.DocumentID"/>
+            @Html.ValidationMessageFor(model => model.NewProjectStatement.DocumentID)
+        </div>
+    </div>
+
+            
+        <div class="grid-row">
+          <div class="column-third">
+                @Html.DateBlock("NewProjectStatement.ReceivedDate", "Received Date", @Model.NewProjectStatement.ReceivedDate, "When the statement was received")
+                @Html.HiddenFor(model => model.NewProjectStatement.ReceivedDate)
+                @Html.ValidationMessageFor(model => model.NewProjectStatement.ReceivedDate)
+            </div>
+            <div class="column-third">
+                @Html.DateBlock("NewProjectStatement.PeriodFrom", "Period From", @Model.NewProjectStatement.PeriodFrom, "Period the statement covers")
+                @Html.HiddenFor(model => model.NewProjectStatement.PeriodFrom)
+                @Html.ValidationMessageFor(model => model.NewProjectStatement.PeriodFrom)
+            </div>
+            <div class="column-third">
+                @Html.DateBlock("NewProjectStatement.PeriodTo", "Period To", @Model.NewProjectStatement.PeriodTo, "Period the statement covers")
+                @Html.HiddenFor(model => model.NewProjectStatement.PeriodTo)
+                @Html.ValidationMessageFor(model => model.NewProjectStatement.PeriodTo)
+            </div>
+        </div>
+        <button id="AddStatement" name="SubmitButton" class="button" type="submit" value="Add Project">Save</button>
+        <button id="CancelBtn" class="bluelightnight" onclick="CreateFunctionCancel()" type="button" tabindex="11">Cancel</button>
+        <br />
+        <br />
+        <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())" />
+    </div>
+    <div id="SaveMessage" style="display:none">Save Successful</div>
+    <p class="form-hint">This table displays project statements.</p>
+    <table id="Statement-list" class="table-main" title="Statement table" border="1">
+        <thead>
+            <tr id="StatementHeader">
+                <th id="headerReceived">Received</th>
+                <th id="headerFrom">From</th>
+                <th id="headerTo">To</th>
+                <th id="headerValue">Value</th>
+                <th id="headerCurrency">Currency</th>
+                <th id="headerType">Type</th>
+                <th id="headerComments">Comments</th>
+                <th id="headerDocumentID">Document ID</th>
+                <th id="headerActions">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                var index = 0;
+                foreach (var item in Model.ProjectStatement)
+                {
+                    <tr>
+                        <td id="ReceivedDate-@index" headers="headerReceived" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.ReceivedDate)
+                        </td>
+                        <td id="PeriodFrom-@index" headers="headerFrom" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.PeriodFrom)
+                        </td>
+                        <td id="To-@index" headers="headerTo" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.PeriodTo)
+                        </td>
+                        <td id="Value-@index" headers="headerValue" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.Value)
+                        </td>
+                        <td id="Currency-@index" headers="headerCurrency" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.Currency)
+                        </td>
+                        <td id="Type-@index" headers="headerType" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.StatementType)
+                        </td>
+                        <td id="Comments-@index" headers="headerComments" style="text-align: left">
+                            @Html.DisplayFor(modelItem => item.reason_action)
+                        </td>
+                        <td id="DocumentID-@index" headers="headerDocumentID" style="text-align: left">
+                            @if (item.DocumentID != null)
+                            {
+                                <a id="DocumentLink-@index" target="blank" href="@Html.DisplayFor(modelItem => item.DocumentLink)">@Html.DisplayFor(modelItem => item.DocumentID)</a>
+                            }
+                            else
+                            {
+                                <span>Unknown</span>
+                            }
+                        </td>
+                        <td>
+                            <button type="button" value="Remove-Statement-@index" class="button" id="@String.Format("btnRemoveStatement{0}", item.StatementID)" style="margin-left: 5px;" onclick="DeleteStatement(@item.ProjectID, @item.StatementID)">Delete</button>
+                        </td>
+                    </tr>
+                    index++;
+                }
+            }
+        </tbody>
+    </table>
+</div>
+}
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/typeahead")
+    @Scripts.Render("~/bundles/datetimepicker")
+<script type="text/javascript">
+    //Update navigation to active
+    var x = document.getElementById("performance-tab");
+    x.className = "active";
+
+    var currencies = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('CurrencyCombined'),
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        limit: 20,
+        prefetch: {
+            //url: './ProjectLookUp',
+            url: "@Url.Action("CurrencyLookUp", "Project")",
+        ttl: 36000000 //10 Hour (in milliseconds)
+
+    }
+    });
+
+    // kicks off the loading/processing of `local` and `prefetch`
+    currencies.initialize();
+
+    // passing in `null` for the `options` arguments will result in the default
+    // options being used
+    $('#Currsearch .typeahead').typeahead({ highlight: true }, {
+        name: 'currencies',
+        displayKey: 'CurrencyCombined',
+        // `ttAdapter` wraps the suggestion engine in an adapter that
+        // is compatible with the typeahead jQuery plugin
+        source: currencies.ttAdapter(),
+        limit: 20
+    }).bind('typeahead:selected', function(obj, datum) {
+        changeTypeahead(obj, datum);
+    }).bind('typeahead:autocompleted', function(obj, datum) {
+        changeTypeahead(obj, datum)
+    });
+
+    function changeTypeahead(obj, datum) {
+        $('input#NewProjectStatement_Currency').val(datum.CurrencyCode);
+    };
+
+    function DeleteStatement(projectId, statementId) {
+        //$.post("./Index", { id: ProjectID }, function(data) {
+        $.ajax({
+            type: 'POST',
+            url: "@Url.Action("DeleteStatement", "Project")",
+            data: { projectId: projectId, statementId: statementId},
+        success: function(data) {
+            if (data.success === true) {
+                location.reload();
+            }
+            if (data.success === false) {
+                //alert("An error has occurred. Please try again.");
+            }
+        },
+        async:true
+    });
+    }
+
+
+    function CreateFunctionCancel() {
+
+        $("#AddSection").toggle();
+        $("#ShowCreate").toggle();
+        
+    }
+
+    function CreateFunction() {
+        $("#AddSection").toggle();
+        $("#ShowCreate").toggle();
+    }
+
+    if ($("#SaveSuccess").val() == 0)
+    {
+        $("#AddSection").toggle();
+        $("#ShowCreate").toggle();
+     //   $("#NewProjectStatement_Currency").val("");
+    }
+
+
+    //If the project is stage 8, all fields should be read only.
+    if (document.getElementById("Stage").value == 8) {
+        $("input").prop('disabled', true);
+        $("textarea").prop('disabled', true);
+        $("button").prop('disabled', true);
+    }
+
+</script>
+}

@@ -1,0 +1,180 @@
+﻿@model AMP.ViewModels.ProjectVM
+@using AMP.Helpers
+@{
+    ViewBag.Title = "Create Project";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    <!--Main Container For the Create Page-->
+    <div class="page-container secondary">
+        <h1>Create New Project</h1>
+        <p class="form-hint">This is the minimum information required to create a new project. You can come back later to add information such as markers, locations and team.</p>
+        @Html.EditorFor(model => model, "ProjectBasicDetails")
+        <div class="grid-row">
+            <div class="column-third">
+                @Html.DateBlock("ProjectDates.OperationalStartDate", "Planned Start Date", @Model.ProjectDates.OperationalStartDate, "When implementation is expected")
+                @Html.HiddenFor(model => model.ProjectDates.OperationalStartDate)
+                @Html.ValidationMessageFor(model => model.ProjectDates.OperationalStartDate)
+                @Html.ValidationMessageFor(model => model.ProjectDates.OperationalStartDate_Day)
+                @Html.ValidationMessageFor(model => model.ProjectDates.OperationalStartDate_Month)
+                @Html.ValidationMessageFor(model => model.ProjectDates.OperationalStartDate_Year)
+            </div>
+                <div class="column-third">
+                    @Html.DateBlock("ProjectDates.OperationalEndDate", "Planned End Date", @Model.ProjectDates.OperationalEndDate, "When is the project expected to end")
+                    @Html.HiddenFor(model => model.ProjectDates.OperationalEndDate)
+                    @Html.ValidationMessageFor(model => model.ProjectDates.OperationalEndDate)
+                    @Html.ValidationMessageFor(model => model.ProjectDates.OperationalEndDate_Day)
+                    @Html.ValidationMessageFor(model => model.ProjectDates.OperationalEndDate_Month)
+                    @Html.ValidationMessageFor(model => model.ProjectDates.OperationalEndDate_Year)
+                </div>
+        </div>
+        
+                <div class="grid-row">
+                    <div class="column-full">
+                        <h3>Vault Project Folder</h3>
+                        <p class="form-hint">Please note that your Vault project folder will not be created automatically. Contact your Information Manager to create a project folder in Vault. We hope to provide this functionality in the near future.</p>
+                        <br/>
+                        <button id="CreateBtn" class="button" value="Save" type="submit" onclick="ValidateCreateProject(event)">
+                            Create
+                        </button>
+                        <button id="CancelBtn" class="red" type="button" onclick="Cancel()">
+                            Cancel
+                        </button>
+                        <div class="PushDown">
+                            <div id="SaveMessage" style="display: none">Save Successful</div>
+                            <input type="hidden" id="SaveSuccess" value="@(ViewBag.Success.ToString())"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--End of Main Container-->
+            }
+            @section Scripts {
+                @Scripts.Render("~/bundles/jqueryval")
+                @Scripts.Render("~/bundles/typeahead")
+                <script type="text/javascript">
+
+                    $(document).ready(function() {
+                        //Hide SRO Section at this stage
+                        $('#NoSROSection').toggle();
+
+                        //Show you as inputter
+                        $('#CreateProjectInputter').toggle();
+                        $('#Risk').toggle();
+                    });
+
+
+/*Bloodhound typeahead for Budget Centre*/
+                    var budcents = new Bloodhound({
+                        datumTokenizer: Bloodhound.tokenizers.obj.whitespace('BudgetCentreDescription'),
+                        queryTokenizer: Bloodhound.tokenizers.whitespace,
+                        prefetch: './BudgetCentreLookup',
+                        limit: 20
+
+                    });
+
+                    // kicks off the loading/processing of `local` and `prefetch`
+                    budcents.initialize();
+
+                    // passing in `null` for the `options` arguments will result in the default
+                    // options being used
+                    $('#BudCen .typeahead').typeahead({ highlight: true }, {
+                        name: 'budcents',
+                        displayKey: 'BudgetCentreDescription',
+                        // `ttAdapter` wraps the suggestion engine in an adapter that
+                        // is compatible with the typeahead jQuery plugin
+                        source: budcents.ttAdapter()
+                    }).bind('typeahead:selected', function(obj, datum) {
+                        changeTypeahead(obj, datum);
+                    }).bind('typeahead:autocompleted', function(obj, datum) {
+                        changeTypeahead(obj, datum)
+                    });
+
+                    function changeTypeahead(obj, datum) {
+                        $('input#BudgetCentreID').val(datum.BudgetCentreID);
+                        $('#_lblBudCenIDValue').text(datum.BudgetCentreID);
+                    };
+
+                    function Cancel() {
+                        window.close();
+                    }
+
+                    function ValidateCreateProject(event) {
+
+
+                        var startDateError = $("[data-valmsg-for='ProjectDates.OperationalStartDate']");
+                        var endDateError = $("[data-valmsg-for='ProjectDates.OperationalEndDate']");
+
+                        var startDateDay = $("#ProjectDates_OperationalStartDate_Day");
+                        var startDateMonth = $("#ProjectDates_OperationalStartDate_Month");
+                        var startDateYear = $("#ProjectDates_OperationalStartDate_Year");
+
+                        var endDateDay = $("#ProjectDates_OperationalEndDate_Day");
+                        var endDateMonth = $("#ProjectDates_OperationalEndDate_Month");
+                        var endDateYear = $("#ProjectDates_OperationalEndDate_Year");
+
+                        var startDate = startDateDay.val().concat('/', startDateMonth.val(), '/', startDateYear.val());
+
+                        var endDate = endDateDay.val().concat('/', endDateMonth.val(), '/', endDateYear.val());
+
+                        startDateError.html("");
+                        startDateError.removeClass();
+                        startDateError.addClass('field-validation-valid');
+                        $('endDateError').html("");
+
+                        endDateError.html("");
+                        endDateError.removeClass();
+                        endDateError.addClass('field-validation-valid');
+                        $('endDateError').html("");
+
+                        var user = $('#UserID').val();
+
+                        if (!isValidDate(startDate)) {
+                            startDateError.html("Planned Start Date is not valid.");
+                            startDateError.removeClass();
+                            startDateError.addClass('field-validation-error');
+                            event.preventDefault();
+                            return false;
+                        } else if(!isValidDate(endDate)) {
+                            endDateError.html("Planned End Date is not valid.");
+                            endDateError.removeClass();
+                            endDateError.addClass('field-validation-error');
+                            event.preventDefault();
+                            return false;
+
+                        }
+                        //startDateDay.closest('form').submit();
+                        return true;
+                    }
+
+                    // Validates that the input string is a valid date formatted as "mm/dd/yyyy"
+                    function isValidDate(dateString) {
+                        // First check for the pattern
+                        if (!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateString))
+                            return false;
+
+                        // Parse the date parts to integers
+                        var parts = dateString.split("/");
+                        var day = parseInt(parts[0], 10);
+                        var month = parseInt(parts[1], 10);
+                        var year = parseInt(parts[2], 10);
+
+                        // Check the ranges of month and year
+                        if (year < 1000 || year > 3000 || month == 0 || month > 12)
+                            return false;
+
+                        var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+                        // Adjust for leap years
+                        if (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0))
+                            monthLength[1] = 29;
+
+                        // Check the range of the day
+                        return day > 0 && day <= monthLength[month - 1];
+                    };
+
+                </script>
+            }

@@ -1,0 +1,53 @@
+﻿@model AMP.ViewModels.DeliveryChainsVM
+    
+<div class="column-full">
+    <h2>Downstream Partners</h2>
+    <p class="form-hint">This section allows you to enter your downstream partner information. To create a delivery chain map.</p>
+    <p class="form-hint">Clicking Add will link a new partner to the child of that row.</p>
+    <table id="PartnerTable" class="table-main" title="This table displays partners.">
+        <tr>
+            @*<th id="SupplierIDheader">
+                Parent ID
+            </th>*@
+            <th id="SupplierNameHeader">
+                Parent Name
+            </th>
+            @*<th id="SupplierNameHeader">
+                Child ID
+            </th>*@
+            <th id="SupplierNameHeader">
+                Child Name
+            </th>
+            <th id="SupplierAction">
+                Action
+            </th>
+        </tr>
+        @{
+            var index2 = 1;
+            foreach (var item in Model.deliveryChains)
+            {
+                <tr>
+                    @*<td headers="SupplierIDheader" id="InputSectorCodeValue-@index2">
+                        @Html.DisplayFor(modelItem => item.ParentID)
+                    </td>*@
+                    <td headers="SupplierNameHeader" id="InputSectorCodeDescriptionValue-@index2">
+                        @Html.DisplayFor(modelItem => item.ParentName)
+                    </td>
+                    @*<td headers="SupplierNameHeader" id="InputSectorCodeDescriptionValue-@index2">
+                        @Html.DisplayFor(modelItem => item.ChildID)
+                    </td>*@
+                    <td headers="SupplierNameHeader" id="InputSectorCodeDescriptionValue-@index2">
+                        @Html.DisplayFor(modelItem => item.ChildName)
+                    </td>
+                    <td headers="SupplierActionHeader" id="SupplierAction-@index2">
+                        <button data-url='@Url.Action("CreatePartner", "Component", new {id = item.ID})' class="Add-Partner-Editor">Add to Child</button>
+                    </td>
+                </tr>
+                index2++;
+            }
+        }
+    </table>
+
+</div>
+
+

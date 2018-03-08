@@ -1,0 +1,227 @@
+@model AMP.ViewModels.DashboardViewModel
+@{
+    ViewBag.Title = "PQ Calculation Guideline";
+}
+
+<div class="page-container secondary">
+    <div class="project-details-section">
+        <p class="form-label-bold">Project Scoring System</P>
+        <p>
+            Since January 2012, projects are scored at each review on the basis of achieved outputs.  Projects can score one of 5 possible scores from C to A++, where A is defined as ‘outputs met expectation’.  The scale allows for both over and under-achievement.  Each overall project score is calculated based on the scores assigned to individual project outputs and their corresponding impact shares as set out in a project’s logframe. The project outcome is scored once at the time of the project completion review (PCR).
+        </p>
+
+        <p class="form-label-bold">
+            Project review score and Portfolio Quality Index
+        </p>
+        <p>
+            Portfolio Quality index provides a measure of how well projects are performing on average.  The Project review score is calculated at project level once a review has been approved. The  Portfolio Quality Index is calculated following any aggregation i.e. departmental, divisional, DG area and overall for DFID by summing all relevant project budgets, weighted individually by how well the projects have scored and expressing this sum as a share of the total budget for the scored portfolio .  <b>Table 1 shows the weightings that are assigned.  Table 2 shows the calculation of Project Review score. Table 3 shows calculation of PQ Index as an aggregation.</b>
+
+        </p>
+        <p>
+            Table 1: Numerical values attributed to project output scores
+        </p>
+        <table class="table-main">
+
+            <tr>
+                <th>Output Score</th>
+                <th>Definition</th>
+                <th>Weight</th>
+                <th>Grade based on PQ score range</th>
+            </tr>
+            <tr>
+                <td>A++</td>
+                <td>Outputs substantially exceeded expectation</td>
+                <td>150</td>
+                <td>137.6-150</td>
+            </tr>
+            <tr>
+                <td>A+</td>
+                <td>Outputs moderately exceeded expectation</td>
+                <td>125</td>
+                <td>112.6-137.5</td>
+            </tr>
+            <tr>
+                <td>A</td>
+                <td>Outputs met expectation</td>
+                <td>100</td>
+                <td>87.5-112.5</td>
+            </tr>
+            <tr>
+                <td>B</td>
+                <td>Outputs moderately did not meet expectation</td>
+                <td>75</td>
+                <td>62.5-87.49</td>
+            </tr>
+            <tr>
+                <td>C</td>
+                <td>Outputs substantially did not meet expectation</td>
+                <td>50</td>
+                <td>50-62.49</td>
+            </tr>
+        </table>
+        <p>
+            Table 2: Calculation of Project Review Score (AR)
+        </p>
+        <table class="table-main">
+
+            <tr>
+                <th>Output Description</th>
+                <th>Impact Weight %</th>
+                <th>Output Score</th>
+                <th>Weight based on output score</th>
+                <th>Impact Score</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>20</td>
+                <td>C</td>
+                <td>50%</td>
+                <td>10</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>20</td>
+                <td>B</td>
+                <td>75%</td>
+                <td>15</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>20</td>
+                <td>B</td>
+                <td>75%</td>
+                <td>15</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>20</td>
+                <td>B</td>
+                <td>75%</td>
+                <td>15</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td>20</td>
+                <td>(A+)</td>
+                <td>125%</td>
+                <td>25</td>
+            </tr>
+            <tr>
+                <td>Impact weight should always total 100%</td>
+                <td><b>100</b></td>
+                <td></td>
+                <td><b>Overall Project Review score</b></td>
+                <td><b>80</b></td>                
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><b>Overall grade</b></td>
+                <td><b>B</b></td>
+            </tr>
+        </table>
+        <p>
+            Table 3: Calculation of PQ index at departmental level – should be all reviews in the last 12 months but below is just an example (fictional projects)
+        </p>
+        <table class="table-main">
+
+            <tr>
+                <th>Project ID</th>
+                <th>Project Title</th>
+                <th>Budget</th>
+                <th>Review Date</th>
+                <th>Project Review score</th>
+                <th>Grade</th>
+                <th>Weighted budget based on Project score</th>
+                <th>Difference between Budget and Weihgted budget</th>
+            </tr>
+            <tr>
+                <td><b>204654</b></td>
+                <td>Tackling corruption</td>
+                <td>£93,096,398</td>
+                <td>20/10/2014</td>
+                <td>87.5</td>
+                <td><b>A</b></td>
+                <td>£81,459,348</td>
+                <td>-£11,637,050</td>
+            </tr>
+            <tr>
+                <td><b>203166</b></td>
+                <td>Girls and women</td>
+                <td>£200,000,000</td>
+                <td>15/07/2014</td>
+                <td>75.0</td>
+                <td><b>B</b></td>
+                <td>£150,000,000</td>
+                <td>-£50,000,000</td>
+            </tr>
+            <tr>
+                <td><b>204712</b></td>
+                <td>Livelihood empowerment</td>
+                <td>£69,200,000</td>
+                <td>31/10/2014</td>
+                <td>120.0</td>
+                <td><b>A+</b></td>
+                <td>£83,040,000</td>
+                <td>+£13,840,000</td>
+            </tr>
+            <tr>
+                <td><b>202311</b></td>
+                <td>Malaria Control</td>
+                <td>£2,708,106</td>
+                <td>09/04/2015</td>
+                <td>131.3</td>
+                <td><b>A+</b></td>
+                <td>£3,554,389</td>
+                <td>+£846,283</td>
+            </tr>
+            <tr>
+                <td><b>202655</b></td>
+                <td>Health Sector Support</td>
+                <td>£953,593</td>
+                <td>31/08/2014</td>
+                <td>100.0</td>
+                <td><b>A</b></td>
+                <td>£953,592</td>
+                <td>£0</td>
+            </tr>
+            <tr>
+                <td><b>203644</b></td>
+                <td>Education</td>
+                <td>£5,000,000</td>
+                <td>01/12/2014</td>
+                <td>60.0</td>
+                <td><b>C</b></td>
+                <td>£3,000,000</td>
+                <td>-£2,000,000</td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><b>Totals</b></td>
+                <td><b>£370,958,096</b></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td><b>£322,007,330</b></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td><b>PQ Index(Total Weighted budget divided by total budget * 100)</b></td>
+                <td><b>86.8</b></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>Project budget * Project review score divided by 100</td>
+                <td></td>
+            </tr>
+        </table>
+        <p class="form-label-bold">
+            Defining the Portfolio
+        </p>
+        <p>
+            The same process is used to calculate the PQ index at divisional, DG area and overall for DFID by selecting and aggregating the relevant reviews approved in the last 12 months – for DFID it would be all reviews. From the above example, it is obvious that the last 3 projects are underachieving and bringing the PQ index down for this department and remedial action should be taken to improve the performance of these projects.
+        </p>
+        </div>
+    </div>

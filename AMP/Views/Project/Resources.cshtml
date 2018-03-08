@@ -1,0 +1,125 @@
+﻿@model AMP.ViewModels.ProjectViewModel
+@{
+    ViewBag.Title = "People";
+    }
+@Html.Partial("~/Views/Shared/_Navigation.cshtml")
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml")
+<div class="PushDown">
+    <br/><hr /></div>
+<h2>Team</h2>
+    <div style="float:left">
+        @*<div class="photo-with-text">
+            <img id="Inputter" src="http://10.3.10.145/securityconnectsystem/controls/photo.aspx?width=99&empno=@Model.ProjectMaster.InputterID.Substring(1)" alt="Project Manager Image" />
+            <div><div class="LabelName">Quality Assurer</div>@Model.ProjectMaster.Inputter1.InputterName</div>
+        </div>*@
+        <div class="photo-with-text">
+            <a href="mailto:someone@example.com?Subject=Hello%20again" target="_top">
+                <img id="LeadAdvisor" src="http://eks-web-05/SecurityConnect/controls/photo.aspx?width=99&empno=029543 " alt="Project Manager Image" />
+            </a>
+            <div><div class="LabelName">Lead Advisor</div>Dharini</div>
+            <div><div class="LabelName">Contact:</div>3545</div>
+        </div>
+    <div class="photo-with-text">
+        <a href="mailto:someone@example.com?Subject=Hello%20again" target="_top">
+            @*<img id="Inputter" src="http://eks-web-05/SecurityConnect/controls/photo.aspx?width=99&empno=@Model.ProjectMaster.InputterID.Substring(1)" alt="Project Manager Image" /></a>*@
+            <img id="Inputter" src="http://eks-web-05/SecurityConnect/controls/photo.aspx?width=99&empno=028984" " alt=" project manager image" />
+        </a>
+            <div><div class="LabelName">Inputter</div>@Model.ProjectMaster.UserID</div>
+            <div><div class="LabelName">Contact:</div>3674</div>
+</div>
+    <div class="photo-with-text">
+        <a href="mailto:someone@example.com?Subject=Hello%20again" target="_top">
+            <img id="Inputter" src="http://eks-web-05/SecurityConnect/controls/photo.aspx?width=99&empno=027453" alt="Project Manager Image" /></a>
+            <div><div class="LabelName">Manager</div>Tom</div>
+            <div><div class="LabelName">Contact:</div>4644</div>
+</div>
+    <div class="photo-with-text">
+        <a href="mailto:someone@example.com?Subject=Hello%20again" target="_top">
+            <img id="Inputter" src="http://eks-web-05/SecurityConnect/controls/photo.aspx?width=99&empno=028897" alt="Project Manager Image" /></a>
+            <div><div class="LabelName">SRO</div>Pete Vowls</div>
+            <div><div class="LabelName">Contact:</div>4587</div>
+</div>
+</div>
+<div class="PushDown">
+    @*
+            <div><table id="TeamTable" class="table">
+            <tr>
+                <th>TeamID</th>
+                <th>RoleID</th>
+                <th>Status</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+            </tr>
+            @foreach (var item in Model.Teams)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.TeamID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RoleID)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StartDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EndDate)
+                    </td>
+                </tr>
+            }
+        </table>
+            </div>*@
+    <hr />
+    <div class="PushDown">
+        <h2>External Contacts</h2>
+        <br />
+        <div style="float:left">
+            <div class="photo-with-text">
+                <img id="Inputter" src="~/Content/Images/ExternalPhoto.png" alt="Project Manager Image" />
+                <div><div class="LabelName">Consultant</div>John</div>
+            </div>
+            <div class="photo-with-text">
+                <img id="Inputter" src="~/Content/Images/ExternalPhoto.png" alt="Project Manager Image" />
+                <div><div class="LabelName">Advisor</div>Lisa</div>
+            </div>
+        </div>
+    </div>
+   </div>
+    @*<script type="text/javascript">
+            //This script allowed me to read from a table and set the source of an image.
+            var ResourceID = document.getElementById("TeamTable").rows[1].cells[0].innerHTML;
+
+            ResourceID = ResourceID.trim();
+
+            ResourceID = ResourceID.substring(1);
+
+            var x = document.getElementById("LeadAdvisor");
+
+            var url = "http://10.3.10.145/securityconnectsystem/controls/photo.aspx?width=99&empno=";
+
+            x.src = url+ResourceID;
+
+        </script>*@
+    <script>
+        //This hides the Project inputter at the top of the screen so not to clutter the resources tab.
+        var ProjectInputterDiv = document.getElementById("ProjectInputter");
+
+        ProjectInputterDiv.className = "DisplayNone";
+
+        var HRDiv = document.getElementById("HR");
+        HRDiv.className = "DisplayNone";
+        
+
+    </script>
+<script type="text/javascript">
+    //This Javascript will change the DOM, specificly the page the user is on.
+
+    var x = document.getElementById("NavBoxRes");
+    x.className = "NavBoxSelected";
+
+</script>
+
+

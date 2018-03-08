@@ -1,0 +1,77 @@
+﻿
+@model AMP.ViewModels.OverallRiskRatingVM
+
+<div id="DisplayOverallRisratingForm">
+
+    @using (Html.BeginForm("DisplayOverallRiskRating", "Project", FormMethod.Post, new { id = "OverallRiskRatingForm" }))
+    {
+        @Html.AntiForgeryToken()
+        @*@Html.HiddenFor(model => model.ProjectHeader.ProjectID, new { id = "projectId" })*@
+
+        <label class="form-label-bold" for="overallRiskRatingComments">Update Current Overall Risk Rating</label>
+            <p class="form-hint">
+                Please complete the Risk Rating and comments field. It can be updated at any point. By updating this will provide the project team with better project and
+                program risk information and allow better management information and lesson learning. even if the the risk has not changed by completing these fields it will show that Risk has
+                been thought about on a continual basis.
+            </p>
+            <br />
+            <label class="form-label-bold" for="overallRiskRatingComments">Comments</label>
+            <p class="form-hint">Please add comments(min 20 characters max 1000) </p>
+            <p class="form-hint">Please describe the current Risk situation and any changes and any mitigation actions.</p>
+            @Html.TextAreaFor(model => model.Comments, new { id = "overallRiskRatingComments", @rows = 6, @onkeyup = "countChar(this,'overallRiskRatingComments-characterCount',1000 );" })
+            <br />
+            @Html.ValidationMessageFor(model => model.Comments)
+            <span class="form-hint" id="overallRiskRatingComments-characterCount"></span>
+
+            <br />
+
+                        <div class="column-third">
+                            <div class="grid-row">
+                                <label class="form-label-bold" for="OverallRiskRatingVm_RiskScore">Overall Risk Rating</label>
+                                <p class="form-hint">select your overall risk rating from the dropdown below (press save to update)</p>
+                                @{
+                                    List<SelectListItem>
+                                        listItems = new List<SelectListItem>
+                                            ();
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = "Minor",
+                                        Value = "R1"
+                                    });
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = "Moderate",
+                                        Value = "R2"
+                                    });
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = "Major",
+                                        Value = "R3"
+                                    });
+
+                                    listItems.Add(new SelectListItem
+                                    {
+                                        Text = "Severe",
+                                        Value = "R4"
+                                    });
+                                    @Html.DropDownListFor(model => model.RiskScore, listItems, "Select risk type", new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(model => model.RiskScore)
+                                }
+                            </div>
+                            <br />
+                            <div class="grid-row">
+
+
+                                <br />
+
+                                <div class="content-loading" style="width: 60px; display: none;">
+                                    <img class="content-loading" src="~Content/GovUKStyle/Images/spinner.gif" style="display: block" alt="please wait.." />
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                                    }
+</div>
+

@@ -1,0 +1,88 @@
+﻿@model AMP.ViewModels.ProjectVM
+@using AMP.Helpers
+<div class="project-details-section">
+    <div class="grid-row">
+        <div class="column-two-thirds">
+            @Html.HiddenFor(model => model.ProjectID, new { @id = "View_ProjectID" })
+            @Html.HiddenFor(model => model.OpStatus)
+            <!-- Project title -->
+            <div class="form-group">
+                <label class="form-label-bold" for="Project-Title">Title</label>
+                <p class="form-hint">Title should be brief, in plain English, free from acronyms, and jargon.  Do not use the names of partner organisations. Between 20 and 250 characters. </p>
+                <textarea id="Project-Title" name="Title" rows="3" placeholder="e.g. Maternal and Newborn child health programme" style="width: inherit" maxlength="250" onkeyup="countChar(this, 'Project-Title-characterCount', 250); ">@Model.Title</textarea>
+                <span class="form-hint" id="Project-Title-characterCount"></span>
+                <div class="PushDown">@Html.ValidationMessageFor(model => model.Title)</div>
+            </div>
+            <!-- Project description -->
+            <div class="form-group">
+                <label class="form-label-bold" for="project-description">Description</label>
+                <p class="form-hint">Describe briefly the aim of the project. Identify what will change, who will benefit, and if it's a development project, how it will contribute to the Global Goals or climate change. Begin with phrases like 'To achieve', 'To improve', 'To deliver', 'To provide'. Do not use jargon or acronyms. Between 100 and 1000 characters.</p>
+                <!--<input type="text" class="form-control" id="project-description">-->
+                <textarea id="project-description" rows="5" placeholder="e.g. To improve maternal and newborn child health (MNCH) in Northern Nigeria through increased skilled birth attendance, antenatal, increased immunisation rates and by protecting pregnant women and childen from vaccine-preventable diseases. This will save the lives of 60,000 children, 42,000 newborns and 20,000 pregnant women in the six states and provide high quality MNCH services to 6.3 million women and children of Northern Nigeria" 
+                          name="Description" maxlength="1000" style="width: inherit" onkeyup="countChar(this, 'project-description-characterCount' , 1000);">@Model.Description</textarea>
+                <span class="form-hint" id="project-description-characterCount"></span>
+                @Html.ValidationMessageFor(model => model.Description)
+            </div>
+            <!-- Budget Centre -->
+            <div class="form-group">
+                <label class="form-label-bold" for="BudgetCentreBox">Budget Centre</label>
+                <p class="form-hint">This is where the budget is charged</p>
+                <div id="BudCen">
+                    <input id="BudgetCentreBox" type="text" class="typeahead" name="BudgetCentreDescription" placeholder="Type to search" style="width: 500px; height: 25px" value="@Model.BudgetCentreDescription" />
+                </div>
+                @Html.HiddenFor(model => model.BudgetCentreID)
+                @Html.ValidationMessageFor(model => model.BudgetCentreID)
+            </div>
+            <!-- Risk -->
+            <div id="Risk" class="form-group">
+                <h2 class="form-label-bold">Risk at approval</h2>
+                <p class="form-hint">This is the risk rating defined in the Business Case when it was approved, this cannot be amended once the project moves to implementation.  Refer to the risk management framework for further information on the definitions.</p>
+
+                @foreach (var risk in Model.RiskLookups)
+                {
+                    <label class="block-label" id="label-type-@risk.RiskValue" for="type-@risk.RiskValue" style="width: 200px">
+                        @Html.RadioButtonFor(m => m.RiskAtApproval, risk.RiskValue, new { @id = String.Format("type-{0}", risk.RiskValue) }) @risk.RiskTitle
+                    </label>
+                }
+
+                @Html.HiddenFor(model => model.RiskAtApproval)
+                @Html.ValidationMessageFor(model => model.RiskAtApproval)
+
+
+            </div>
+        </div>
+            @if (Model.ProjectSRO != null)
+            {
+                <div class="column-third">
+                    <div class="inputter">
+                        <h3>SRO</h3>
+                        <a href="mailto:@Model.ProjectSRO.Email?subject=Project @Model.ProjectID">
+                            <img src="~/Content/localImages/user-310807_640.png" style="width:113px;height:135px;" alt="image of the sro"/>
+                        </a>
+                        <div class="inputter-id">
+                            @Model.ProjectSRO.DisplayName
+                        </div>
+                        <div class="inputter-name">
+                            Phone @Model.ProjectSRO.PhoneNumber
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (Model.Stage != "8")
+            {
+                <div id="NoSROSection" class="column-third">
+                    <p>This project does not have an SRO. <a href="@Url.Action("Team", "Project", new {id = Model.ProjectID})">Click here to go to the Team page and add an SRO.</a></p>
+                </div>
+
+            }
+        <div id="CreateProjectInputter" class="column-third" style="display:none">
+            <div class="inputter">
+                <h3>Inputter</h3>
+                    <img src="" alt="image of the inputter" />
+                <div class="inputter-name">
+                   <p class="form-hint">You will be set as inputter</p>
+                </div>
+            </div>
+        </div>
+        </div>
+</div>

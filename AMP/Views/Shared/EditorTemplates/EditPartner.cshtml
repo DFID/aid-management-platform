@@ -1,0 +1,58 @@
+﻿@model AMP.ViewModels.DeliveryChainVM
+
+
+@using (Html.BeginForm("PostPartner", "Component", FormMethod.Post, new { id = "EditPartnerForm" }))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(model => model.ID)
+    @Html.HiddenFor(model => model.ComponentID, new { id = "FormComponentID" })
+    @Html.HiddenFor(model => model.ChainID, new { id = "ChainID" })
+ 
+    @Html.HiddenFor(model => model.ParentName)
+    @Html.HiddenFor(model => model.ParentType)
+
+
+    <div class="column-full">
+        <div class="grid-row">
+            @*<div class="form-group">
+                <label class="form-label-bold" for="ChildName">Delivery Partner</label>
+                <p class="form-hint">Enter Delivery Partner Name(alpha numeric min 20 max 2000 characters)</p>
+                <textarea id="ChildName" name="ChildName" rows="2" placeholder="Name of DownStream Partner" style="width: inherit" maxlength="500">@Model.ChildName</textarea>
+            </div>*@
+            <!-- Partner typeahead -->
+            <div class="form-group">
+                <label class="form-label-bold" for="PartnerBox">Delivery Partner</label>
+
+                <p class="form-hint">To find a delivery partner, enter the partner's full name in the textbox below and choose from ‘Registered with DFID’ list below. These partners are already registered on the DFID supplier portal. If the partner does not appear on the list, you can add a new delivery partner to the list which will appear in the ‘Not directly registered with DFID’ list.</p>
+                <p class="form-hint">Please remember – in order to avoid duplicate entries it is important to ensure that when adding a new delivery partner the partners full name is entered, with no abbreviations or additional information.</p>
+                <p class="form-hint" style="color: red"><b>Please enter the full company name, with no abbreviations or additional information. If a governmental partner, please enter the name of the country first</b></p>
+
+                    <div id="PartnerSection">
+                        <input id="ChildName" name="NewChildName" type="text" class="typeahead" placeholder="" style="width: 500px; height: 25px" />
+                        @Html.HiddenFor(model => model.ChildName)
+                        @Html.HiddenFor(model => model.ChildID)
+                        @Html.HiddenFor(model => model.ChildType)
+
+
+                        @Html.HiddenFor(model => model.PartnerEntry, new { id = "PartnerEntry" })
+                        @Html.HiddenFor(model => model.SupplierEntry, new { id = "SupplierEntry" })
+                        @Html.HiddenFor(model => model.NewPartnerEntry, new { id = "NewPartnerEntry", value = "True" })
+                        @Html.HiddenFor(model => model.ParentID, new { id = "ParentID" })
+                        @Html.HiddenFor(model => model.ChildID, new { id = "ChildID" })
+                        @Html.HiddenFor(model => model.ChildName, new { id = "ChildName" })
+
+
+
+                        @*<div class="PushDown">@Html.ValidationMessageFor(model => model.ChildID)</div>*@
+
+                    </div>
+</div>
+        </div>
+    </div>
+        <div class="column-full">
+            <div class="grid-row">
+                <input type="button" value="Save" class="button" id="btnSavePartner" onclick="PostPartner();"/>
+            </div>
+        </div>
+}

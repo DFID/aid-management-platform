@@ -1,0 +1,306 @@
+﻿@using AMP.Utilities
+@model AMP.ViewModels.ProjectHeaderVM
+<div id="HiddenProjectID">@Html.HiddenFor(model => model.ProjectID)</div>
+
+<div class="page-container">
+    @Html.HiddenFor(x => x.ProjectExistsInPortfolio, new { id = "ExistsInPortfolio" })
+    @Html.HiddenFor(x => x.UserID)
+    <div class="grid-row">
+        <div class="column-two-thirds">
+            <div id="project-header">
+                <h1>Project:@Html.DisplayFor(model => model.ProjectID)</h1>
+                <h2 style="background-color: lightgray" class="project-description">
+                    @Model.Title
+                </h2>
+            </div>
+        </div>
+        <div class="column-third">
+            <div class="project-info-panel">
+                <div class="header">
+                    Stage
+                </div>
+                <div class="status">
+                    <ul>
+                        <li id="Status-Pre-Pipeline">Pre-pipeline</li>
+                        @*<li id="Status-Identification">Identification</li>*@
+                        <li id="Status-AandD">Appraisal & Design</li>
+                        @*<li id="Status-Approval">Approval</li>*@
+                        <li id="Status-Implementation">Implementation</li>
+                        <li id="Status-Completion">Completion</li>
+                        <li id="Status-Archive">Archive</li>
+                    </ul>
+                    @*<Label id= "OptionLabel">
+                            This is Option 1
+                        </Label>
+                        <button id="ChangeNavigationType" class="bluelightnight" value="Option1" type="button">
+                            View next option
+                        </button>*@
+                </div>
+                <div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    @{
+        var refererURL = Request.ServerVariables["http_referer"];
+        string completeRefererPath = "";
+        string geocodeReferPath = "";
+
+        geocodeReferPath = AMPUtilities.AppMode() == "DEV" ? "" : "";
+        string logFrameReferPath = AMPUtilities.AppMode() == "DEV" ? "x" : "";
+    }
+    <div class="page-container">
+        <div id="Navigation2">
+            <div class="page-header">
+                <div id="project-menu-bar">
+                    <div>
+                        <ul class="primary-menu">
+                            <li id="project-tab">
+                                <a href="#" id="project-menu-info" class="active">Project Info</a>
+                                <ul>
+                                    <li> <a href="@Url.Action("Edit", "Project", new {id = @Model.ProjectID})" title="Link to details for project @Model.ProjectID" id="tab-project-details">Details</a> </li>
+                                    <li> <a href="@Url.Action("Team", "Project", new {id = @Model.ProjectID})" id="tab-project-team">Team</a> </li>
+                                    <li> <a href="@Url.Action("Markers", "Project", new {id = @Model.ProjectID})" id="tab-project-markers">Markers</a> </li>
+                                    <li> <a href="@geocodeReferPath/@Model.ProjectID" id="tab-project-geo-coding">Geo-Coding</a></li>
+                                    <li> <a href="@Url.Action("PublishedDocuments", "Project", new {id = @Model.ProjectID})" id="tab-project-transparency">Transparency</a> </li>
+                                    @*<li> <a href="@Url.Action("GeoCoding", "Project", new { id = @Model.ProjectID })" id="tab-project-geo-coding">Geo-Coding</a> </li>*@
+                                    <li> <a href="@Url.Action("Documents", "Project", new {id = @Model.ProjectID})" id="tab-documents-keydoc">Key Documents</a> </li>
+                                </ul>
+                            </li>
+
+                            <li id="finance-tab">
+                                <a href="#" id="project-menu-finance">Financial Info</a>
+                                <ul>
+                                    <li> <a href="@Url.Action("Finance", "Project", new {id = @Model.ProjectID})" id="tab-financeinfo-finance">Finance</a> </li>
+                                    <li> <a href="@Url.Action("Procurement", "Project", new {id = @Model.ProjectID})" id="tab-financeinfo-procurement">Procurement</a> </li>
+                                </ul>
+                            </li>
+
+                            <li id="performance-tab">
+                                <a href="#" id="project-menu-performance">Performance</a>
+                                <ul>
+                                    <li> <a href="@Url.Action("Reviews", "Project", new {id = @Model.ProjectID})" id="tab-performance-review">Reviews</a> </li>
+                                    <li><a href="@logFrameReferPath/@Model.ProjectID" id="project-menu-results" target="blank">Results</a></li>
+                                    <li> <a href="@Url.Action("Evaluation", "Project", new {id = @Model.ProjectID})" id="tab-performance-evaluation">Evaluation</a> </li>
+                                    <li> <a href="@Url.Action("RiskRegister", "Project", new {id = @Model.ProjectID})" id="tab-performance-riskregister">Risk Register</a> </li>
+                                    <li> <a href="@Url.Action("Statements", "Project", new {id = @Model.ProjectID})" id="tab-documents-audit">Audit Statement</a> </li>
+                                </ul>
+                            </li>
+
+                            <li id="component-tab">
+                                <a href="@Url.Action("Components", "Project", new {id = @Model.ProjectID})" id="project-menu-components">Components</a>
+                            </li>
+                            <li id="Actions-tab">
+                                <a href="#" id="project-menu-workflow">Actions</a>
+                                <ul>
+                                    <li><a href="@Url.Action("Action", "Project", new {id = @Model.ProjectID})" id="tab-project-workflow-actions">Workflow Actions</a></li>
+                                    <li><a href="@Url.Action("Index", "Workflow", new {id = @Model.ProjectID})" id="tab-project-workflow-history">History</a></li>
+
+                                </ul>
+                            </li>
+                            <li id="AddProject" style="background-color: #007850">
+                                <a href="#" onclick="AddProject(@Html.DisplayFor(model => model.ProjectID))"> Add to my dashboard</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <br/>
+                <div id="project-menu-bar-2">
+                    <ul class="secondary-menu">
+                        
+                        <li id="transparency-menu-document">
+                            <a href="@Url.Action("PublishedDocuments", "Project", new {id = @Model.ProjectID})">Published Documents</a>
+                        </li>
+                        <li id="transparency-menu-exclusion">
+                            <a href="@Url.Action("Transparency", "Project", new {id = @Model.ProjectID})">Exclusion</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+ 
+
+
+    <div class="full-width-separator">
+    </div>
+    <div id="StageDescriptionHolder">@Html.HiddenFor(model => model.StageDescription)</div>
+    <div id="StageIDHolder">@Html.HiddenFor(model => model.Stage)</div>
+</div>
+<!--Script to Control Project Stage New Way-->
+<script type="text/javascript">
+
+
+        //Menu items
+        $(document).ready(function () {
+            $('.primary-menu > li').bind('mouseover', openSubMenu);
+            $('.primary-menu > li').bind('mouseout', closeSubMenu);
+
+            function openSubMenu() {
+                $(this).find('ul').css('visibility', 'visible');
+            }
+
+            function closeSubMenu() {
+                $(this).find('ul').css('visibility', 'hidden');
+            }
+        });
+
+
+
+        //*** to display different navigation options to the user
+        //$('#ChangeNavigationType').on('click', function () {
+
+        //    if ($('#ChangeNavigationType').val() == "Option1") {
+        //        //Change Chart
+        //        //Set value of next type
+        //        $('#ChangeNavigationType').val("Option2");
+        //       // $('#ChangeNavigationType').html("View next option");
+        //        $('#OptionLabel').html("This is Option 2");
+
+        //        //change navigation div
+        //        document.getElementById('Navigation1').hidden = "hidden"; // hide body div tag for navigation 1
+        //        document.getElementById('Navigation3').hidden = "hidden"; // hide body div tag for navigation 3
+        //        document.getElementById('Navigation2').hidden = ""; // show div for navigation 2
+
+        //    } else if
+
+        //     ($('#ChangeNavigationType').val() == "Option2") {
+
+        //        //Set value of next type
+        //        $('#ChangeNavigationType').val("Option3");
+        //       // $('#ChangeNavigationType').html("View next option");
+        //        $('#OptionLabel').html("This is Option 3");
+
+        //        //Change navigation div
+        //        document.getElementById('Navigation1').hidden = "hidden"; // hide body div tag for navigation 1
+        //        document.getElementById('Navigation2').hidden = "hidden"; // hide body div tag for navigation 2
+        //        document.getElementById('Navigation3').hidden = ""; // show div for navigation 3
+        //    }
+
+        //    else if
+
+        //        ($('#ChangeNavigationType').val() == "Option3") {
+
+        //        //Set value of next type
+        //        $('#ChangeNavigationType').val("Option1");
+        //      //  $('#ChangeNavigationType').html("View next option");
+        //        $('#OptionLabel').html("This is Option 1");
+
+        //        //Change navigation Div
+        //        document.getElementById('Navigation2').hidden = "hidden"; // hide body div tag for navigation 2
+        //        document.getElementById('Navigation3').hidden = "hidden"; // hide body div tag for navigation 1
+        //        document.getElementById('Navigation1').hidden = ""; // show div for navigation 1
+        //    }
+        //});
+
+
+
+
+
+
+
+
+        //This Javascript will change the DOM, specificly the project stage style.
+        if (document.getElementById("Stage").value == 8) {
+            //Set the css class of each Status Element in the Project Header. Anything greater than the stage id has no class applied.
+            document.getElementById("Status-Archive").className = "current";
+            document.getElementById("Status-Completion").className = "complete";
+            document.getElementById("Status-Implementation").className = "complete";
+            // document.getElementById("Status-Approval").className = "complete";
+            document.getElementById("Status-AandD").className = "complete";
+            // document.getElementById("Status-Identification").className = "complete";
+            document.getElementById("Status-Pre-Pipeline").className = "complete";
+            $('#GOMI').prop('disabled', false);
+        } else if (document.getElementById("Stage").value == 7) {
+            //Set the css class of each Status Element in the Project Header. Anything greater than the stage id has no class applied.
+            document.getElementById("Status-Completion").className = "current";
+            // document.getElementById("Status-Completion").className = "complete";
+            document.getElementById("Status-Implementation").className = "complete";
+            // document.getElementById("Status-Approval").className = "complete";
+            document.getElementById("Status-AandD").className = "complete";
+            // document.getElementById("Status-Identification").className = "complete";
+            document.getElementById("Status-Pre-Pipeline").className = "complete";
+            $('#GOMI').prop('disabled', false);
+
+        } else if (document.getElementById("Stage").value == 5) {
+
+            document.getElementById("Status-Implementation").className = "current";
+            //document.getElementById("Status-Approval").className = "complete";
+            document.getElementById("Status-AandD").className = "complete";
+            //document.getElementById("Status-Identification").className = "complete";
+            document.getElementById("Status-Pre-Pipeline").className = "complete";
+        } else if (document.getElementById("Stage").value == 3) {
+
+            document.getElementById("Status-AandD").className = "current";
+            //document.getElementById("Status-Identification").className = "complete";
+            document.getElementById("Status-Pre-Pipeline").className = "complete";
+        }
+            //Stage 2 Clearance not used.
+        else if (document.getElementById("Stage").value == 1) {
+
+            //document.getElementById("Status-Identification").className = "current";
+            document.getElementById("Status-Pre-Pipeline").className = "complete";
+        } else if (document.getElementById("Stage").value == 0) {
+
+            document.getElementById("Status-Pre-Pipeline").className = "current";
+
+
+        }
+
+        //If Project is not published hide or diable label
+        $.ajax({
+            url: "@ViewBag.ARIESAPI/Projects/Published/@Model.ProjectID?type=json",
+            success: function (result) {
+
+                if (result === false) {
+
+                    $("#project-menu-DevTracker").toggle();
+                }
+            }
+        });
+
+
+        function AddProject(ProjectID) {
+            //$.post("./Index", { id: ProjectID }, function(data) {
+            @*$.post("@Url.Action("SaveProject", "Project")", { id: ProjectID }, function (data) {
+
+            alert("Project saved to dashboard");
+            $('#AddProject').toggle();
+        });*@
+
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: "@Url.Action("SaveProjectToDashBoard", "Dashboard")",
+                data: { id: ProjectID },
+                success: function (result) {
+                    alert("Project saved to dashboard");
+                    $('#AddProject').toggle();
+                },
+                error: function (result) { alert("Failed to save"); }
+            });
+
+
+
+        }
+
+
+
+        if ($('#ExistsInPortfolio').val() == "True") {
+            $('#AddProject').toggle();
+        }
+
+</script>
+<script type="text/javascript">
+        $(document).ready(function () {
+            $('#GOMI').prop('disabled', false);
+
+        });
+</script>

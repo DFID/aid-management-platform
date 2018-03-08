@@ -1,0 +1,47 @@
+﻿@model AMP.ViewModels.ProjectTeamMemberVM
+
+<div class="inputter" id="TeamMemberBlock-@ViewBag.TeamMemberPosition">
+    @if (Model.IsEmployed == "T")
+    {
+        <a id="emaillink-@ViewBag.TeamMemberPosition" href="mailto:@Model.Email?subject=Project @Model.ProjectID">
+            <img id="Photo-@ViewBag.TeamMemberPosition" src="~/Content/localImages/user-310807_640.png" alt="image of the @Model.RoleId" height="100" />
+        </a>
+    }
+    else
+    {
+        <img src="http://www.pnl-maroc.com/wp-content/uploads/2014/11/53791.png?height=100" alt="image not available" />
+    }
+    <div class="inputter-details" id="Name-@ViewBag.TeamMemberPosition">
+        @Model.DisplayName
+    </div>
+    @if (Model.IsEmployed == "T")
+    {
+        <div id="TeamDetails-@ViewBag.TeamMemberPosition" class="inputter-details">
+            Phone @Model.PhoneNumber
+        </div>
+    }
+    else
+    {
+        <div id="TeamDetailsAlt-@ViewBag.TeamMemberPosition" class="inputter-details">
+        </div>
+    }
+    @if (Model.Status == "A")
+    {
+        <div id="Startdatealt2-@ViewBag.TeamMemberPosition" class="inputter-details">
+            Start Date @Model.StartDate.ToShortDateString()
+        </div>
+
+    }
+    else
+    {
+        <div id="StartDate-@ViewBag.TeamMemberPosition" class="inputter-details">
+            From @Model.StartDate.ToShortDateString()
+        </div>
+        <div id="Enddate-@ViewBag.TeamMemberPosition" class="inputter-details">
+            To @Model.EndDate.ToShortDateString()
+        </div>
+    }
+</div>
+
+
+

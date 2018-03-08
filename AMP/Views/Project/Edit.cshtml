@@ -1,0 +1,702 @@
+﻿@model AMP.ViewModels.ProjectVM
+@using AMP.Helpers
+@{
+    ViewBag.Title = "Edit";
+}
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    String folderId = null;
+
+    if (TempData["CreateFolder"] != null)
+    {
+        folderId = TempData["CreateFolder"].ToString();
+    }
+
+}
+ 
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml",Model.ProjectHeader)
+
+
+    <div class="page-container secondary">
+ 
+        @Html.HiddenFor(model => model.WFCheck.Status, new { @id = "IsActiveWorkflow" })
+        @Html.HiddenFor(model => model.WFCheck.WorkFlowDescription, new { @id = "ActiveWorkflowDescription" })
+        @Html.HiddenFor(model => model.WFCheck.TaskId, new {@id = "ActiveWorkflowTaskId"})
+        @Html.HiddenFor(model => model.WFCheck.IsWorkFlowApprover, new { @id = "IsWorkflowApprover" })
+        @Html.HiddenFor(model => model.CanSendForClosure, new { @id = "CanSendForClosure" })
+        @Html.HiddenFor(model => model.IsProjectTeam, new {@id="IsProjectTeam"})
+
+    @Html.HiddenFor(model => model.CanSendForApproval)
+
+    @using (Html.BeginForm("Edit", "Project", FormMethod.Post, new {id = "FormProjectEdit"}))
+    {
+
+        @Html.AntiForgeryToken()
+        //@Html.ValidationSummary(true)
+        <br />
+        <div id="WFMessage" class="InfoMessage" style="display: none"><br />@String.Format("This Project is in {0} workflow. Changes cannot be made.", Model.WFCheck.WorkFlowDescription)<br /></div>
+
+        if (folderId != null && folderId.Length >= 7)
+        {
+            <div class="success-summary" role="group" tabindex="-1">
+                <h2>
+                    Project folder created in Vault.
+                </h2>
+                <p>
+                    You can now access the folder by clicking <a href="DocumentManagementLink" target="_blank">here.</a>
+                </p>
+            </div>
+        }
+        else if (folderId != null && folderId == "0")
+        {
+            <div class="warning-summary" role="group" tabindex="-1">
+                <h2 >
+                    Project folder creation in Vault has failed.
+                </h2>
+                <p>
+                    Please raise a SAW call with Application support and provide the project ID etc etc.
+                </p>
+            </div>
+        }
+
+        @*<div id="accordion" class="reports">
+        <div class="accordion-toggle">
+            <div class="title-bar">
+                <div class="control-bar-Purple" style="max-width: inherit" id="control-bar-options">
+                    Workflow Options
+                    <div class="arrow white medium"></div>
+                </div>
+                <p>You can use this for taking additional project action. e.g. Closure, approvals.</p>
+            </div>
+        </div>
+        <div id="Acontent" class="accordion-content ar-wrapper">
+            <div class="grid-row">
+                <div class="column-third" id="dvApproveADProject">
+                    <div class="report-basics">
+                        <h2>Appraisal & Design</h2>
+                        <span class="form-hint">This approval moves the project from pre-pipeline to Appraisal and Design</span>
+                        <button id="btnToggleApproveADProject" name="submitButton" style="vertical-align: text-bottom" class="button" value="7" type="submit"><strong>Send for approval</strong></button>
+                        <br/>
+                    </div>
+                </div>
+                <div class="column-third" id="dvApproveProject">
+                    <div class="report-basics">
+                        <h2 id="ApproveProjectTitle">Approve Project</h2>
+                        <span id="ApproveProjectHint" class="form-hint">This approval moves the project from Appraisal and Design to Implementation</span>
+                        <button id="btnToggleApproveProject" name="submitButton" style="vertical-align: text-bottom" class="button" value="2" type="submit"><strong>Send for approval</strong></button>
+                        <br/>
+                    </div>
+                </div>
+                  <div class="column-third" id="dvFastTrackProject">
+                    <div class="report-basics">
+                        <h2>Admin/Fast Track</h2>
+                        <span class="form-hint"> For Admin and rapid response only</span>
+                        <button id="btnToggleApproveFastTrack" name="submitButton" class="button" style="vertical-align: text-bottom" value="8" type="submit"><strong>Send for Approval</strong></button>
+                        <br />
+                    </div>
+                </div>
+            
+            </div>
+            <div class="grid-row">
+                <div class="column-third" id="dvCloseProject">
+                    <div class="report-basics">
+                        <h2>Close Project</h2>
+                        <span class="form-hint"> Close Admin, reopened and PCR exempt projects</span>
+                        <button id="btnToggleCloseProject" name="submitButton" class="button" style="vertical-align: text-bottom" value="1" type="submit"><strong>Close Project</strong></button>
+                        <br />
+                    </div>
+                </div>
+                <div class="column-third" id="dvReOpenProject">
+                    <div class="report-basics">
+                        <h2>Re-open Project</h2>
+                        <span class="form-hint"> Re-open projects that are at completion stage</span>
+                        <button id="btnToggleReOpenProject" name="submitButton" class="button" style="vertical-align: text-bottom" value="10" type="submit"><strong>Re-open Project</strong></button>
+                        <br />
+                    </div>
+                </div>
+                <div class="column-third" id="dvArchiveProject">
+                    <div class="report-basics">
+                        <h2>Archive the Project</h2>
+                        <span class="form-hint"> Archive the completed project</span>
+                        <button id="btnToggleArchiveProject" name="submitButton" class="button" style="vertical-align: text-bottom" value="9" type="submit"><strong>Send for Approval</strong></button>
+                        <br />
+                    </div>
+                </div>
+            </div>
+                <div class="grid-row">
+                    <div class="column-full">
+                        @Html.ValidationSummary()
+                    </div>
+                </div>
+            </div>
+    </div>*@
+
+        @*Error section showing validation errors*@
+
+    if (!ViewContext.ViewData.ModelState.IsValid)
+    {
+        <div class="error-summary" role="group" tabindex="-1" id="warningSection">
+            <h2>
+                Missing Information or Corrections Required
+            </h2>
+            <p>
+                The following information is either missing or incomplete:
+            </p>
+            @Html.ValidationSummary()
+        </div>
+    }
+
+
+        @Html.EditorFor(model => model, "ProjectBasicDetails")
+        <h2>Project Timeline</h2>
+        <p id="addtimelinehint" class="form-hint">Click the timeline to interact with it or use the control buttons.</p>
+        <div id="visualization">
+            <button type="button" class="bluelightnight" id="zoomIn" value="Zoom in">Zoom in</button>
+            <button type="button" class="bluelightnight" id="zoomOut" value="Zoom out">Zoom out</button>
+            <button type="button" class="bluelightnight" id="moveLeft" value="Move left">Move left</button>
+            <button type="button" class="bluelightnight" id="moveRight" value="Move right">Move right</button>
+            <br/>
+        </div>
+        @Html.EditorFor(model => model, "ProjectOperationalDetails")
+
+       @*@Html.EditorFor(model => model, "ProjectObjectiveDetails")*@
+
+        @*Hidden until edit is enabled*@
+        <div>
+            <input id="SaveChanges" type="submit" value="Save Project" class="button submit"/>
+        </div>
+    <div id="SaveMessage" style="display: none">Save Successful</div>
+    <input type="hidden" id="SaveSuccess" value="@TempData["Success"].ToString()" />
+
+    }
+        @*<input type="hidden" name="submitButton" id="SaveSuccess" value="@TempData["Success"].ToString()" />*@
+
+   
+        @*Hidden until edit is enabled*@
+
+     
+
+        <div class="PushDown">
+            @Html.ActionLink("Back to List", "Index", null, new { id = "BackToList" })
+        </div>
+  </div>
+    <script>
+         function SetTimeline() {
+
+             //Temp disable of all input fields:
+
+             $("zoomIn").prop('disabled', false);
+             $("zoomOut").prop('disabled', false);
+             $("moveLeft").prop('disabled', false);
+             $("moveRight").prop('disabled', false);
+
+             // Create a DataSet (allows two way data-binding)
+             //// DOM element where the Timeline will be attached
+             var container = document.getElementById('visualization');
+
+             //Month
+             if (document.getElementById("ProjectDates_Created_date_Month").value.length == 1) {
+                 var CreateMonth = "0" + document.getElementById("ProjectDates_Created_date_Month").value;
+             } else {
+                 var CreateMonth = document.getElementById("ProjectDates_Created_date_Month").value;
+             }
+
+             if (document.getElementById("ProjectDates_FinancialStartDate_Month").value.length == 1) {
+                 var FinStartMonth = "0" + document.getElementById("ProjectDates_FinancialStartDate_Month").value;
+             } else {
+                 var FinStartMonth = document.getElementById("ProjectDates_FinancialStartDate_Month").value;
+             }
+
+             if (document.getElementById("ProjectDates_FinancialEndDate_Month").value.length == 1) {
+                 var FinEndMonth = "0" + document.getElementById("ProjectDates_FinancialEndDate_Month").value;
+             } else {
+                 var FinEndMonth = document.getElementById("ProjectDates_FinancialEndDate_Month").value;
+             }
+
+             if (document.getElementById("ProjectDates_ActualStartDate_Month").value.length == 1) {
+                 var ActualStartMonth = "0" + document.getElementById("ProjectDates_ActualStartDate_Month").value;
+             } else {
+                 var ActualStartMonth = document.getElementById("ProjectDates_ActualStartDate_Month").value;
+             }
+
+             if (document.getElementById("ProjectDates_OperationalStartDate_Month").value.length == 1) {
+                 var PlannedStartMonth = "0" + document.getElementById("ProjectDates_OperationalStartDate_Month").value;
+             } else {
+                 var PlannedStartMonth = document.getElementById("ProjectDates_OperationalStartDate_Month").value;
+             }
+             if (document.getElementById("ProjectDates_PromptCompletionDate_Month").value.length == 1) {
+                 var CloserReminderMonth = "0" + document.getElementById("ProjectDates_PromptCompletionDate_Month").value;
+             } else {
+                 var CloserReminderMonth = document.getElementById("ProjectDates_PromptCompletionDate_Month").value;
+             }
+             if (document.getElementById("ProjectDates_OperationalEndDate_Month").value.length == 1) {
+                 var PlannedEndMonth = "0" + document.getElementById("ProjectDates_OperationalEndDate_Month").value;
+             } else {
+                 var PlannedEndMonth = document.getElementById("ProjectDates_OperationalEndDate_Month").value;
+             }
+
+             // Day
+             if (document.getElementById("ProjectDates_Created_date_Day").value.length == 1) {
+                 var CreateDay = "0" + document.getElementById("ProjectDates_Created_date_Day").value;
+             } else {
+                 var CreateDay = document.getElementById("ProjectDates_Created_date_Day").value;
+             }
+
+             if (document.getElementById("ProjectDates_FinancialStartDate_Day").value.length == 1) {
+                 var FinStartDay = "0" + document.getElementById("ProjectDates_FinancialStartDate_Day").value;
+             } else {
+                 var FinStartDay = document.getElementById("ProjectDates_FinancialStartDate_Day").value;
+             }
+
+             if (document.getElementById("ProjectDates_FinancialEndDate_Day").value.length == 1) {
+                 var FinEndDay = "0" + document.getElementById("ProjectDates_FinancialEndDate_Day").value;
+             } else {
+                 var FinEndDay = document.getElementById("ProjectDates_FinancialEndDate_Day").value;
+             }
+
+             try {
+                 if (document.getElementById("ProjectDates_ActualStartDate_Day").value.length == 1) {
+                     var ActualStartDay = "0" + document.getElementById("ProjectDates_ActualStartDate_Day").value;
+                 } else {
+                     var ActualStartDay = document.getElementById("ProjectDates_ActualStartDate_Day").value;
+                 }
+             } catch (Exception) {
+
+             }
+
+             if (document.getElementById("ProjectDates_OperationalStartDate_Day").value.length == 1) {
+                 var PlannedStartDay = "0" + document.getElementById("ProjectDates_OperationalStartDate_Day").value;
+             } else {
+                 var PlannedStartDay = document.getElementById("ProjectDates_OperationalStartDate_Day").value;
+             }
+             if (document.getElementById("ProjectDates_PromptCompletionDate_Day").value.length == 1) {
+                 var CloserReminderDay = "0" + document.getElementById("ProjectDates_PromptCompletionDate_Day").value;
+             } else {
+                 var CloserReminderDay = document.getElementById("ProjectDates_PromptCompletionDate_Day").value;
+             }
+             if (document.getElementById("ProjectDates_OperationalEndDate_Day").value.length == 1) {
+                 var PlannedEndDay = "0" + document.getElementById("ProjectDates_OperationalEndDate_Day").value;
+             } else {
+                 var PlannedEndDay = document.getElementById("ProjectDates_OperationalEndDate_Day").value;
+             }
+
+
+             var CreatedDate = document.getElementById("ProjectDates_Created_date_Year").value + "-" + CreateMonth + "-" + CreateDay;
+             var FinStart = document.getElementById("ProjectDates_FinancialStartDate_Year").value + "-" + FinStartMonth + "-" + FinStartDay;
+             var FinEnd = document.getElementById("ProjectDates_FinancialEndDate_Year").value + "-" + FinEndMonth + "-" + FinEndDay;
+             var PlannedStart = document.getElementById("ProjectDates_OperationalStartDate_Year").value + "-" + PlannedStartMonth + "-" + PlannedStartDay;
+             var ActualStart = document.getElementById("ProjectDates_ActualStartDate_Year").value + "-" + ActualStartMonth + "-" + ActualStartDay;
+             var ClosureReminder = document.getElementById("ProjectDates_PromptCompletionDate_Year").value + "-" + CloserReminderMonth + "-" + CloserReminderDay;
+             var PlannedEnd = document.getElementById("ProjectDates_OperationalEndDate_Year").value + "-" + PlannedEndMonth + "-" + PlannedEndDay;
+
+             //var CreatedDate = document.getElementById("ProjectDates_Created_date_Year").value + "-" + document.getElementById("ProjectDates_Created_date_Month").value + "-" + document.getElementById("ProjectDates_Created_date_Day").value;
+             //var FinStart = document.getElementById("ProjectDates_FinancialStartDate_Year").value + "-" + document.getElementById("ProjectDates_FinancialStartDate_Month").value + "-" + document.getElementById("ProjectDates_FinancialStartDate_Day").value;
+             //var FinEnd = document.getElementById("ProjectDates_FinancialEndDate_Year").value + "-" + document.getElementById("ProjectDates_FinancialEndDate_Month").value + "-" + document.getElementById("ProjectDates_FinancialEndDate_Day").value;
+             //var PlannedStart = document.getElementById("ProjectDates_OperationalStartDate_Year").value + "-" + document.getElementById("ProjectDates_OperationalStartDate_Month").value + "-" + document.getElementById("ProjectDates_OperationalStartDate_Day").value;
+             //var ActualStart = document.getElementById("ProjectDates_ActualStartDate_Year").value + "-" + document.getElementById("ProjectDates_ActualStartDate_Month").value + "-" + document.getElementById("ProjectDates_ActualStartDate_Day").value;
+             //var ClosureReminder = document.getElementById("ProjectDates_PromptCompletionDate_Year").value + "-" + document.getElementById("ProjectDates_PromptCompletionDate_Month").value + "-" + document.getElementById("ProjectDates_PromptCompletionDate_Day").value;
+             //var PlannedEnd = document.getElementById("ProjectDates_OperationalEndDate_Year").value + "-" + document.getElementById("ProjectDates_OperationalEndDate_Month").value + "-" + document.getElementById("ProjectDates_OperationalEndDate_Day").value;
+
+             var items = new vis.DataSet([
+                 { id: 1, content: 'Created', start: CreatedDate },
+                 { id: 2, content: 'Financial Start', start: FinStart },
+                 { id: 3, content: 'Financial End', start: FinEnd },
+                 { id: 4, content: 'Planned Start', start: PlannedStart },
+                 { id: 5, content: 'Actual Start', start: ActualStart, className: 'green' },
+                 { id: 6, content: 'Closure Reminder', start: ClosureReminder },
+                 { id: 7, content: 'Planned End', start: PlannedEnd, className: 'red' }
+             ]);
+
+             // Configuration for the Timeline
+             var options = {
+                 clickToUse: true
+             };
+
+             // Create a Timeline
+             var timeline = new vis.Timeline(container, items, options);
+
+             /**
+     * Move the timeline a given percentage to left or right
+     * param {Number} percentage   For example 0.1 (left) or -0.1 (right)
+     */
+             function move(percentage) {
+                 var range = timeline.getWindow();
+                 var interval = range.end - range.start;
+
+                 timeline.setWindow({
+                     start: range.start.valueOf() - interval * percentage,
+                     end: range.end.valueOf() - interval * percentage
+                 });
+             }
+
+             /**
+                  * Zoom the timeline a given percentage in or out
+                  * param {Number} percentage   For example 0.1 (zoom out) or -0.1 (zoom in)
+                  */
+             function zoom(percentage) {
+                 var range = timeline.getWindow();
+                 var interval = range.end - range.start;
+
+                 timeline.setWindow({
+                     start: range.start.valueOf() - interval * percentage,
+                     end: range.end.valueOf() + interval * percentage
+                 });
+             }
+
+             // attach events to the navigation buttons
+             document.getElementById('zoomIn').onclick = function () { zoom(-0.2); };
+             document.getElementById('zoomOut').onclick = function () { zoom(0.2); };
+             document.getElementById('moveLeft').onclick = function () { move(0.2); };
+             document.getElementById('moveRight').onclick = function () { move(-0.2); };
+         }
+</script>
+<script src="~/Scripts/govuk-template.js" type="text/javascript"></script>
+@section Scripts {
+
+
+
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/typeahead")
+    @Scripts.Render("~/bundles/datetimepicker")
+
+
+    <script type="text/javascript">
+
+
+        var budcents = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('BudgetCentreDescription'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            prefetch: '../BudgetCentreLookup'
+
+        });
+
+        // kicks off the loading/processing of `local` and `prefetch`
+        budcents.initialize();
+
+        // passing in `null` for the `options` arguments will result in the default
+        // options being used
+        $('#BudCen .typeahead').typeahead({ highlight: true }, {
+            name: 'budcents',
+            displayKey: 'BudgetCentreDescription',
+            // `ttAdapter` wraps the suggestion engine in an adapter that
+            // is compatible with the typeahead jQuery plugin
+            source: budcents.ttAdapter()
+        }).bind('typeahead:selected', function(obj, datum) {
+            changeBudCentTypeahead(obj, datum);
+        }).bind('typeahead:autocompleted', function(obj, datum) {
+            changeBudCentTypeahead(obj, datum)
+        });
+
+        function changeBudCentTypeahead(obj, datum) {
+            $('input#BudgetCentreID').val(datum.BudgetCentreID);
+        };
+        try {
+
+        
+
+
+
+
+
+
+    </script>
+    <script type="text/javascript">
+        ////This Javascript will change the DOM, specificly the page the user is on.
+
+        $(document).ready(function() {
+
+            var x = document.getElementById("project-tab");
+            x.className = "active";
+
+
+/*Stage Lock downs-------------------------------------------------------------------------------*/
+
+            DisplayMessages();
+            SetCloseProjectButton();
+            SetControlsByStage();
+            SetWorkflowControlByRole();
+            SetPlannedEndDateControllByRole();
+            WorkflowLockDown();
+            SetTimeline();
+            SetAccordionState();
+
+            //All temp code. Can be removed once project goes live!
+            //$("input").prop('disabled', true);
+            //$("textarea").prop('disabled', true);
+            //$("input[name = '__RequestVerificationToken']").prop('disabled', false);
+            //$("input[name = 'ProjectID']").prop('disabled', false);
+
+
+        });
+
+        function DisplayMessages() {
+            var SaveSuccess = document.getElementById("SaveSuccess");
+            var SaveMessage = document.getElementById("SaveMessage");
+
+            if (SaveSuccess.value == "1") {
+                SaveMessage.style.display = "inline";
+            }
+
+
+            if (SaveSuccess.value == "0") {
+                SaveMessage.innerHTML = "Your Changes have not been saved.";
+                SaveMessage.style.display = "inline";
+                
+            }
+
+            //Show/Hide Save Message  -- Submit project for Closure
+
+            var ClosureSubmissionSuccess = $("#SaveSuccessPCSubmission");
+            var ClosureSubmissionMessage = $("#SaveMessagePCSubmission");
+
+            if (ClosureSubmissionSuccess.val() == "1") {
+                ClosureSubmissionMessage.toggleClass("SaveMessageSuccess");
+                ClosureSubmissionMessage.toggle();
+            }
+
+            if (ClosureSubmissionSuccess.val() == "0") {
+                ClosureSubmissionMessage.toggleClass("SaveMessageFail");
+                ClosureSubmissionMessage.html("Your request was not submitted.");
+                ClosureSubmissionMessage.toggle();
+            }
+
+        }
+
+        function SetControlsByStage() {
+
+            switch($("#Stage").val()) {
+                
+                case "0":
+                    //$("button[name = 'submitButton'][value = '7']").prop('disabled', false);
+                    //$("button[name = 'submitButton'][value = '2']").prop('disabled', true);
+                    //$("button[name = 'submitButton'][value = '9']").prop('disabled', true);
+                    //$("button[name = 'submitButton'][value = '10']").prop('disabled', true);
+
+                    LockDownDatesAtCreation();
+
+                    break;
+
+                case "3":
+                    //$("button[name = 'submitButton'][value = '8']").prop('disabled', true);
+                    //$("button[name = 'submitButton'][value = '9']").prop('disabled', true);
+                    //$("button[name = 'submitButton'][value = '10']").prop('disabled', true);
+                    //$("button[name = 'submitButton'][value = '2']").val('11');
+
+
+                    LockDownDatesAtCreation();
+            
+                    break;
+
+                case "5":
+                    //$("#ApproveProjectHint").text("Send your project for re-approval");
+
+                    $("#Risk").prop('disabled', true);
+                    $("#Risk").attr('disabled', true);
+                    $("#type-R1").attr('disabled', true);
+                    $("#type-R2").attr('disabled', true);
+                    $("#type-R3").attr('disabled', true);
+                    $("#type-R4").attr('disabled', true);
+                    //$("button[name = 'submitButton'][value = '7']").prop('disabled', true);
+                    //$("button[name = 'submitButton'][value = '8']").prop('disabled', true);
+                    //$("button[name = 'submitButton'][value = '2']").prop('disabled', false);
+                    //$("button[name = 'submitButton'][value = '2'] strong").text('Send for re-approval');
+                    //$("button[name = 'submitButton'][value = '9']").prop('disabled', true);
+                    //$("button[name = 'submitButton'][value = '10']").prop('disabled', true);
+
+                    $('#BudgetCentreBox').prop('disabled', true);
+
+                    LockDownDatesAtCreation();
+                    LockDownDatesAtImplementation();
+
+                    break;
+
+                case "7":
+                    $("#Risk").prop('disabled', true);
+                    $("#Risk").attr('disabled', true);
+                    $("#type-R1").attr('disabled', true);
+                    $("#type-R2").attr('disabled', true);
+                    $("#type-R3").attr('disabled', true);
+                    $("#type-R4").attr('disabled', true);
+                    //$("button[name = 'submitButton'][value = '1']").prop('disabled', true);
+                    //$("button[name = 'submitButton'][value = '7']").prop('disabled', true);
+                    //$("button[name = 'submitButton'][value = '8']").prop('disabled', true);
+                    //$("button[name = 'submitButton'][value = '2']").prop('disabled', false);
+                    //$("button[name = 'submitButton'][value = '2'] strong").text('Send for re-approval');
+                    //$("button[name = 'submitButton'][value = '9']").prop('disabled', false);
+                    //$("button[name = 'submitButton'][value = '10']").prop('disabled', false);
+
+                    //$("#ApproveProjectHint").text("Send your project for re-approval");
+
+                    $('#BudgetCentreBox').prop('disabled', true);
+
+                    LockDownDatesAtCreation();
+                    LockDownDatesAtImplementation();
+                    LockDownDatesPostImplementation();
+                    LockDownFieldsPostImplementation();
+                    break;
+
+                case "8":
+                    LockDownDatesAtCreation();
+                    LockDownDatesAtImplementation();
+                    LockDownDatesPostImplementation();
+                    LockDownFieldsPostImplementation();
+                    $('#BudgetCentreBox').prop('disabled', true);
+                    break;
+
+                default:
+                    LockDownDatesAtCreation();
+                    LockDownDatesAtImplementation();
+                    LockDownDatesPostImplementation();
+                    LockDownFieldsPostImplementation();
+                    $('#BudgetCentreBox').prop('disabled', true);
+                    break;
+            }
+
+            $("#GOMI").prop('disabled', false);
+        }
+
+        function LockDownDatesAtCreation() {
+
+            //Financial Start Date 
+            document.getElementById("ProjectDates_FinancialStartDate_Day").readOnly = true;
+            document.getElementById("ProjectDates_FinancialStartDate_Month").readOnly = true;
+            document.getElementById("ProjectDates_FinancialStartDate_Year").readOnly = true;
+            //Financial End Date
+            document.getElementById("ProjectDates_FinancialEndDate_Day").readOnly = true;
+            document.getElementById("ProjectDates_FinancialEndDate_Month").readOnly = true;
+            document.getElementById("ProjectDates_FinancialEndDate_Year").readOnly = true;
+            //Prompt Completion Date
+            document.getElementById("ProjectDates_PromptCompletionDate_Day").readOnly = true;
+            document.getElementById("ProjectDates_PromptCompletionDate_Month").readOnly = true;
+            document.getElementById("ProjectDates_PromptCompletionDate_Year").readOnly = true;
+            //Actual end date                
+            document.getElementById("ProjectDates_ActualEndDate_Day").readOnly = true;
+            document.getElementById("ProjectDates_ActualEndDate_Month").readOnly = true;
+            document.getElementById("ProjectDates_ActualEndDate_Year").readOnly = true;
+            //Archive Date 
+            document.getElementById("ProjectDates_ArchiveDate_Day").readOnly = true;
+            document.getElementById("ProjectDates_ArchiveDate_Month").readOnly = true;
+            document.getElementById("ProjectDates_ArchiveDate_Year").readOnly = true;
+
+        }
+
+        function LockDownDatesAtImplementation() {
+
+            //Actual Start Date. 
+            document.getElementById("ProjectDates_ActualStartDate_Day").readOnly = true;
+            document.getElementById("ProjectDates_ActualStartDate_Month").readOnly = true;
+            document.getElementById("ProjectDates_ActualStartDate_Year").readOnly = true;
+
+            //Planned start date
+
+            document.getElementById("ProjectDates_OperationalStartDate_Day").readOnly = true;
+            document.getElementById("ProjectDates_OperationalStartDate_Month").readOnly = true;
+            document.getElementById("ProjectDates_OperationalStartDate_Year").readOnly = true;
+
+            //Planned end date - this can only be changed via workflow
+
+            document.getElementById("ProjectDates_OperationalEndDate_Day").readOnly = true;
+            document.getElementById("ProjectDates_OperationalEndDate_Month").readOnly = true;
+            document.getElementById("ProjectDates_OperationalEndDate_Year").readOnly = true;
+
+
+        }
+
+        function LockDownDatesPostImplementation() {
+
+            //Planned end date
+
+            document.getElementById("ProjectDates_OperationalEndDate_Day").readOnly = true;
+            document.getElementById("ProjectDates_OperationalEndDate_Month").readOnly = true;
+            document.getElementById("ProjectDates_OperationalEndDate_Year").readOnly = true;
+
+        }
+
+        function LockDownFieldsPostImplementation() {
+
+            $("input").prop('disabled', true);
+            $("textarea").prop('disabled', true);
+            $("#SaveChanges").prop('disabled', true);
+
+            $("input[name = '__RequestVerificationToken']").prop('disabled', false);
+            $("input[name = 'ProjectID']").prop('disabled', false);
+        }
+
+        function WorkflowLockDown() {
+
+                if ($("#IsActiveWorkflow").val() === "True") {
+
+                $("#WFMessage").css("display", "block");
+                $("input").prop('disabled', true);
+                $("textarea").prop('disabled', true);
+                $("button").prop('disabled', true);
+                $("input[type = 'hidden']").prop('disabled', false);
+                $('#GOMI').prop('disabled', false);
+                var IsApprover = $("#IsWorkflowApprover").val();
+                var ActiveWorkflowTaskId = $("#ActiveWorkflowTaskId").val();
+
+                $("button[name = 'submitButton'][value = '" + ActiveWorkflowTaskId + "']").prop('disabled', false);
+                if (IsApprover === "True") {
+                    if (ActiveWorkflowTaskId === "1") {
+                    $("button[name = 'submitButton'][value = '" + ActiveWorkflowTaskId + "'] strong").text('Approve Closure');                        
+                    } else {
+                    $("button[name = 'submitButton'][value = '" + ActiveWorkflowTaskId + "'] strong").text('Approve Project');                        
+                    }
+                } else {
+                    $("button[name = 'submitButton'][value = '" + ActiveWorkflowTaskId + "'] strong").text('View Workflow');
+
+                }
+            }
+
+        }
+
+        function SetCloseProjectButton() {
+            if ($("#CanSendForClosure").val() !== "True") {
+                //Lock down the Close Project Button
+                $("#dvCloseProject span").text('This Project requires a PCR. It can only be closed from the Reviews section of AMP.');
+                $("button[name = 'submitButton'][value = '1']").prop('disabled', true);
+
+            }
+        }
+
+
+        function SetWorkflowControlByRole() {
+            if ($("#IsProjectTeam").val() !== "True") {
+                //Lock it all down!
+                $("button[name = 'submitButton']").prop('disabled', true);
+            }
+        }
+
+        function SetPlannedEndDateControllByRole() {
+            if ($("#IsProjectTeam").val() !== "True") {
+                //Planned end date locked down to non project members
+                document.getElementById("ProjectDates_OperationalEndDate_Day").readOnly = true;
+                document.getElementById("ProjectDates_OperationalEndDate_Month").readOnly = true;
+                document.getElementById("ProjectDates_OperationalEndDate_Year").readOnly = true;
+            }
+        }
+
+ 
+
+        function SetAccordionState() {
+            //Open Accordion if in workflow:
+            if ($('#IsActiveWorkflow').val() == "True" || $("#SaveSuccess").val() == "0") {
+
+
+                var Accordion = $('.accordion-toggle');
+
+                $(Accordion).removeClass("accordion-toggle");
+                $(Accordion).addClass("accordion-toggle visible");
+                $('#Acontent').toggle();
+
+        }
+        }
+
+        //Set the Risk AtrApproval Radio Button
+        var riskType = document.getElementById("RiskAtApproval").value;
+        var riskSelected = document.getElementById("label-type-" + riskType);
+        riskSelected.className = "block-label selected";
+        
+    </script>
+   
+}

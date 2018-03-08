@@ -1,0 +1,121 @@
+﻿@model AMP.ViewModels.EditTeamMemberVM
+
+
+@using (Html.BeginForm("EditTeamMember", "Project", FormMethod.Post, new {id = "EditTeamMemberForm"}))
+{
+    @Html.AntiForgeryToken()
+    <div class="page-container secondary">
+        <div id="EditTeamMember">
+            <div class="project-details-section">
+                @Html.HiddenFor(m => m.ProjectID, new { @id = "EditTeam_ProjectID" })
+                @Html.HiddenFor(m => m.ID)
+                @Html.HiddenFor(m => m.TeamID)
+                @Html.HiddenFor(m => m.RoleID)
+                <div class="grid-row">
+                    <div class="column-half">
+                        <div class="form-group">
+                            <label class="form-label-bold" for="NewMember">Team Member</label>
+                            <div id="NewMember" class="inputter">
+                                <div class="inputter" id="TeamMemberBlock-@Model.TeamID">
+                                    <img id="Photo-@ViewBag.TeamMemberPosition" src="~/Content/localImages/user-310807_640.png" style="width:113px;height:135px;" alt="image of the @Model.RoleID"/>
+                                    <div class="inputter-details" id="Name-@Model.TeamID">
+                                        @Model.DISPLAY_NAME_FORENAME_FIRST
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid-row">
+                        <div class="column-half">
+                            <div class="form-group">
+                                <label class="form-label-bold" for="MemberRole">Role</label>
+                                <p class="form-hint">Select the persons role</p>
+                                <div id="MemberRole">
+                                    <div class="status-select">
+                                        @foreach (var role in Model.ProjectRolesVm.ProjectRoleValues)
+                                        {
+                                            <label class="block-label" id="label-role-@role.ProjectRoleID" for="Role-@role.ProjectRoleID">
+                                                @Html.RadioButtonFor(m => m.ProjectRolesVm.SelectedRoleValue, role.ProjectRoleID, new {@id = String.Format("Role-{0}", role.ProjectRoleID)}) @role.ProjectRoleDescription
+                                            </label>
+                                        }
+                                    </div>
+                                    <div class="PushDown">@Html.ValidationMessageFor(model => model.RoleID)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="SubmitBtn" class="button" value="" onclick="PostTeamMemberEdit()" type="button">Save</button>
+                <button id="CancelBtn" class="bluelightnight" onclick=" CancelEdit() " value="CancelEdit" type="button">
+                    Cancel
+                </button>
+                <div class="PushDown">
+                    <div id="errorDiv" class="SaveMessageFail" style="display: none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+        @section Scripts
+{
+            @Scripts.Render("~/bundles/jqueryval")
+            <script src="~/Scripts/jquery.unobtrusive-ajax.min.js" type="text/javascript"></script>
+            <script src="~/Scripts/jquery.validate.min.js" type="text/javascript"></script>
+            <script src="~/Scripts/jquery.validate.unobtrusive.min.js" type="text/javascript"></script>
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    $('#btnTeamMemberSave').click(function (e) {
+                        e.preventDefault();
+                        $.ajaxSetup({ cache: false });
+                        if ($('#EditTeamMemberForm').valid()) {
+                            PostTeamMemberEdit();
+                        }
+                    });
+
+                    $("#btnCreateNewMilestoneOnIndicatorCreated").on('click', function () {
+                        $('#dvCreateMilestone').show();
+                        $('#ResultMessage').hide();
+                        $('#btnCreateNewMilestoneOnIndicatorCreated').hide();
+                    });
+                });
+
+                @*function PostTeamMemberEdit() {
+                    alert('here');
+                    var form = $('#EditTeamMemberForm');
+                    $.ajax({
+                        cache: false,
+                        async: true,
+                        type: "POST",
+                        url: form.attr('action'),
+                        data: form.serialize(),
+                        success: function (result) {
+
+                            if (result.success === true) {
+                                var outputIndicatorId = $("#output-indicator-ID").val();
+
+                                $('#resultmessageMilestone').addClass("SaveMessageSuccess");
+                                $('#resultmessageMilestone').text('New milestone created successfully');
+
+                                $("#dvMilestones").show();
+                                $('#dvMilestonesGrid').show();
+                                $("#dvCreateMilestone").hide();
+                                $('#resultmessageMilestone').show();
+                                $("#errorDiv").hide();
+                                $("#milestone-planned").val('');
+
+                                var urltoRefresh = '@Html.Raw(@Url.Action("ShowMilestones"))' + '/' + outputIndicatorId;
+
+
+                                $('#dvMilestones').load(urltoRefresh);
+                            }
+                            if (result.success === false) {
+                                $("#errorDiv").html(result.response);
+                            }
+                        },
+                        error: function (result) { alert("Error creating new milestone"); }
+                    });
+                };*@
+
+            </script>
+        }

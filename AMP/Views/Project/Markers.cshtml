@@ -1,0 +1,410 @@
+﻿@model AMP.ViewModels.ProjectMarkersVM
+@using AMP.Helpers
+@using AMP.Models
+@using Microsoft.Ajax.Utilities
+@{
+    ViewBag.Title = "Markers";
+}
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml", Model.ProjectHeader)
+
+@*<script src="http://visjs.org/dist/vis.js"></script>
+    <link href="http://visjs.org/dist/vis.css" rel="stylesheet" type="text/css" />*@
+<div class="page-container secondary">
+    @using (Html.BeginForm("Markers", "Project", FormMethod.Post, new { id = "FormProjectMarkers" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary()
+        @Html.HiddenFor(model => model.WFCheck.Status, new { @id = "IsActiveWorkflow" })
+        @Html.HiddenFor(model => model.WFCheck.WorkFlowDescription, new { @id = "ActiveWorkFlowDescription" })
+        @Html.HiddenFor(model => model.ProjectHeader.ProjectID, new { @id = "View_ProjectID" })
+        @Html.HiddenFor(model => model.Status, new { @id = "View_Status" })
+        @Html.HiddenFor(model => model.BudgetCentreID, new { @id = "View_BudgetCentre" })
+
+
+        <div class="marker-details-section">
+            @if (Model.BudgetCentreID.Substring(0, 2) == "A0" || Model.BudgetCentreID.Substring(0, 2) == "C0" || Model.BudgetCentreID.Substring(0, 2) == "AP")
+            {
+                <div class="grid-row">
+                    <div class="column-half">
+                        <div>This is classed as an admin project and does not require any markers.</div>
+                    </div>
+                </div>
+            }
+            else
+            {
+
+                <div id="WFMessage" class="InfoMessage" style="display: none">
+                    <br />@String.Format("This Project is in {0} workflow. Changes cannot be made.", Model.WFCheck.WorkFlowDescription)<br />
+                </div>
+
+
+                <h1 class="form-title heading-large">Policy Markers</h1>
+                <p class="form-hint">
+                    These are mandatory as DFID have a legal requirement to report on them, or have made a public commitment to report on them.
+                </p>
+
+                <div class="grid-row">
+                    <div class="column-full">
+                        @*@Html.ValidationSummary()*@ 
+                    </div>
+                </div>
+
+
+                <h3 class="form-label-bold">Gender Equality</h3>
+                <p class="form-hint">All business cases must include a statement on gender equality to comply with the Gender Equality Act. Please select the option which best reflects the outcome of consideration given to gender equality.</p>
+                <p class="form-hint">PRINCIPAL: The project is designed with the primary objective to address gender equality or gender issues.</p>
+                <p class="form-hint">SIGNIFICANT: Gender equality is explicitly stated but not the fundamental driver of the project.</p>
+                <p class="form-hint">GENDER CONSIDERED BUT NOT TARGETED: The project has considered gender, but was found not to target gender issues.</p>
+
+
+                <div class="grid-row">
+                    <div id="GenderEqualitySection">
+                        <div class="status-select">
+                            @Html.HiddenFor(model => model.GenderEquality)
+                            @foreach (var objective in Model.GenderCCO.CCOValues)
+                            {
+                                <div class="column-third">
+                                    <label class="block-label" id="label-Gender-@objective.CCOValue" for="Gender-@objective.CCOValue" style="width: 160px">
+                                        @Html.RadioButtonFor(m => m.GenderCCO.SelectedCCOValue, objective.CCOValue, new { @id = String.Format("Gender-{0}", objective.CCOValue) }) @objective.CCODescription
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <p></p>
+                // disability inclusion markers
+                <h3 class="form-label-bold">Disability Inclusion</h3>
+                <p class="form-hint">
+                    DFID has committed in the Bilateral Development Review to make sure people with disabilities are consistently included in,
+                    and benefit from international development and humanitarian assistance. The Disability Inclusion policy marker will track our progress.
+                    It will also support the UK in reporting against our legal commitments in the United Nations Convention on the Rights of Persons with
+                     Disabilities and the Public Sector Equality Duty.</p>
+            
+               
+                <p class="form-hint">Please select the option which best reflects the outcome of consideration given to disability inclusion.</p>
+                <p class="form-hint">PRINCIPAL:Inclusion of people with disabilities is the primary objective and motivation of the project, and integral to it's design, implementation and monitoring and evaluation</p>
+                <p class="form-hint">SIGNIFICANT: Project contains deliberate activities/mechanisms to support the inclusion and empowerment of people with disabilities in design, delivery and monitoring and evaluation, even where disability inclusion is not one of the stated project objectives.</p>
+                <p class="form-hint">PROJECT WILL NOT ADDRESS DISABILITY INCLUSION: The project has been screened against the disability inclusion policy marker and has been found not to have a deliberate focus on the inclusion of people with disabilities.</p>
+
+                <div class="grid-row">
+                    <div id="DisabilitySection">
+                        <div class="status-select">
+                            @Html.HiddenFor(model => model.Disability)
+                            @foreach (var objective in Model.DisabilityCCO.CCOValues)
+                            {
+                                <div class="column-third">
+                                    
+                                    <label class="block-label" id="label-Disability-@objective.CCOValue" for="Disability-@objective.CCOValue" style="width: 160px">
+                                      @Html.RadioButtonFor(m => m.DisabilityCCO.SelectedCCOValue, objective.CCOValue,  new {@id = String.Format("Disability-{0}", objective.CCOValue)}) @objective.CCODescription
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <p></p>
+                // Disability inclusion percentage - only show when Significant marker is selected
+                <div class="grid-row">      
+                    <div id="dvDisasbilityPercentage">
+                        <div class="column-three-quarters">
+                        <label class="bold" id="txtDisabilityPercentage" for="DisabilityPercentage">Please indicate the percentage of budget that is funding deliberate activities/mechanisms that support the inclusion and empowerment of people with disabilities.</label><p class="form-hint">(whole numbers 1-99 only)
+                        </div>
+                        <div class="column-quarter">
+                            @Html.EditorFor(model => model.DisabilityPercentage , new {htmlAttributes = new {@class = "form-control", style = "Width:70px", min = "1", max = "99" } })
+                        </div>
+                    </div>
+                </div>
+                <p></p>
+                            <h3 class="form-label-bold">Rio Climate</h3>
+                            <p class="form-hint">The Rio Markers are used to report to the Rio Conventions, these are the UN conventions on climate change, biological diversity and desertification.</p>
+                            <p class="form-hint">PRINCIPAL: If the project is specifically designed to address any of the areas below and is explicitly stated as fundamental in the design of, or the motivation for the project.</p>
+                            <p class="form-hint">SIGNIFICANT: If any of the areas below are explicitly stated but not the fundamental driver or motivation for undertaking and designing the activity.</p>
+                            <p class="form-hint">NOT TARGETED: Means that the activity has been screened against, but was found not be targeted to, the policy objective.</p>
+
+                            <div class="grid-row">
+                                <div class="column-full">
+                                    <div class="form-label">
+                                        <b>Adaptation</b>
+                                    </div>
+                                    <p class="form-hint">To reduce the vulnerability of human or natural systems to the impacts of climate change and climate-related risks, by maintaining or increasing adaptive capacity and resilience.</p>
+                                </div>
+                            </div>
+                            <div class="grid-row">
+                                <div id="AdaptationSection">
+                                    <div class="status-select">
+                                        @Html.HiddenFor(model => model.Adaptation)
+                                        @foreach (var objective in Model.AdaptationCCO.CCOValues)
+                                        {
+                                            <div class="column-third">
+                                                <label class="block-label" id="label-Adaptation-@objective.CCOValue" for="Adaptation-@objective.CCOValue" style="width: 160px">
+                                                    @Html.RadioButtonFor(m => m.AdaptationCCO.SelectedCCOValue, objective.CCOValue, new { @id = String.Format("Adaptation-{0}", objective.CCOValue) }) @objective.CCODescription
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid-row">
+                                <div class="column-full">
+                                    <div class="form-label">
+                                        <b>Mitigation</b>
+                                    </div>
+                                    <p class="form-hint">To stabilise greenhouse gas (GHG) concentrations in the atmosphere at a level to prevent dangerous climate change.</p>
+                                </div>
+                            </div>
+                            <div class="grid-row">
+                                <div id="MitigationSection">
+                                    <div class="status-select">
+                                        @Html.HiddenFor(model => model.Mitigation)
+                                        @foreach (var objective in Model.MitigationCCO.CCOValues)
+                                        {
+                                            <div class="column-third">
+                                                <label class="block-label" id="label-Mitigation-@objective.CCOValue" for="Mitigation-@objective.CCOValue" style="width: 160px">
+                                                    @Html.RadioButtonFor(m => m.MitigationCCO.SelectedCCOValue, objective.CCOValue, new { @id = String.Format("Mitigation-{0}", objective.CCOValue) }) @objective.CCODescription
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid-row">
+                                <div class="column-full">
+                                    <div class="form-label">
+                                        <b>Biodiversity</b>
+                                    </div>
+                                    <div class="form-hint">At least one of the three objectives: the conservation of bio-diversity, sustainable use of its components (ecosystems, species or generic resources), or fair and equitable sharing of the benefits of the utilisation of genetic resources.</div>
+                                </div>
+                            </div>
+                            <div class="grid-row">
+                                <div id="BiodiversitySection">
+                                    <div class="status-select">
+                                        @Html.HiddenFor(model => model.Biodiversity)
+                                        @foreach (var objective in Model.BiodiversityCCO.CCOValues)
+                                        {
+                                            <div class="column-third">
+                                                <label class="block-label" id="label-Biodiversity-@objective.CCOValue" for="Biodiversity-@objective.CCOValue" style="width: 160px">
+                                                    @Html.RadioButtonFor(m => m.BiodiversityCCO.SelectedCCOValue, objective.CCOValue, new { @id = String.Format("Biodiversity-{0}", objective.CCOValue) }) @objective.CCODescription
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid-row">
+                                <div class="column-full">
+                                    <div class="form-label">
+                                        <b>Desertification</b>
+                                    </div>
+                                    <p class="form-hint">To combate desertification or mitigating the effects of drought or arid, semi-arid and dry sub-humid areas through prevention and\or reduction of land degradation, rehabilitation of partly degraded land, or reclamation or decertified land.</p>
+                                </div>
+                            </div>
+                            <div class="grid-row">
+                                <div id="DesertificationSection">
+                                    <div class="status-select">
+                                        @Html.HiddenFor(model => model.Desertification)
+                                        @foreach (var objective in Model.DesertificationCCO.CCOValues)
+                                        {
+                                            <div class="column-third">
+                                                <label class="block-label" id="label-Desertification-@objective.CCOValue" for="Desertification-@objective.CCOValue" style="width: 160px">
+                                                    @Html.RadioButtonFor(m => m.DesertificationCCO.SelectedCCOValue, objective.CCOValue, new { @id = String.Format("Desertification-{0}", objective.CCOValue) }) @objective.CCODescription
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+
+                            <h1 class="form-title heading-large">Other Markers</h1>
+                            <p class="form-hint">
+                                These markers are used for reporting but are not mandatory.All projects should consider these markers and where possible select the most appropriate options.
+                            </p>
+
+                            <h3 class="form-label-bold">HIV/AIDS</h3>
+                            <p class="form-hint">If your project has HIV/AIDS related input sector codes, then you must ensure this section is completed.</p>
+
+                            <div class="grid-row">
+                                <div id="HIVAIDSSection">
+                                    <div class="status-select">
+                                        @Html.HiddenFor(model => model.HIVAIDS)
+                                        @foreach (var objective in Model.HIVCCO.CCOValues)
+                                        {
+                                            <div class="column-third">
+                                                <label class="block-label" id="label-HIV-@objective.CCOValue" for="HIV-@objective.CCOValue" style="width: 160px">
+                                                    @Html.RadioButtonFor(m => m.HIVCCO.SelectedCCOValue, objective.CCOValue, new { @id = String.Format("HIV-{0}", objective.CCOValue) }) @objective.CCODescription
+                                                </label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <input id="SaveChanges" type="submit" value="Save" class="button submit" />
+                            </div>
+                            <div id="SaveMessage" style="display: none">Save Successful</div>
+                            <input type="hidden" id="SaveSuccess" value="@TempData["Success"].ToString()" />
+
+            }
+        </div>
+
+        <script src="~/Scripts/govuk-template.js" type="text/javascript"></script>
+        @section Scripts {
+
+
+
+            @Scripts.Render("~/bundles/jqueryval")
+            @Scripts.Render("~/bundles/typeahead")
+            @Scripts.Render("~/bundles/datetimepicker")
+
+
+            <script type="text/javascript">
+
+                var x = document.getElementById("tab-project-markers");
+                x.className = "active";
+
+                if ($("#IsActiveWorkflow").val() === "True") {
+
+                    $("#WFMessage").css("display", "block");
+                    $("input").prop('disabled', true);
+                    $("textarea").prop('disabled', true);
+                    $("button").prop('disabled', true);
+                    $("input[type = 'hidden']").prop('disabled', false);
+
+                }
+
+                if (document.getElementById("Stage").value >= 5) {
+                    $("#GenderEqualitySection").prop('disabled', true);
+                    $("#Gender-PRINCIPAL").attr('disabled', true);
+                    $("#Gender-SIGNIFICANT").attr('disabled', true);
+                    $("#Gender-NOTTARGETED").attr('disabled', true);
+                    $("#BiodiversitySection").prop('disabled', false);
+                    $("#Biodiversity-PRINCIPAL").attr('disabled', false);
+                    $("#Biodiversity-SIGNIFICANT").attr('disabled', false);
+                    $("#Biodiversity-NOTTARGETED").attr('disabled', false);
+                    $("#MitigationSection").prop('disabled', false);
+                    $("#Mitigation-PRINCIPAL").attr('disabled', false);
+                    $("#Mitigation-SIGNIFICANT").attr('disabled', false);
+                    $("#Mitigation-NOTTARGETED").attr('disabled', false);
+                    $("#AdaptationSection").prop('disabled', false);
+                    $("#Adaptation-PRINCIPAL").attr('disabled', false);
+                    $("#Adaptation-SIGNIFICANT").attr('disabled', false);
+                    $("#Adaptation-NOTTARGETED").attr('disabled', false);
+                    $("#DesertificationSection").prop('disabled', false);
+                    $("#Desertification-PRINCIPAL").attr('disabled', false);
+                    $("#Desertification-SIGNIFICANT").attr('disabled', false);
+                    $("#Desertification-NOTTARGETED").attr('disabled', false);
+                    $("#HIVAIDSSection").prop('disabled', false);
+                    $("#HIVAIDS-PRINCIPAL").attr('disabled', false);
+                    $("#HIVAIDS-SIGNIFICANT").attr('disabled', false);
+                    $("#HIVAIDS-NOTTARGETED").attr('disabled', false);
+                   
+                }
+
+                if (document.getElementById("Stage").value > 5) {
+                    $("input").prop('disabled', true);
+                    $("button").prop('disabled', true);
+                    $("input[type = 'hidden']").prop('disabled', false);
+                    $("#DisabilitySection").prop('disabled', true); // keeping open at implementation stage just now but will move to previous statement once the marker to be locked
+                    $("#Disability-PRINCIPAL").attr('disabled', true);
+                    $("#Disability-SIGNIFICANT").attr('disabled', true);
+                    $("#Disability-NOTTARGETED").attr('disabled', true);
+
+                }
+
+                //Set the Gender Equality Radio Button
+                var dataValue = document.getElementById("GenderEquality").value;
+                var optionSelected = document.getElementById("label-Gender-" + dataValue);
+                if (document.getElementById("GenderEquality").value !="") { optionSelected.className = "block-label selected"; }
+                
+
+
+                // ********************** Disability Inclusion Markers ******************************
+                //alert(document.getElementById("Disability").value);
+                // Set the Disability Inclusion Markers Radio Button
+                var dataValue = document.getElementById("Disability").value;
+                var optionSelected = document.getElementById("label-Disability-" + dataValue);
+                if (document.getElementById("Disability").value != "") { optionSelected.className = "block-label selected"; }
+
+                // **** This handles the initial on load if the project's selected radio option for disasbility marker is significant or null then show the percentage div
+                if ( (document.getElementById("Disability").value) == "SIGNIFICANT")
+                {
+                    $("#dvDisasbilityPercentage").attr('hidden', false);
+                } else {
+                    $("#dvDisasbilityPercentage").attr('hidden', true);
+                }
+                
+
+                if (document.getElementById("Disability").value != "") // there is a value already selected so now need to handle showing/hiding the % box
+                  
+                {
+                    optionSelected.className = "block-label selected";
+               
+                   // alert(document.getElementById("Disability").value);
+                   //if  ((document.getElementById("Disability").value) == "PRINCIPAL" || (document.getElementById("Disability").value) == "NOTTARGETED")
+                   // {
+                   //     $("#dvDisasbilityPercentage").attr('hidden', true);
+                   //} else {
+                   //    $("#dvDisasbilityPercentage").attr('hidden', false);
+                   //}
+                }
+                
+
+                // show/hide the percentage disability div based on disability marker radio button selection: On Change Function
+                // only show if SIGNIFICANT selected
+                $("input[name='DisabilityCCO.SelectedCCOValue']:radio").change(function () {
+                    var disabilitySelected = this.value;
+                   
+                    if (disabilitySelected == "SIGNIFICANT") {
+                        $("#dvDisasbilityPercentage").attr('hidden', false);
+                    } else {
+                        $("#dvDisasbilityPercentage").attr('hidden', true);
+                        document.getElementById("DisabilityPercentage").value = "";
+                    }
+                });
+
+                // *********************************************************************************
+
+           
+                //Set the Adaptation Radio Button
+                var dataValue = document.getElementById("Adaptation").value;
+                var optionSelected = document.getElementById("label-Adaptation-" + dataValue);
+                if(document.getElementById("Adaptation").value !="") {optionSelected.className = "block-label selected";}
+
+                //Set the Mitigation Radio Button
+                var dataValue = document.getElementById("Mitigation").value;
+                var optionSelected = document.getElementById("label-Mitigation-" + dataValue);
+                if (document.getElementById("Adaptation").value !="") { optionSelected.className = "block-label selected"; }
+
+                //Set the Biodiversity Radio Button
+                var dataValue = document.getElementById("Biodiversity").value;
+                var optionSelected = document.getElementById("label-Biodiversity-" + dataValue);
+                if (document.getElementById("Biodiversity").value != "") { optionSelected.className = "block-label selected"; }
+
+                //Set the Desertification Radio Button
+                var dataValue = document.getElementById("Desertification").value;
+                var optionSelected = document.getElementById("label-Desertification-" + dataValue);
+                if (document.getElementById("Desertification").value != "") { optionSelected.className = "block-label selected"; }
+
+                //Set the HIVAIDS Radio Button
+                var dataValue = document.getElementById("HIVAIDS").value;
+                var optionSelected = document.getElementById("label-HIV-" + dataValue);
+                if (document.getElementById("HIVAIDS").value != ""){optionSelected.className = "block-label selected";}
+
+
+              
+            </script>
+        }
+    }
+</div>

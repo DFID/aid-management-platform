@@ -1,0 +1,2616 @@
+﻿@model AMP.ViewModels.ProjectReviewVM
+@using System.Runtime.InteropServices.ComTypes
+@using AMP.Helpers
+@{   
+
+    <div id="successDivDeferral" class="SaveMessageSuccess"></div>
+  
+    <div id="accordion-1">
+        @if (@Model.ProjectPcrScore != null)
+        {
+        //hidden field to be used for JQuery functions. Extra line of code has been added to support Standardise IDs for automation testing.
+        <div style="display: none">
+            <input type="hidden" value="@Model.ProjectPcrScore.ProjectID" id="hidden-projectID-pcr" />
+            <input type="hidden" value="@Model.ProjectPcrScore.ReviewID" id="hidden-reviewID-pcr" />
+        </div>
+        <div class="accordion-toggle">
+
+            <div class="title-bar">
+                <div class="control-bar" style="max-width: inherit" id="control-bar-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID">
+                    Project Completion Review <div class="arrow"></div>
+
+                    @* Show if PCR deferred*@
+
+                    @{
+        if (@Model.ProjectPcrScore.ReviewDeferralVM != null)
+        {
+            switch (@Model.ProjectPcrScore.ReviewDeferralVM.StageID)
+            {
+                case "1":
+                    <span style="margin-left: 70px" id="PCR-ReviewBar-Deferral-Status" > <i class="fa fa-hourglass-half"></i> Deferral awaiting approval  </span>
+                    break;
+                case "2":
+                <span style="margin-left: 70px" id="PCR-ReviewBar-Deferral-Status">
+                    Deferred by
+                    @if (@Model.ProjectPcrScore.ReviewDeferralVM.DeferralTimescale.Trim().Equals("1"))
+                    {
+                        <text> @Model.ProjectPcrScore.ReviewDeferralVM.DeferralTimescale month</text>
+                    }
+                    else
+                    {
+                        <text>@Model.ProjectPcrScore.ReviewDeferralVM.DeferralTimescale months</text>
+                    }
+
+                </span>
+                    break;
+                case "3":
+                <span style="margin-left: 70px" id="PCR-ReviewBar-Deferral-Status"> Deferral Rejected </span>
+                    break;
+            }
+        }
+
+}
+
+
+                    <span style="float:right" id="StageName-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID">@Model.ProjectPcrScore.StageName</span>
+               
+                </div>
+                <div class="grid-row report">
+                    <div class="column-two-thirds">
+                        @{
+
+        if (Model.ProjectPcrScore.StageName == "Approved")
+        {
+                        @*<h2 class="sub-date" id="PCR-sub-date-0">Approved date: @{var date = Model.ProjectPcrScore.LastUpdated.Value.ToString("dd MMM yyyy");@date}</h2>*@
+                        <h2 class="sub-date" id="PCR-sub-date2-0">Approved date: @{ var date2 = Model.ProjectPcrScore.ReviewDate.Value.ToString("dd MMM yyyy");@date2}</h2>
+        }
+        else if (Model.ProjectPcrScore.StageName == "")
+        {
+                        <h2 class="sub-date" id="PCR-sub-date-0">
+                            PCR Approved date:<br /> @{
+            //var date = Model.Performance.PCRDueDate != null ? Model.Performance.PCRDueDate.Value.ToString(" dd/MM/yyyy") : "n/a";
+            var date = Model.ProjectPcrScore.LastUpdated.Value.ToString("dd MMM yyyy");
+                @date
+                            }
+                        </h2>
+        }
+        else
+        {
+            if (Model.Performance.PCRRequired == "Yes")
+            {
+                        <h2 class="sub-date" id="PCR-sub-date-0">
+                            Due date:  @{
+
+                var date = Model.Performance.PCRDueDate != null ? Model.Performance.PCRDueDate.Value.ToString(" dd MMM yyyy") : "n/a";
+                    @date
+                            }
+                        </h2>
+            }
+            else
+            {<h2 class="sub-date" id="PCR-sub-date-0">Due date:</h2>}
+        }
+
+
+                        }
+
+
+                    </div>
+                    <div class="column-third">
+
+                    </div>
+                    <div class="column-third">
+                        <div class="grid-row pad-right">
+                            <div class="column-third">
+                                <div class="pq-index">
+                                    <span class="pq-title">Proj. Score</span>
+                                    <span id="ProjectScore-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID" class="figure"></span>
+                                </div>
+                            </div>
+
+                            <div class="column-third">
+                                <div id="Score-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID">
+                                    <span class="title">Score</span>
+                                    <br />
+                                    <span id="ReviewScore-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID" class="figure"> @Model.ProjectPcrScore.FinalOutputScore</span>
+                                </div>
+                            </div>
+
+                            <div class="column-third">
+                                <div id="Risk-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID">
+                                    <span class="title">Risk</span>
+                                    <br />
+                                    @*<span id="RiskScore-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID" class="figure">@Model.ProjectPcrScore.RiskScore</span>*@
+                                    
+                                    @*switch case statement for new 4 different risk rating change *@
+                                    @switch (Model.ProjectPcrScore.RiskScore)
+                                    {
+                                        case "R1":
+                                            <span id="RiskScore-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID" class="risk-rating">Minor</span>
+                                            break;
+                                        case "R2":
+                                        <span id="RiskScore-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID" class="risk-rating">Moderate</span>
+                                            break;
+                                        case "R3":
+                                        <span id="RiskScore-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID" class="risk-rating">Major</span>
+                                            break;
+                                        case "R4":
+                                        <span id="RiskScore-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID" class="risk-rating">Severe</span>
+                                            break;
+                                        default:
+                                        <span id="RiskScore-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID" class="risk-rating">@Model.ProjectPcrScore.RiskScore</span>
+                                            break;
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="accordion-content ar-wrapper">
+            <div class="grid-row">
+                <div class="column-third">
+                    <h3>Output Scoring</h3>
+                </div>
+                <div class="column-third">
+
+                </div>
+                <div class="column-third">
+                    @if (Model.ProjectPcrScore.StageName == "Approved" && Model.ProjectPcrScore.DueDate.HasValue)
+                    {
+                        <span>Due date: @Model.ProjectPcrScore.DueDate.Value.ToString("dd MMM yyyy")</span>
+                    }
+                </div>
+            </div>
+
+        <div id="OutputTabDivPCR">
+                @Html.Action("ReviewOutputScoringTableData", "Project", new { projectId = @Model.ProjectHeader.ProjectID, reviewId = @Model.ProjectPcrScore.ReviewID, TableTypePcr = "PCRTable" })
+            </div>
+
+             <div class="grid-row">
+                <div class="column-full">
+                    <div class="content-loading" style="margin: auto; width: 65px; display: none"><img class="content-loading" src="../../Content/GovUKStyle/Images/spinner.gif" style="display: block" alt="please wait.."/>
+                    </div>
+                </div>
+            </div>
+
+            <button id="btnShowOverallRiskForm-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" class="bluelightnight" style="vertical-align: text-bottom; display:none" onclick="ToggleFormFunction('#outputOverallScoreInfoMessage-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID', '#btnShowOverallRiskForm-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID' )">Edit Overall Risk</button>
+            <span class="SaveMessageSuccess" id="overallScoreSuccessMessage-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" ></span>
+            <div class="column-full" style="background-color: #d5e8f3; border: 1px solid  #267daf; padding: 10px; display:none " id="outputOverallScoreInfoMessage-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID">
+                <span class="SaveMessageFail"> <i class='fa fa-info-circle' style="font-size: 20px;"></i> Outputs now equal 100%. Please add an overall risk rating for your review  </span>
+                <br />
+
+                <div class="column-third">@Html.ReviewOverallRiskDropDown("Overall Risk Rating", @Model.ProjectPcrScore.ReviewID, "Use your professional judgement to add an overall rating for your programme.")</div>
+                <span class="SaveMessageFail" style="display:none" id="RiskRatingValidation-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID"> Please select risk rating</span>
+
+                <div class="column-third">
+                    <input type="button" value="Add" class="button review-overallScore-btn-click-action" id="btnOverallScoreSumbitPCR-@Model.ProjectPcrScore.ReviewID" data-reviewid=@Model.ProjectPcrScore.ReviewID data-projectid=@Model.ProjectHeader.ProjectID data-table-suffix="Pcr"/>
+                </div>
+            </div>
+
+            <div class="column-third">
+                @{
+        //Enable or Disable "Add Output /EDIT/DELETE  button based on work flow"
+        if (Model.ProjectPcrScore.StageName.Equals("In Preparation") || Model.ProjectPcrScore.StageName.Equals("Rejected"))
+        {
+            //Check if current user memeber of project team
+            if (@Model.CurrentUserMemberOfGroup == "Team")
+            {
+            <button id="btnAddOutputScoring-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" class="bluelightnight AddoutputScoreBtn" style="vertical-align: text-bottom" onclick="ToggleReviewOutputInsertForm(this, @Model.ProjectPcrScore.ProjectID , @Model.ProjectPcrScore.ReviewID ) ">Add Output</button>
+            }
+
+            else
+            {
+            <span class="form-hint">You must be a project team member to add/remove output </span>
+            <script type="text/javascript">
+                    $(function () {
+
+                        $("#tblOutputScores-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID").find("input,button,textarea,select").attr("disabled", "disabled");
+
+                    });
+            </script>
+            }
+        }
+        else
+        {
+
+            //Check if current user memeber of project team
+            if (@Model.CurrentUserMemberOfGroup == "Team")
+            {
+
+            <button id="btnAddOutputScoring-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" disabled="disabled" class="bluelightnight AddoutputScoreBtn" style="vertical-align: text-bottom" onclick="ToggleReviewOutputInsertForm(this, @Model.ProjectPcrScore.ProjectID , @Model.ProjectPcrScore.ReviewID ) ">Add Output</button>
+            <script type="text/javascript">
+                    $(function () {
+
+                        $("#tblOutputScores-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID").find("input,button,textarea,select").attr("disabled", "disabled");
+
+                    });
+            </script>
+            }
+
+
+            else
+            {
+            <span class="form-hint">You must be a project team member to add/remove output </span>
+            <script type="text/javascript">
+                    $(function () {
+
+                        $("#tblOutputScores-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID").find("input,button,textarea,select").attr("disabled", "disabled");
+
+                    });
+            </script>
+            }
+
+
+
+        }
+                }
+
+            </div>
+
+
+            <div class="column-two-thirds SaveMessageSuccess" style="display: none" id="outputscoringSaveMessageSuccess-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID"></div>
+            <div class="column-two-thirds SaveMessageFail" style="display: none" id="outputscoringupdateMessageFail-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID"></div>
+
+
+            <div class="report-basics" id="ReviewOutputInsertForm-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" style="display: none">
+
+                @using (Html.BeginForm("AddReviewOutputScoring", "Project", FormMethod.Post))
+            {
+            @Html.AntiForgeryToken()
+
+            <input id="PCRSubmission-UserGroup" name="ProjectPcrScore.UserGroup" type="hidden" value="@Model.ProjectPcrScore.UserGroup" />
+
+            <input type="hidden" value="@Model.ProjectPcrScore.ReviewID" data-val="true" data-val-number="The field ReviewID must be a number." data-val-required="The ReviewID field is required." id="ReviewVm_ReviewOutputVm_ProjectID_@Model.ProjectPcrScore.ReviewID" name="ReviewVm.ReviewOutputVm.ReviewID" />
+
+            <input type="hidden" id="ReviewVm_ReviewOutputVm_ProjectID" name="ReviewVm.ReviewOutputVm.ProjectID" value="@Model.ProjectHeader.ProjectID" />
+
+            <div class="grid-row">
+                <div class="column-two-thirds">
+                    <label for="Output-description-pcr" class="form-label-bold">Description</label>
+                    @Html.TextAreaFor(model => model.ReviewVm.ReviewOutputVm.OutputDescription, new { id = "Output-description-pcr", rows = 3, style = "width: 100%", maxlength = "500", @onkeyup = "countChar(this,'Output-description-pcrcharacter',500 );" })
+                    <span class="form-hint" id="Output-description-pcrcharacter"></span>
+                    @Html.ValidationMessageFor(model => model.ReviewVm.ReviewOutputVm.OutputDescription)
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="column-two-thirds">
+                    <label for="Impact-Weight-pcr" class="form-label-bold">Impact weight (%) </label>
+                    @Html.TextBoxFor(model => model.ReviewVm.ReviewOutputVm.Weight, new { id = "Impact-Weight-pcr", style = "width: 20%", @class = "form-control", maxlength = "3" })
+                    @Html.ValidationMessageFor(model => model.ReviewVm.ReviewOutputVm.Weight)
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="column-third">
+                    <label for="ReviewVm_ReviewOutputVm_OutputScore" class="form-label-bold">Performance </label>
+                    @{
+                List<SelectListItem> PerformancelistItems = new List<SelectListItem>();
+
+                PerformancelistItems.Add(new SelectListItem
+                {
+                    Text = "A++ Outputs Substantially exceeded expectation",
+                    Value = "A++"
+                });
+
+                PerformancelistItems.Add(new SelectListItem
+                {
+                    Text = "A+ Outputs Moderately exceeded expectation",
+                    Value = "A+"
+                });
+
+                PerformancelistItems.Add(new SelectListItem
+                {
+                    Text = "A Outputs Met expectation",
+                    Value = "A"
+                });
+
+                PerformancelistItems.Add(new SelectListItem
+                {
+                    Text = "B Outputs Moderately did not meet expectation",
+                    Value = "B"
+                });
+
+                PerformancelistItems.Add(new SelectListItem
+                {
+                    Text = "C Outputs Substantially did not meet expectation",
+                    Value = "C"
+                });
+
+                        @Html.DropDownListFor(model => model.ReviewVm.ReviewOutputVm.OutputScore, PerformancelistItems, "Select performance rating", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.ReviewVm.ReviewOutputVm.OutputScore)
+                    }
+
+
+
+                </div>
+            </div>
+
+            <div class="grid-row">
+
+                <div class="column-third">
+
+                    <label for="ReviewVm_ReviewOutputVm_Risk" class="form-label-bold">Risk</label>
+                    <p class="form-hint">Select the most appropriate risk rating using the definition in the risk management framework</p>
+                    @{
+                List<SelectListItem> listItems = new List<SelectListItem>();
+                listItems.Add(new SelectListItem
+                {
+                    Text = "Minor",
+                    Value = "R1"
+                });
+                listItems.Add(new SelectListItem
+                {
+                    Text = "Moderate",
+                    Value = "R2"
+                });
+                listItems.Add(new SelectListItem
+                {
+                    Text = "Major",
+                    Value = "R3"
+                });
+
+                listItems.Add(new SelectListItem
+                {
+                    Text = "Severe",
+                    Value = "R4"
+                });
+                        @Html.DropDownListFor(model => model.ReviewVm.ReviewOutputVm.Risk, listItems, "Select risk type", new { @class = "form-control" })
+                        @Html.ValidationMessageFor(model => model.ReviewVm.ReviewOutputVm.Risk)
+                    }
+
+                </div>
+            </div>
+
+
+            <hr style="height: 3px; background-color: #2e358b;" />
+            <div class="grid-row">
+                <div class="column-quarter">
+                    <input type="submit" value="Add" class="button review-output-btn-click-action" id="btnOutputSumbit-@Model.ProjectPcrScore.ReviewID" data-reviewid=@Model.ProjectPcrScore.ReviewID data-projectid=@Model.ProjectHeader.ProjectID data-table-suffix="Pcr" />
+                    <br />
+                </div>
+                <div class="column-two-thirds SaveMessageFail" style="display: none" id="outputscoringSaveMessageFail-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID"></div>
+            </div>
+
+            }
+
+            </div>
+
+
+            <div class="grid-row">
+                <div class="column-full">
+                    <h3>Documents</h3>
+                </div>
+
+            </div>
+
+
+            <div id="ReviewDocumentDiv-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID">
+                @Html.Action("ReviewDocuments", "Project", new { projectId = @Model.ProjectHeader.ProjectID, reviewId = @Model.ProjectPcrScore.ReviewID })
+            </div>
+
+
+
+            @*
+                ************************************
+                Document Insert form for PCR
+                ************************************
+            *@
+
+            <div class="grid-row">
+                <div class="column-full"><button id="ShowAdd-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" class="bluelightnight" onclick="ToggleFormFunction('#documentInsertForm-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID', '#ShowAdd-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID' )" value="Show Add Document" type="button">Add document</button></div>
+
+
+                <div id="documentInsertForm-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" style="display: none">
+                    @using (Html.BeginForm("AddDocument", "Project", FormMethod.Post))
+                {
+                @Html.AntiForgeryToken()
+
+                @*@Html.HiddenFor(model => model.ReviewVm.ReviewDocument.ProjectID, new { @Value = @Model.ProjectHeader.ProjectID })
+                    @Html.HiddenFor(model => model.ReviewVm.ReviewDocument.ReviewID, new { @Value = @Model.ProjectPcrScore.ReviewID })*@
+
+                <input id="ReviewVm_ReviewDocument_ProjectID-@Model.ProjectPcrScore.ReviewID" name="ReviewVm.ReviewDocument.ProjectID" type="hidden" value="@Model.ProjectHeader.ProjectID" />
+
+                <input data-val="true" data-val-number="The field ReviewID must be a number." data-val-required="The ReviewID field is required." id="ReviewVm_ReviewDocument_ReviewID-@Model.ProjectPcrScore.ReviewID" name="ReviewVm.ReviewDocument.ReviewID" type="hidden" value="@Model.ProjectPcrScore.ReviewID" />
+
+                <div class="column-third">
+                    <label class="form-label-bold" for="ReviewVm_ReviewDocument_DocumentID">Document ID</label>
+                    <p>The Vault number of the document</p>
+
+                    @Html.TextBoxFor(model => model.ReviewVm.ReviewDocument.DocumentID)
+                    @Html.ValidationMessageFor(model => model.ReviewVm.ReviewDocument.DocumentID)
+                </div>
+                <div class="column-two-thirds">
+                    <label class="form-label-bold" for="ReviewVm_ReviewDocument_Description">Description</label>
+                    <p>A description of the document</p>
+                    @Html.TextBoxFor(model => model.ReviewVm.ReviewDocument.Description, new { @class = "column-full" })
+                    @Html.ValidationMessageFor(model => model.ReviewVm.ReviewDocument.Description)
+                </div>
+                <div class="column-two-thirds">
+                    <input type="submit" value="Save" class="button review-document-btn-click-action" id="btnDocumentAdd-@Model.ReviewVm.ReviewOutputVm.ReviewID" data-reviewid=@Model.ProjectPcrScore.ReviewID data-projectid=@Model.ProjectHeader.ProjectID data-table-suffix="PCR" />
+                    <button id="CancelBtn" class="red" onclick="ToggleFormFunctionCancel('#documentInsertForm-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID', '#ShowAdd-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID')" value="Cancel" type="button">
+                        Cancel
+                    </button>
+                </div>
+                }
+                </div>
+
+            </div>
+
+            <div class="grid-row">
+                <div class="column-half">
+
+                    <div class="report-basics">
+
+
+                        @using (Html.BeginForm("SubmitPCRForApproval", "Project", FormMethod.Post, new { id = @Model.ProjectPcrScore.ReviewID + "-PCRSub" }))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            @Html.HiddenFor(model => model.ProjectPcrScore.ProjectID)
+                            @Html.HiddenFor(model => model.ProjectPcrScore.ReviewID)
+
+
+                            <input type="hidden" id="PCRSubmission-Stage" value="@Model.ProjectPcrScore.StageName" />
+
+
+                            <div id="dvPCRSubmission">
+                               
+                                    <h2>Submission</h2>
+                                    <div class="grid-row">
+                                        <div class="column-full">
+                                            <label class="form-label-bold" for="PCRSubmissionComment">Submission Comments</label>
+                                            <p class="form-hint">Key points to note, including main reasons for underperforming (if scoring C or subsequent B) or reasons behind strong / improved performance.</p>
+                                            @Html.TextAreaFor(model => @Model.ProjectPcrScore.SubmissionComment, new { @class = "form-control", id = "PCRSubmissionComment", disabled = "disabled", @onkeyup = "countChar(this,'PCRSubmissionCommentCharacter',500 );", maxlength = "500" })
+                                            <span class="form-hint" id="PCRSubmissionCommentCharacter"></span>
+                                            <div class="column-full SaveMessageFail" id="PCRSubmission-CommentError"></div>
+                                        </div>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="column-full">
+                                            <div class="form-group" id="dvPCRTypeAhead" style="display:none">
+                                                <label class="form-label-bold" for="PCRAuthoriserBox">Approver</label>
+                                                <p class="form-hint">Start typing the name of the person you want send the review for approval</p>
+                                                <div id="PCRAuthoriser">
+                                                    <input id="PCRAuthoriserBox" type="text" class="typeahead" placeholder="Search for an approver" style="width: 400px; height: 25px; display:none" />
+                                                    @Html.HiddenFor(model => model.ProjectPcrScore.Approver)
+
+                                                    <div class="column-full SaveMessageFail" id="PCRSubmission-CommentErrorForApprover"></div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @{
+                            if (@Model.ProjectPcrScore.Requester != null)
+                            {
+                                @*<label> inside if  </label>*@
+                                        <div class="grid-row">
+                                            <div class="column-full">
+                                                <div class="form-group" id="dvPCRRequesterName">
+                                                    <label class="form-label-bold" for="PCRRequesterName">Requester</label>
+                                                    <p class="form-hint">Name of the requester</p>
+                                                    @Html.TextBoxFor(model => model.ProjectPcrScore.RequesterName, new { id = "PCRRequesterName", disabled = "disabled", style = "width: 400px" })
+                                                </div>
+                                            </div>
+                                        </div>
+                            }
+                            else
+                            {
+                                @*<label> inside else</label>*@
+                                        <div class="grid-row" style="display:none">
+                                            <div class="column-full">
+                                                <div class="form-group" id="dvPCRRequesterName">
+                                                    <label class="form-label-bold" for="PCRRequesterName">Requester</label>
+                                                    <p class="form-hint">Name of the requester</p>
+                                                    @Html.TextBoxFor(model => model.ProjectPcrScore.RequesterName, new { id = "PCRRequesterName", disabled = "disabled", style = "width: 400px" })
+                                                </div>
+                                            </div>
+                                        </div>
+                            }
+
+                                    }
+
+
+
+
+
+                                    <div class="grid-row">
+                                        <div class="column-two-thirds">
+                                            <input id="PCRCreateBtnSubmission" type="submit" value="Send for Approval" class="button" style="display:none" onclick="PCRSubmissionPrintErrors(@Model.ProjectPcrScore.ReviewID,event);" />
+                                        </div>
+                                        <div class="column-full SaveMessageFail" id="PCRSubmission-TableErrorForApprover"></div>
+                                    </div>
+                                    <div class="PushDown">
+                                        <input type="hidden" id="PCRSaveSuccessSubmission" value="@(ViewBag.PCRSuccessSubmission.ToString())" />
+                                        <div id="PCRSaveMessageSubmission" style="display:none">Save Successful</div>
+
+                                    </div>
+                           
+                            </div>
+                        }
+
+
+                        @{
+
+                        //  When PCR is in "Awaiting Approval" Stage the team member can amend the Approver and select a different approver
+
+                        if (Model.ProjectPcrScore.StageName == "Awaiting Approval" && @Model.CurrentUserMemberOfGroup == "Team")
+                        {
+                            <button id="ShowAmendApprover-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" onclick="ToggleFormFunction('#amendReveiwApproverForm-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID', '#ShowAmendApprover-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID' )" class="bluelightnight">Change Approver</button>
+
+                            @:<div id="amendReveiwApproverForm-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" style="display:none">
+
+
+                            using (Html.BeginForm("ChangeReviewApprover", "Project", FormMethod.Post))
+                            {
+                                @Html.AntiForgeryToken()
+
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        <div class="form-group" id="dvARChangeApproverTypeAhead-@Model.ProjectPcrScore.ReviewID">
+                                            <label class="form-label-bold" for="AuthoriserChangeBox-@Model.ProjectPcrScore.ReviewID">Approver</label>
+                                            <p class="form-hint">Start typing the name of the person you want send the review for approval</p>
+                                            <div id="AuthoriserChange-@Model.ProjectPcrScore.ReviewID" class="changeReviewAuthoriser">
+                                                <input id="AuthoriserChangeBox-@Model.ProjectPcrScore.ReviewID" type="text" class="typeahead" placeholder="Search for an approver" style="width: 400px; height: 25px"/>
+                                                <input id="AuthoriserNameChange-@Model.ProjectPcrScore.ReviewID" type="hidden" name="newApproverID"/>
+                                                <input id="ChangeApprover-ProjectReviews-ProjectID-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID" type="hidden" name="projectID" value="@Model.ProjectPcrScore.ProjectID"/>
+                                                <input id="ChangeApprover-ProjectReviews-ReviewID-@Model.ProjectPcrScore.ProjectID-@Model.ProjectPcrScore.ReviewID" type="hidden" name="reviewID" value="@Model.ProjectPcrScore.ReviewID"/>
+                                            </div>
+                                        </div>
+                                        <div class="column-full SaveMessageFail" id="Submission-ChangeAuthoriserPCRError-@Model.ProjectPcrScore.ReviewID"></div>
+                                    </div>
+                                    <div class="column-full">
+                                        <input id="ChangeApproverBtnSubmission-@Model.ProjectPcrScore.ReviewID" type="submit" value="Send for Approval" class="button" onclick="FormReviewPCRChangeApproverError(@Model.ProjectPcrScore.ReviewID, event);" />
+                                        <button id="PCRApproverCancelBtn" class="red" onclick="ToggleFormFunctionCancel('#amendReveiwApproverForm-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID', '#ShowAmendApprover-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID')" value="Cancel" type="button">
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                            @:</div>
+                       }
+                        }
+
+
+
+
+
+                    </div>
+
+
+                    <div id="dvDeletePCR">
+                        @using (Html.BeginForm("DeletePCR", "Project", FormMethod.Post, new { id = @Model.ProjectPcrScore.ReviewID + "-Delete" }))
+                    {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.ProjectPcrScore.ProjectID, new { id = "deletePCRProjectID" })
+                    @Html.HiddenFor(model => model.ProjectPcrScore.ReviewID, new { id = "deletePCRReviewID" })
+                    <div class="report-basics">
+                        <h2>Delete Review</h2>
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <p class="form-hint">Delete will clear all data entered and delete the PCR</p>
+                                <br />
+                                <button id="DeletePCR" name="submitButton" class="red" value="Delete PCR" type="submit">
+                                    Delete Review
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                    </div>
+                </div>
+                <div class="column-half">
+                    @using (Html.BeginForm("AuthorisePCR", "Project", FormMethod.Post, new { id = @Model.ProjectPcrScore.ReviewID }))
+                {
+                @Html.AntiForgeryToken()
+
+                @Html.HiddenFor(model => model.ProjectPcrScore.ProjectID, new { id = "PCRauth-projid" })
+                @Html.HiddenFor(model => model.ProjectPcrScore.ReviewID, new { id = "PCRauth-reviewid" })
+
+
+                <input type="hidden" id="PCRAuthStage" value="@Model.ProjectPcrScore.StageName" />
+
+                <div id="dvPCRAuthorisation">
+                    <div class="report-basics">
+                        <h2>Authorisation</h2>
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <label class="form-label-bold" for="PCRAuthComment">Comments</label>
+                                <p class="form-hint">Approval comments/rejection justification</p>
+                                @Html.TextAreaFor(model => @Model.ProjectPcrScore.ApproveComment, new { @class = "form-control", id = "PCRAuthComment", @onkeyup = "countChar(this,'PCRAuthCommentCharacter',500 );", maxlength = "500" })
+                                <span class="form-hint" id="PCRAuthCommentCharacter"></span>
+                                <div class="column-full SaveMessageFail" id="PCRCommentError"></div>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-half">
+                                <label for="isPCRApproved-Y" class="block-label" style="margin-right: 20px" id="PCR-Approved-Y-Label">
+                                    @Html.RadioButtonFor(m => m.ProjectPcrScore.IsApproved, string.Format("Y"), new { id = "isPCRApproved-Y" })
+                                    Approve
+                                </label>
+                            </div>
+                            <div class="column-half">
+                                <label for="isPCRApproved-N" class="block-label" style="margin-right: 20px" id="PCR-Approved-N-Label">
+                                    @Html.RadioButtonFor(m => m.ProjectPcrScore.IsApproved, string.Format("N"), new { id = "isPCRApproved-N" })
+                                    Reject
+                                </label>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <div class="form-group" id="dvPCRApproverName">
+                                    <label class="form-label-bold" for="PCRApproverName">Approver</label>
+                                    <p class="form-hint">Name of the approver</p>
+                                    @Html.TextBoxFor(model => model.ProjectPcrScore.ApproverName, new { id = "PCRApproverName", disabled = "disabled", style = "width: 400px" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-third">
+                                <input id="PCRCreateBtnAuthorisation" type="submit" value="Save" class="button" onclick="PCRAuthorisationPrintErrors(event);" />
+                            </div>
+                        </div>
+                        <div class="PushDown">
+                            <input type="hidden" id="PCRSaveSuccessAuth" value="@(ViewBag.PCRSuccessAuth.ToString())" />
+                            <div id="PCRSaveMessageAuth" style="display:none">Save Successful</div>
+
+                        </div>
+                    </div>
+                </div>
+                }
+                </div>
+            </div>
+
+            <p class="flip" id="Deferral-action-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID">
+                <span class="flipTitle">[+] Deferral Actions </span>  @if (@Model.ProjectPcrScore.ReviewDeferralVM != null)
+                {
+                    switch (@Model.ProjectPcrScore.ReviewDeferralVM.StageID)
+                    {
+                        case "1":
+                            <span style="float: right" id="PCR-PurpleBar-Deferral-Status"> <i class="fa fa-hourglass-half"></i> Deferral awaiting approval  </span>
+                            break;
+                        case "2":
+                        <span style="float: right" id="PCR-PurpleBar-Deferral-Status">
+                            Deferred by
+                            @if (@Model.ProjectPcrScore.ReviewDeferralVM.DeferralTimescale.Trim().Equals("1"))
+                            {
+                                <text> @Model.ProjectPcrScore.ReviewDeferralVM.DeferralTimescale month</text>
+                            }
+                            else
+                            {
+                                <text>@Model.ProjectPcrScore.ReviewDeferralVM.DeferralTimescale months</text>
+                            }
+                        </span>
+                           break;
+                        case "3":
+                        <span style="float: right" id="PCR-PurpleBar-Deferral-Status">Deferral Rejected</span>
+                           break;
+                    }
+                }
+            </p>
+
+
+            <div style="display: none" class="FurtherActionHolder">
+                <div class="grid-row">
+
+                    <div id="dvRequestDeferral-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" class="column-third">
+                        <div class="report-basics">
+                            <h2>Request a Deferral</h2>
+                            <span class="form-hint"> Deferrals must be authorised at Director level</span>
+                            @*<button id="btnRequestDeferral-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" type="button" data-projectid="@Model.ProjectHeader.ProjectID" data-reviewid="@Model.ProjectPcrScore.ReviewID" class="bluelightnight btnRequestDeferralExpandForm" style="vertical-align: text-bottom"><strong> Submit / View Deferral </strong></button>*@
+                            <br />
+                        </div>
+                    </div>
+                    <div id="dvDelete-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" class="column-third">
+                        <div class="report-basics">
+                            <h2>Delete Deferral</h2>
+                            <p class="form-hint">Delete will clear all data entered and delete the deferral</p>
+                            @if (@Model.ProjectPcrScore.ReviewDeferralVM != null)
+                        {
+
+
+                            using (Html.BeginForm("DeleteDeferral", "Project", FormMethod.Post, new { id = "DeferralDeleteForm-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID }))
+                            {
+                        @Html.AntiForgeryToken()
+                        @Html.ValidationSummary(true)
+                        @Html.HiddenFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.DeferralID, new { id = "Deferralid-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID })
+                        @Html.HiddenFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.ProjectID, new { id = "DeferralDeleteProjectid-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID })
+                        @Html.HiddenFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.ReviewID, new { id = "DeferralDeleteReviewid-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID })
+                        @Html.HiddenFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.Approver, new { id = "DeferralDeleteApproverid-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID })
+
+                        <button id="PCRDeferralCreateCancelBtn" class="red" type="submit">
+                            Delete Deferral
+                        </button>
+
+                            }
+
+                        }
+                        else
+                        {
+
+                        <span>No deferral requested for this review</span>
+
+
+                        }
+
+                        </div>
+                    </div>
+
+                </div>
+
+
+                @*PCR Deferral section starts here *@
+
+                <div class="page-container secondary">
+                    <div id="DeferralSection-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" class="reports" style="display: none">
+
+
+                        <div class="grid-row">
+                            <div class="column-full">
+
+                                <h3>Request a Deferral</h3>
+                                <span class="form-hint">
+                                    A deferral should only be used if absolutely necessary. If data is not yet available, you should consider a review which focuses on process information rather than programme activities.
+                                    If you do decide to defer you must seek approval at Director level before submitting to your Head of Department for confirmation in AMP.
+                                    Please state a clear reason for requesting a review deferral and note that this information will be recorded and made available to Senior Management
+                                </span>
+
+                            </div>
+                        </div>
+
+
+
+                        <div class="grid-row">
+
+                            @{
+                    //Deferall stage
+                 if (@Model.ProjectPcrScore.ReviewDeferralVM != null)
+                    {
+                        <input id="HasPCRDeferallStage" type="hidden" value="@Model.ProjectPcrScore.ReviewDeferralVM.StageID" />
+                    }
+                    else
+                    {
+                        <input id="HasPCRDeferallStage" type="hidden" value="" />
+
+                    }
+
+                            }
+
+                            <div class="column-half">
+
+                                <div id="divDeferralCreateForm-@Model.ProjectPcrScore.ReviewID" class="report-basics">
+
+                                    @using (Html.BeginForm("SubmitDeferralForApproval", "Project", FormMethod.Post, new { id = "divPCRDeferralCreateForm" }))
+                    {
+                                @Html.AntiForgeryToken()
+                                @Html.ValidationSummary(true)
+                                <input type="hidden" value=@Model.ProjectHeader.ProjectID id="ProjectPcrScore_ReviewDeferralVM_ProjectID" name="ProjectPcrScore.ReviewDeferralVM.ProjectID" />
+                                <input type="hidden" value=@Model.ProjectPcrScore.ReviewID id="ProjectPcrScore_ReviewDeferralVM_ReviewID" name="ProjectPcrScore.ReviewDeferralVM.ReviewID" />
+
+                                <div class="grid-row">
+                                    <div class="column-full">
+
+                                        @if (@Model.ProjectPcrScore.ReviewDeferralVM != null)
+                                {
+                            @Html.DateBlockWithoutFieldset("Performance.PCRDueDate.Deferral", "Original Annual Review Date", @Model.ProjectPcrScore.ReviewDeferralVM.PreviousReviewDate, "Date PCR to be completed", "Performance_PCRDueDate_Deferral")
+                                }
+                                else
+                                {
+                            @Html.DateBlockWithoutFieldset("Performance.PCRDueDate.Deferral", "Original Annual Review Date", @Model.Performance.PCRDueDate, "Date PCR to be completed", "Performance_PCRDueDate_Deferral")
+
+                                }
+
+
+
+                                    </div>
+
+                                    <div class="column-full">
+                                        <label class="form-label-bold" for="defNewDate-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID">Select Deferral Timescale</label>
+                                        <span class="form-hint">Deferral can be 1, 2 or 3 months</span>
+                                        @{
+                        List<SelectListItem> lstItems = new List<SelectListItem>();
+                        lstItems.Add(new SelectListItem
+                        {
+                            Text = "1 Month",
+                            Value = "1"
+                        });
+                        lstItems.Add(new SelectListItem
+                        {
+                            Text = "2 Months",
+                            Value = "2"
+
+                        });
+                        lstItems.Add(new SelectListItem
+                        {
+                            Text = "3 Months",
+                            Value = "3"
+                        });
+
+                        if (@Model.ProjectPcrScore.ReviewDeferralVM != null)
+                        {
+
+                            var selectItems = new SelectList(lstItems, "Value", "Text", @Model.ProjectPcrScore.ReviewDeferralVM.DeferralTimescale);
+
+                            @Html.DropDownListFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.DeferralTimescale, selectItems, "-- Select --", new { @class = "form-control", id = "defNewDate-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID })
+                            @Html.ValidationMessageFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.DeferralTimescale)
+                        }
+                        else
+                        {
+                            @Html.DropDownListFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.DeferralTimescale, lstItems, "-- Select --", new { @class = "form-control", id = "defNewDate-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID })
+                            @Html.ValidationMessageFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.DeferralTimescale)
+
+                        }
+
+
+
+                                        }
+                                    </div>
+
+                                    @*<div class="column-full">
+                                            <label class="form-label-bold" for="defReason-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">Deferral Reason</label>
+                                            <br/>
+                                            @Html.TextBoxFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.DeferralReason, new { id = "defReason-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID, @class = "form-control", })
+                                            @Html.ValidationMessageFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.DeferralReason)
+
+                                        </div>*@
+                                </div>
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        <label class="form-label-bold" for="defJustificationComment-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID">Deferral Justification</label>
+                                        <span class="form-hint">Reason why you are requesting a Review Deferral</span>
+                                        @Html.TextAreaFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.DeferralJustification, new { id = "defJustificationComment-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID, @class = "form-control", @onkeyup = "countChar(this," + "'justificationcharacters-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID + "'" + ",500 );", maxlength = "500" })
+                                        <span class="form-hint" id="justificationcharacters-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID"></span>
+                                        <div class="column-full SaveMessageFail" id="defJustificationComment-Error-@Model.ProjectPcrScore.ReviewID"></div>
+                                    </div>
+                                </div>
+
+                        if (@Model.ProjectPcrScore.ReviewDeferralVM != null)
+                        {
+                            if (@Model.ProjectPcrScore.ReviewDeferralVM.Requester != null)
+                            {
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        <div class="form-group" id="dvPCRDeferralRequesterName">
+                                            <label class="form-label-bold" for="deferralRequesterName-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID">Requester</label>
+                                            <p class="form-hint">Name of the deferral requester</p>
+                                            @Html.TextBoxFor(model => model.ProjectPcrScore.ReviewDeferralVM.RequesterName, new { id = "deferralRequesterName-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID, disabled = "disabled", style = "width: 400px", @class = "form-control" })
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+
+
+
+                                <div class="grid-row">
+                                    <div class="column-two-thirds">
+                                        <div class="form-group" id="dvDeferralTypeAhead-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID">
+                                            <label class="form-label-bold" for="DeferralAuthoriserBox-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID">Approver</label>
+                                            <span class="form-hint">Start typing the name of the person you want send the Deferral for approval</span>
+                                            <div id="DeferralAuthoriser-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" class="deferralAuthoriser">
+                                                @Html.HiddenFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.Approver, new { id = "DeferralAuthoriserName-" + @Model.ProjectPcrScore.ReviewID })
+
+
+                                                <input id="DeferralAuthoriserBox-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID" type="text" class="typeahead form-control" placeholder="Search for an approver" style="width: 400px" data-projectid="@Model.ProjectPcrScore.ProjectID" data-reviewid="@Model.ProjectPcrScore.ReviewID" />
+                                                <div class="column-full SaveMessageFail" id="DeferralAuthoriserName-Error-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="grid-row">
+                                    <div class="column-two-thirds">
+                                        @if (Model.ProjectWFCheck.WorkFlowDescription == "Close Project")
+                                        {
+                                            <input id="PCRDeferralSubmitBtn" type="submit" value="Submit" class="button" onclick="submitdeferral(this, @Model.ProjectPcrScore.ProjectID, @Model.ProjectPcrScore.ReviewID); " disabled="disabled"/>
+                                        }
+                                        else
+                                        {
+                                            <input id="PCRDeferralSubmitBtn" type="submit" value="Submit" class="button" onclick="submitdeferral(this, @Model.ProjectPcrScore.ProjectID , @Model.ProjectPcrScore.ReviewID );"  />
+
+                                        }
+                                        
+                                    
+                                    </div>
+                                </div>
+
+
+                    }
+                                </div>
+
+
+                                <br /><br />
+
+                            </div>
+
+
+                            <div class="column-half">
+                                <div class="grid-row">
+                                    <div id="divPCRApproveDeferralForm" class="report-basics">
+                                        @using (Html.BeginForm("DeferralAuthorisation", "Project", FormMethod.Post, new { id = "DeferralApprovalForm-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID }))
+                        {
+                                    @Html.AntiForgeryToken()
+                                    @Html.ValidationSummary(true)
+                                    <input type="hidden" name="ProjectPcrScore.ReviewDeferralVM.ProjectID" id="ProjectPcrScore.ReviewDeferralVM.ProjectID" value="@Model.ProjectHeader.ProjectID" />
+                                    <input type="hidden" name="ProjectPcrScore.ReviewDeferralVM.ReviewID" id="ProjectPcrScore.ReviewDeferralVM.ReviewID" value="@Model.ProjectPcrScore.ReviewID" />
+
+                                    <h2>Authorisation</h2>
+                                    <div class="grid-row">
+                                        <div class="column-full">
+                                            <label class="form-label-bold" for="deferralApproverComment-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID">Comments</label>
+                                            <p class="form-hint">Approval comments/rejection justification</p>
+                                            @Html.TextAreaFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.ApproverComment, new { @class = "form-control", id = "deferralApproverComment-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID, @onkeyup = "countChar(this," + "'deferralApproverCommentcharacter-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID + "'" + ",500 );", maxlength = "500" })
+                                            <span class="form-hint" id="deferralApproverCommentcharacter-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID"></span>
+                                            <div class="column-full SaveMessageFail" id="defAuthorisationComment-Error-@Model.ProjectPcrScore.ReviewID"></div>
+
+                                        </div>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="column-half">
+                                            <label class="block-label" style="margin-right: 20px" for="isDefApproved-Y-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID">
+                                                @Html.RadioButtonFor(m => @Model.ProjectPcrScore.ReviewDeferralVM.Approved, string.Format("1"), new { id = "isDefApproved-Y-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID })
+                                                Approve
+                                            </label>
+                                        </div>
+                                        <div class="column-half">
+                                            <label class="block-label" style="margin-right: 20px" for="isDefApproved-N-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID">
+                                                @Html.RadioButtonFor(m => @Model.ProjectPcrScore.ReviewDeferralVM.Approved, string.Format("0"), new { id = "isDefApproved-N-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID })
+                                                Reject
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="column-two-thirds">
+                                            <div id="dvARDefAuthApproverName-@Model.ProjectPcrScore.ReviewID">
+                                                <label class="form-label-bold" for="deferralApproverName-@Model.ProjectHeader.ProjectID-@Model.ProjectPcrScore.ReviewID">Approver</label>
+                                                <p class="form-hint">Name of the deferral approver</p>
+                                                @Html.TextBoxFor(model => @Model.ProjectPcrScore.ReviewDeferralVM.ApproverName, new { id = "deferralApproverName-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectPcrScore.ReviewID, disabled = "disabled", style = "width: 400px", @class = "form-control" })
+                                            </div>
+                                        </div>
+                                        <div class="column-full">
+                                            <input id="DeferralAuthorisationBtnPCR" type="submit" value="Submit" class="button" onclick="authoriseDeferral(this, @Model.ProjectPcrScore.ProjectID , @Model.ProjectPcrScore.ReviewID ); " />
+                                        </div>
+                                    </div>
+
+                        }
+                                    </div>
+
+                                </div>
+                            </div>
+
+
+
+                        </div>
+
+                    </div>
+                </div>
+                @*PCR Deferral section ends here*@
+
+            </div>
+        </div>
+
+        }
+
+   </div>
+
+    <div id="accordion-2" >
+@{
+
+    for (int index = 0; index < @Model.ProjectReviews.Count(); index++)
+    {
+        //hidden field to be used for JQuery functions. Extra line of code has been added to support Standardise IDs for automation testing.
+        <div style="display: none">
+            <input type="hidden" value="@Model.ProjectReviews[index].ProjectID" id="hidden-projectID-@index"/>
+            <input type="hidden" value="@Model.ProjectReviews[index].ReviewID" id="hidden-reviewID-@index"/>
+        </div>      
+    
+        <div class="accordion-toggle">
+            <div class="title-bar">
+                <div class="control-bar" style="max-width: inherit" id="control-bar-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+
+                    Annual Review @Convert.ToInt32(@Model.ProjectReviews.Count() - index) <div class="arrow"></div>
+
+
+                    @* Show if deferred*@
+
+                    @{
+        if (@Model.ProjectReviews[index].ReviewDeferralVM != null)
+        {
+            switch (@Model.ProjectReviews[index].ReviewDeferralVM.StageID)
+            {
+                case "1":
+                    <span style="margin-left: 70px" id="AR-ReviewBar-Deferral-Status-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID"> <i class="fa fa-hourglass-half"></i> Deferral awaiting approval  </span>
+                    break;
+                case "2":
+                <span style="margin-left: 70px" id="AR-ReviewBar-Deferral-Status-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+                    Deferred by @if (@Model.ProjectReviews[index].ReviewDeferralVM.DeferralTimescale.Trim().Equals("1"))
+                    {
+                        <text>@Model.ProjectReviews[index].ReviewDeferralVM.DeferralTimescale month</text>
+                    }
+                    else
+                    {
+                        <text>@Model.ProjectReviews[index].ReviewDeferralVM.DeferralTimescale months</text>
+                    }
+                </span>
+                                break;
+                case "3":
+                <span style="margin-left: 70px" id="AR-ReviewBar-Deferral-Status-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID"> Deferral Rejected </span>
+                                break;
+            }
+        }
+
+}
+                    <span style="float: right" id="StageName-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">@Model.ProjectReviews[index].StageName</span>
+
+
+
+                    
+                </div>
+
+                <div class="grid-row report">
+                    <div class="column-two-thirds">
+                        @{
+                            if (Model.ProjectReviews[index].StageName == "Approved")
+                            {
+                              @*<h2 class="sub-date">AR Approved date  @Model.Performance.ARDueDate.Value.ToString("dd/MM/yyyy")</h2>*@
+                              @*<h2 class="sub-date" id="sub-date-@index">Approved date: @Model.ProjectReviews[index].LastUpdated.Value.ToString("dd MMM yyyy")</h2>*@
+                              <h2 class="sub-date" id="sub-date2-@index">Approved date: @Model.ProjectReviews[index].ReviewDate.ToString("dd MMM yyyy")</h2>
+                            }
+                            else if (Model.ProjectReviews[index].StageName == "")
+                            {
+                                <h2 class="sub-date" id="sub-date-@index">Approved date: <br/> @Model.ProjectReviews[index].LastUpdated.Value.ToString("dd MMM yyyy")</h2>
+                            }
+                            else
+                            {
+                                if (Model.Performance.ARRequired == "Yes" && Model.Performance.ARDueDate.HasValue)
+                                {
+                                    <h2 class="sub-date" id="sub-date-@index">Due date: @Model.Performance.ARDueDate.Value.ToString("dd MMM yyyy")</h2>
+                                }
+                                else
+                                {
+                                    <h2 class="sub-date" id="sub-date-@index">Due date:</h2>
+                                }
+
+                            }
+                        }
+
+                    </div>
+
+                    <div class="column-third">
+                        <div class="grid-row pad-right">
+                            <div class="column-third">
+                                <div class="pq-index">
+                                    <span class="pq-title">Proj.Score</span>
+                                    <span id="ProjectScore-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="figure"></span>
+
+                                </div>
+                            </div>
+                            <div class="column-third">
+                                <div id="Score-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+                                    <span class="title">Score</span>
+                                    <br/>
+                                    <span id="ReviewScore-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="figure">@Model.ProjectReviews[index].OverallScore</span>
+                                </div>
+                            </div>
+                            <div class="column-third">
+                                <div id="Risk-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+                                    <span class="title">Risk</span>
+                                    <br/>
+
+                                    @*switch case statement for new 4 different risk rating change *@
+                                    @switch (@Model.ProjectReviews[index].RiskScore)
+                                    {
+                                        case "R1":
+                                            <span id="RiskScore-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="risk-rating">Minor</span>
+                                            break;
+                                        case "R2":
+                                            <span id="RiskScore-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="risk-rating">Moderate</span>
+                                        break;
+                                    case "R3":
+                                    <span id="RiskScore-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="risk-rating">Major</span>
+                                        break;
+                                    case "R4":
+                                    <span id="RiskScore-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="risk-rating">Severe</span>
+                                        break;
+                                    default:
+                                            <span id="RiskScore-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="risk-rating">@Model.ProjectReviews[index].RiskScore</span>
+                                        break;
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Put the content of the Accordion Header here.-->
+            </div>
+        </div>
+
+        <div class="accordion-content ar-wrapper">
+
+            <div class="grid-row">
+                <div class="column-third">
+                    <h3>Output Scoring</h3>
+                </div>
+                <div class="column-third">
+                   
+                </div>
+                <div class="column-third">
+                    @if (@Model.ProjectReviews[index].StageName == "Approved" && Model.ProjectReviews[index].DueDate.HasValue)
+                    {
+                     <span>Due date: @Model.ProjectReviews[index].DueDate.Value.ToString("dd MMM yyyy")</span>
+                    }
+                </div>
+            </div>
+
+            <div id="OutputTabDiv-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+                @Html.Action("ReviewOutputScoringTableData", "Project", new {projectId = @Model.ProjectHeader.ProjectID, reviewId = @Model.ProjectReviews[index].ReviewID, tableIndex = @index})
+            </div>
+
+            <div class="grid-row">
+                <div class="column-full">
+                    <div class="content-loading" style="margin: auto; width: 65px; display: none"><img class="content-loading" src="../../Content/GovUKStyle/Images/spinner.gif" style="display: block" alt="please wait.."/>
+                    </div>
+                </div>
+            </div>
+            <button id="btnShowOverallRiskForm-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="bluelightnight" style="vertical-align: text-bottom; display:none" onclick="ToggleFormFunction('#outputOverallScoreInfoMessage-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID', '#btnShowOverallRiskForm-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID' )">Edit Overall Risk</button>
+            <span class="SaveMessageSuccess" id="overallScoreSuccessMessage-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID"></span>
+            <div class="column-full" style="background-color: #d5e8f3; border: 1px solid  #267daf; padding: 10px; display:none " id="outputOverallScoreInfoMessage-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+                <span class="SaveMessageFail"> <i class='fa fa-info-circle' style="font-size: 20px;"></i> Outputs now equal 100%. Please add an overall risk rating for your review  </span>
+                <br />
+
+                <div class="column-third">@Html.ReviewOverallRiskDropDown("Overall Risk Rating", @Model.ProjectReviews[index].ReviewID, " Use your professional judgement to add an overall rating for your programme")</div>
+                <span class="SaveMessageFail" style="display:none" id="RiskRatingValidation-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID"> Please select risk rating</span>
+                <div class="column-third">
+                    <input type="button" value="Add" class="button review-overallScore-btn-click-action" id="btnOverallScoreSumbit-@Model.ReviewVm.ReviewOutputVm.ReviewID-@index" data-reviewid=@Model.ProjectReviews[index].ReviewID data-projectid=@Model.ProjectReviews[index].ProjectID data-table-suffix=@index />
+                </div>
+            </div>
+
+
+            
+
+        <div class="grid-row">
+            <div class="column-third">
+
+
+                @{
+                    //Enable or Disable "Add Output button and EDIT/DELETE button inside output table based on work flow"
+                    if (Model.ProjectReviews[index].StageName.Equals("In Preparation") || Model.ProjectReviews[index].StageName.Equals("Rejected"))
+                    {
+                        if (@Model.CurrentUserMemberOfGroup == "Team")
+                        {
+                            <button id="btnAddOutputScoring-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID" class="bluelightnight AddoutputScoreBtn" style="vertical-align: text-bottom" onclick=" ToggleReviewOutputInsertForm(this, @Model.ProjectReviews[index].ProjectID, @Model.ProjectReviews[index].ReviewID) ">Add Output</button>
+                        }
+                        else
+                        {
+                            <span class="form-hint">You must be a project team member to add/remove output </span>
+                            <script type="text/javascript">
+                                $(function() {
+
+                                    $("#tblOutputScores-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID").find("input,button,textarea,select").attr("disabled", "disabled");
+
+                                });
+                            </script>
+                        }
+
+
+
+                    }
+                    else
+                    {
+
+                        if (@Model.CurrentUserMemberOfGroup == "Team")
+                        {
+                            <button id="btnAddOutputScoring-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID" disabled="disabled" class="bluelightnight AddoutputScoreBtn" style="vertical-align: text-bottom" onclick=" ToggleReviewOutputInsertForm(this, @Model.ProjectReviews[index].ProjectID, @Model.ProjectReviews[index].ReviewID) ">Add Output</button>
+                            <script type="text/javascript">
+                                $(function() {
+
+                                    $("#tblOutputScores-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID").find("input,button,textarea,select").attr("disabled", "disabled");
+
+                                });
+                            </script>
+                        }
+
+
+                        else
+                        {
+                            <span class="form-hint">You must be a project team member to add/remove output </span>
+                            <script type="text/javascript">
+                                $(function() {
+
+                                    $("#tblOutputScores-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID").find("input,button,textarea,select").attr("disabled", "disabled");
+
+                                });
+                            </script>
+                        }
+
+
+
+                    }
+
+
+
+                }
+
+            </div>
+            <div class="column-two-thirds SaveMessageSuccess" style="display: none" id="outputscoringSaveMessageSuccess-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID"></div>
+            <div class="column-two-thirds SaveMessageFail" style="display: none" id="outputscoringupdateMessageFail-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID"></div>
+
+        </div>
+
+        <div class="report-basics" id="ReviewOutputInsertForm-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID" style="display: none">
+
+            @using (Html.BeginForm("AddReviewOutputScoring", "Project", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @*@Html.HiddenFor(model => model.ReviewVm.ReviewOutputVm.ProjectID, new { @Value = @Model.ProjectReviews[index].ProjectID, id = "ReviewOutput-ProjectID" })
+                @Html.HiddenFor(model => model.ReviewVm.ReviewOutputVm.ReviewID, new { @Value = @Model.ProjectReviews[index].ReviewID, id = "ReviewOutput-ReviewID-" + @Model.ProjectReviews[index].ReviewID })*@
+                <input id="ReviewOutput-ProjectID-@index" name="ReviewVm.ReviewOutputVm.ProjectID" type="hidden" value="@Model.ProjectReviews[index].ProjectID"/>
+                <input data-val="true" data-val-number="The field ReviewID must be a number." data-val-required="The ReviewID field is required." id="ReviewOutput-ReviewID-@Model.ProjectReviews[index].ReviewID" name="ReviewVm.ReviewOutputVm.ReviewID" type="hidden" value="@Model.ProjectReviews[index].ReviewID"/>
+
+                <div class="grid-row">
+                    <div class="column-two-thirds">
+                        <label for="Output-description-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID" class="form-label-bold">Description</label>
+                        @Html.TextAreaFor(model => model.ReviewVm.ReviewOutputVm.OutputDescription, new
+                   {
+                       id = "Output-description-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectReviews[index].ReviewID,
+                       rows = 3,
+                       style = "width: 100%",
+                       maxlength = "500",
+                       @onkeyup = "countChar(this," + "'Output-descriptionCharcount-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectReviews[index].ReviewID + "'" + ",500 );"
+                   })
+                        <span class="form-hint" id="Output-descriptionCharcount-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID"></span> 
+                        @Html.ValidationMessageFor(model => model.ReviewVm.ReviewOutputVm.OutputDescription)
+                    </div>
+                </div>
+
+                <div class="grid-row">
+                    <div class="column-two-thirds">
+                        <label for="Impact-Weight-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID" class="form-label-bold">Impact weight (%) </label>
+                        @Html.TextBoxFor(model => model.ReviewVm.ReviewOutputVm.Weight, new {id = "Impact-Weight-" + @Model.ProjectHeader.ProjectID + "-" + @Model.ProjectReviews[index].ReviewID, style = "width: 20%", @class = "form-control", maxlength = "3"})
+                        @Html.ValidationMessageFor(model => model.ReviewVm.ReviewOutputVm.Weight)
+                    </div>
+                </div>
+
+                @Html.ReviewPerformanceDropDown("Performance", @Model.ProjectReviews[index].ReviewID)
+                @Html.ReviewRiskDropDown("Risk", @Model.ProjectReviews[index].ReviewID, "Select the most appropriate risk rating using the definition in the risk management framework")
+                
+                <hr style="height: 3px; background-color: #2e358b;"/>
+                <div class="grid-row">
+                    <div class="column-quarter">
+                        <input type="submit" value="Add" class="button review-output-btn-click-action" id="btnOutputSumbit-@Model.ReviewVm.ReviewOutputVm.ReviewID-@index" data-reviewid=@Model.ProjectReviews[index].ReviewID data-projectid=@Model.ProjectReviews[index].ProjectID data-table-suffix=@index/>
+                        <br/>
+                    </div>
+                    <div class="column-two-thirds SaveMessageFail" style="display: none" id="outputscoringSaveMessageFail-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID"></div>
+                </div>
+
+            }
+        </div>
+
+        <div class="grid-row">
+            <div class="column-full">
+                <h3>Documents</h3>
+            </div>
+
+        </div>
+
+
+        <div id="ReviewDocumentDiv-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+            @Html.Action("ReviewDocuments", "Project", new {projectId = @Model.ProjectHeader.ProjectID, reviewId = @Model.ProjectReviews[index].ReviewID, tableIndex = @index})
+        </div>
+
+
+
+        @*
+                ************************************
+                Document Insert form for AR
+                ************************************
+            *@
+
+        <div class="grid-row">
+            <div class="column-full"><button id="ShowAdd-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID" class="bluelightnight" onclick="ToggleFormFunction('#documentInsertForm-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID', '#ShowAdd-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID') " value="Show Add Document" type="button">Add document</button>
+            </div>
+
+
+            <div id="documentInsertForm-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID" style="display: none">
+                @using (Html.BeginForm("AddDocument", "Project", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                        @*@Html.HiddenFor(model => model.ReviewVm.ReviewDocument.ProjectID, new { @Value = @Model.ProjectReviews[index].ProjectID })
+                            @Html.HiddenFor(model => model.ReviewVm.ReviewDocument.ReviewID, new { @Value = @Model.ProjectReviews[index].ReviewID })*@
+
+                    <input id="ReviewVm_ReviewDocument_ProjectID-@Model.ProjectReviews[index].ReviewID" name="ReviewVm.ReviewDocument.ProjectID" type="hidden" value="@Model.ProjectReviews[index].ProjectID"/>
+
+                    <input data-val="true" data-val-number="The field ReviewID must be a number." data-val-required="The ReviewID field is required." id="ReviewVm_ReviewDocument_ReviewID-@Model.ProjectReviews[index].ReviewID" name="ReviewVm.ReviewDocument.ReviewID" type="hidden" value="@Model.ProjectReviews[index].ReviewID"/>
+
+                    <div class="column-third">
+                        <label class="form-label-bold" for="ReviewVm_ReviewDocument_DocumentID_@Model.ProjectReviews[index].ReviewID">Document ID</label>
+                        <p>The Vault number of the document</p>
+                        <input data-val="true" data-val-length="Document ID must be between 6 & 12 digits." data-val-length-max="12"
+                               data-val-length-min="6" data-val-range="Document number must be a number." data-val-range-max="999999999999"  
+                               data-val-range-min="0" data-val-required="You must enter a document number."
+                               id="ReviewVm_ReviewDocument_DocumentID_@Model.ProjectReviews[index].ReviewID" name="ReviewVm.ReviewDocument.DocumentID" type="text" value=""/>
+                        @Html.ValidationMessageFor(model => model.ReviewVm.ReviewDocument.DocumentID)
+                    </div>
+                    <div class="column-two-thirds">
+                        <label class="form-label-bold" for="ReviewVm_ReviewDocument_Description_@Model.ProjectReviews[index].ReviewID">Description</label>
+                        <p>A description of the document</p>
+                        <input class="column-full" data-val="true" data-val-length="Document description must be at least 6
+                       characters." data-val-length-max="200" data-val-length-min="6" data-val-required="Document description must be
+                       at least 6 characters." id="ReviewVm_ReviewDocument_Description_@Model.ProjectReviews[index].ReviewID"
+                               name="ReviewVm.ReviewDocument.Description" type="text" value=""/>
+                        @*@Html.TextBoxFor(model => model.ReviewVm.ReviewDocument.Description, new { @class = "column-full" })*@
+                        @Html.ValidationMessageFor(model => model.ReviewVm.ReviewDocument.Description)
+                    </div>
+                    <div class="column-two-thirds">
+                        <input type="submit" value="Save" class="button review-document-btn-click-action" id="btnDocumentAdd-@Model.ReviewVm.ReviewOutputVm.ReviewID-@index" data-reviewid=@Model.ProjectReviews[index].ReviewID data-projectid=@Model.ProjectReviews[index].ProjectID data-table-suffix=@index/>
+                        <button id="CancelBtn-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="red" onclick="ToggleFormFunctionCancel('#documentInsertForm-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID', '#ShowAdd-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID') " value="Cancel" type="button">
+                            Cancel
+                        </button>
+                    </div>
+                }
+            </div>
+
+        </div>
+
+        @*
+                ************************************
+                Enable or Disable "Add Output button and EDIT/DELETE button inside output table based on work flow"
+                ************************************
+            *@
+
+
+        @*<div class="column-two-thirds SaveMessageSuccess" style="display: none" id="outputscoringSaveMessageSuccess-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID"></div>
+                <div class="column-two-thirds SaveMessageFail" style="display: none" id="outputscoringupdateMessageFail-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID"></div>*@
+
+
+        @*
+                ************************************
+                Form - Review submit for approval
+                ************************************
+            *@
+        <div class="grid-row">
+        <div class="column-half">
+
+            <div class="report-basics">
+
+                @using (Html.BeginForm("SubmitReviewForApproval", "Project", FormMethod.Post, new { id = @Model.ProjectReviews[index].ReviewID + "-Sub" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.ProjectReviews[index].ProjectID, new { id = "ProjectReviews-ProjectID-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID })
+                    @Html.HiddenFor(model => model.ProjectReviews[index].ReviewID, new { id = "ProjectReviews-ReviewID-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID })
+
+
+                    <input type="hidden" id="Submission-Stage-@Model.ProjectReviews[index].ReviewID" value="@Model.ProjectReviews[index].StageName" />
+
+                    <div id="dvSubmission-@Model.ProjectReviews[index].ReviewID">
+                      
+                            <h2>Submission</h2>
+                            <div class="grid-row">
+                                <div class="column-full">
+                                    <label class="form-label-bold" for="SubmissionComment-@Model.ProjectReviews[index].ReviewID">Submission Comments</label>
+                                    <p class="form-hint">Key points to note, including main reasons for underperforming (if scoring C or subsequent B) or reasons behind strong / improved performance.</p>
+                                    @Html.TextAreaFor(model => @Model.ProjectReviews[index].SubmissionComment, new { @class = "form-control", id = "SubmissionComment-" + @Model.ProjectReviews[index].ReviewID, disabled = "disabled", maxlength = "500", @onkeyup = "countChar(this," + "'SubmissionCommentcharacter-" + @Model.ProjectReviews[index].ReviewID + "'" + ",500 );" })
+                                    <span class="form-hint" id="SubmissionCommentcharacter-@Model.ProjectReviews[index].ReviewID"></span>
+                                    <div class="column-full SaveMessageFail" id="Submission-CommentError-@Model.ProjectReviews[index].ReviewID"></div>
+                                 </div>
+                            </div>
+
+                            <div class="grid-row">
+                                <div class="column-full">
+                                    <div class="form-group" id="dvARTypeAhead-@Model.ProjectReviews[index].ReviewID" style="display: none">
+                                        <label class="form-label-bold" for="AuthoriserBox-@Model.ProjectReviews[index].ReviewID">Approver</label>
+                                        <p class="form-hint">Start typing the name of the person you want send the review for approval</p>
+                                        <div id="Authoriser-@Model.ProjectReviews[index].ReviewID" class="Authoriser">
+                                            <input id="AuthoriserBox-@Model.ProjectReviews[index].ReviewID" type="text" class="typeahead" placeholder="Search for an approver" style="width: 400px; height: 25px" />
+                                            @Html.HiddenFor(model => model.ProjectReviews[index].Approver, new { @class = "form-control", id = "AuthoriserName-" + @Model.ProjectReviews[index].ReviewID })
+                                            <div class="column-full SaveMessageFail" id="Submission-AuthoriserError-@Model.ProjectReviews[index].ReviewID"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            @{
+
+                    if (@Model.ProjectReviews[index].Requester != null)
+                    {
+                        @*<label> inside if  </label>*@
+                                <div class="grid-row">
+                                    <div class="column-full">
+                                        <div class="form-group" id="dvARRequesterName-@Model.ProjectReviews[index].ReviewID">
+                                            <label class="form-label-bold" for="ARRequesterName-@index">Requester</label>
+                                            <p class="form-hint">Name of the requester</p>
+                                            @Html.TextBoxFor(model => model.ProjectReviews[index].RequesterName, new { id = "ARRequesterName-" + @index, disabled = "disabled", style = "width: 400px" })
+                                        </div>
+                                    </div>
+                                </div>
+                    }
+                    else
+                    {
+                        @*<label> inside else</label>*@
+                                <div class="grid-row" style="display: none">
+                                    <div class="column-full">
+                                        <div class="form-group" id="dvARRequesterName-@Model.ProjectReviews[index].ReviewID">
+                                            <label class="form-label-bold" for="ARRequesterName-@index">Requester</label>
+                                            <p class="form-hint">Name of the requester</p>
+                                            @Html.TextBoxFor(model => model.ProjectReviews[index].RequesterName, new { id = "ARRequesterName-" + @index, disabled = "disabled", style = "width: 400px" })
+                                        </div>
+                                    </div>
+                                </div>
+                    }
+
+                            }                      
+
+
+                            <div class="grid-row">
+                                <div class="column-full">
+                                    <input id="CreateBtnSubmission-@Model.ProjectReviews[index].ReviewID" type="submit" value="Send for Approval" class="button" style="display: none" onclick="FormReviewSubmissionPrintErrors(@Model.ProjectReviews[index].ReviewID, event); " />
+                                </div>
+                                <div class="column-full SaveMessageFail" id="Submission-TableError-@Model.ProjectReviews[index].ReviewID"></div>
+                            </div>
+                            <div class="PushDown">
+                                <input type="hidden" id="SaveSuccessSubmission-@Model.ProjectReviews[index].ReviewID" value="@(ViewBag.ARSuccessSubmission.ToString())" />
+                                <div id="SaveMessageSubmission-@Model.ProjectReviews[index].ReviewID" style="display: none">Save Successful</div>
+                            </div>
+                   
+                    </div>
+                }
+
+
+
+                @{
+
+                //  When review is in "Awaiting Approval" Stage the team member can amend the Approver and select a different approver
+
+        if (Model.ProjectReviews[index].StageName == "Awaiting Approval" && @Model.CurrentUserMemberOfGroup == "Team")
+                {
+                    <button id="ShowAmendApprover-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID" onclick="ToggleFormFunction('#amendReveiwApproverForm-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID', '#ShowAmendApprover-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID' )" class="bluelightnight">Change Approver</button>
+
+                   @:<div id="amendReveiwApproverForm-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID" style="display:none">
+
+                    using (Html.BeginForm("ChangeReviewApprover", "Project", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <div class="form-group" id="dvARChangeApproverTypeAhead-@Model.ProjectReviews[index].ReviewID">
+                                    <label class="form-label-bold" for="AuthoriserChangeBox-@Model.ProjectReviews[index].ReviewID">Approver</label>
+                                    <p class="form-hint">Start typing the name of the person you want send the review for approval</p>
+                                    <div id="AuthoriserChange-@Model.ProjectReviews[index].ReviewID" class="changeReviewAuthoriser">
+                                        <input id="AuthoriserChangeBox-@Model.ProjectReviews[index].ReviewID" type="text" class="typeahead" placeholder="Search for an approver" style="width: 400px; height: 25px"/>
+                                        <input id="AuthoriserNameChange-@Model.ProjectReviews[index].ReviewID" type="hidden" name="newApproverID"/>
+                                        <input id="ChangeApprover-ProjectReviews-ProjectID-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" type="hidden" name="projectID" value="@Model.ProjectReviews[index].ProjectID"/>
+                                        <input id="ChangeApprover-ProjectReviews-ReviewID-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" type="hidden" name="reviewID" value="@Model.ProjectReviews[index].ReviewID"/>
+                                    </div>
+                                </div>
+                                <div class="column-full SaveMessageFail" id="Submission-ChangeAuthoriserError-@Model.ProjectReviews[index].ReviewID"></div>
+                            </div>
+                            <div class="column-full">
+                                <input id="ChangeApproverBtnSubmission-@Model.ProjectReviews[index].ReviewID" type="submit" value="Send for Approval" class="button" onclick="FormReviewChangeApproverError(@Model.ProjectReviews[index].ReviewID, event);" />
+                                <button id="ApproverCancelBtn" class="red" onclick="ToggleFormFunctionCancel('#amendReveiwApproverForm-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID', '#ShowAmendApprover-@Model.ProjectHeader.ProjectID-@Model.ProjectReviews[index].ReviewID')" value="Cancel" type="button">
+                                    Cancel
+                                </button>
+
+                            </div>
+                        </div>
+                    }
+                    @:</div>
+                }
+}
+
+
+</div>
+
+
+
+
+
+
+
+            <div id="dvDelete-@Model.ProjectReviews[index].ReviewID">
+                @using (Html.BeginForm("DeleteAnnualReview", "Project", FormMethod.Post, new {id = @Model.ProjectReviews[index].ReviewID + "-Delete"}))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(model => model.ProjectReviews[index].ProjectID)
+                    @Html.HiddenFor(model => model.ProjectReviews[index].ReviewID)
+                    <div class="report-basics">
+                        <h2>Delete Review</h2>
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <p class="form-hint">Delete will clear all data entered and delete the review</p>
+                                <br/>
+                                <button id="DeleteAR-@Model.ProjectReviews[index].ReviewID" name="submitButton" class="red" value="Delete AR" type="submit">
+                                    Delete Review
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+
+
+
+
+
+
+        <div class="column-half">
+            @using (Html.BeginForm("ReviewAuthorisation", "Project", FormMethod.Post, new {id = @Model.ProjectReviews[index].ReviewID}))
+            {
+                @Html.AntiForgeryToken()
+
+                @Html.HiddenFor(model => model.ProjectReviews[index].ProjectID, new {id = "auth-projid-" + @index})
+                @Html.HiddenFor(model => model.ProjectReviews[index].ReviewID, new {id = "auth-reviewid-" + @index})
+
+                <input type="hidden" name="ProjectReviews[@index].ReviewType" id="ProjectReviews[@index].ReviewType" value="Annual Review"/>
+                <input type="hidden" id="Stage-@Model.ProjectReviews[index].ReviewID" value="@Model.ProjectReviews[index].StageName"/>
+
+                <div id="dvAuthorisation-@Model.ProjectReviews[index].ReviewID">
+                    <div class="report-basics">
+                        <h2>Authorisation</h2>
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <label class="form-label-bold" for="AuthComment-@Model.ProjectReviews[index].ReviewID">Comments</label>
+                                <p class="form-hint">Approval comments/rejection justification</p>
+                                @Html.TextAreaFor(model => @Model.ProjectReviews[index].ApproveComment, new { @class = "form-control", id = "AuthComment-" + @Model.ProjectReviews[index].ReviewID, maxlength = "500", @onkeyup = "countChar(this," + "'AuthCommentcharacter-" +  @Model.ProjectReviews[index].ReviewID + "'" + ",500 );" })
+                                <span class="form-hint" id="AuthCommentcharacter-@Model.ProjectReviews[index].ReviewID"></span> 
+                                <div class="column-full SaveMessageFail" id="CommentError-@Model.ProjectReviews[index].ReviewID"></div>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <fieldset>
+                                    <legend class="form-label-bold">Approval Status</legend>
+                                    <div class="column-half">
+                                        <label for="isApproved-Y-@Model.ProjectReviews[index].ReviewID" class="block-label" style="margin-right: 20px">
+                                            @Html.RadioButtonFor(m => m.ProjectReviews[index].IsApproved, string.Format("Y"), new {id = "isApproved-Y-" + @Model.ProjectReviews[index].ReviewID})
+                                            Approve
+                                        </label>
+                                    </div>
+                                    <div class="column-half">
+                                        <label for="isApproved-N-@Model.ProjectReviews[index].ReviewID" class="block-label" style="margin-right: 20px">
+                                            @Html.RadioButtonFor(m => m.ProjectReviews[index].IsApproved, string.Format("N"), new {id = "isApproved-N-" + @Model.ProjectReviews[index].ReviewID})
+                                            Reject
+                                        </label>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-full">
+                                <div class="form-group" id="dvARApproverName-@Model.ProjectReviews[index].ReviewID">
+                                    <label class="form-label-bold" for="ARApproverName-@index">Approver</label>
+                                    <p class="form-hint">Name of the approver</p>
+                                    @Html.TextBoxFor(model => @Model.ProjectReviews[index].ApproverName, new {id = "ARApproverName-" + @index, disabled = "disabled", style = "width: 400px"})
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid-row">
+                            <div class="column-third">
+                                <input id="CreateBtnAuthorisation-@Model.ProjectReviews[index].ReviewID" type="submit" value="Save" class="button" onclick="FormReviewAuthorisationPrintErrors(@Model.ProjectReviews[index].ReviewID, event); "/>
+                            </div>
+                        </div>
+                        <div class="PushDown">
+                            <input type="hidden" id="SaveSuccessAuth-@Model.ProjectReviews[index].ReviewID" value="@(ViewBag.ARSuccessAuth.ToString())"/>
+                            <div id="SaveMessageAuth-@Model.ProjectReviews[index].ReviewID" style="display: none">Save Successful</div>
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+            
+
+        <div class="column-full">
+        <p class="flip" id="Deferral-action-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+    <span class="flipTitle">[+] Deferral Actions </span>  @if (@Model.ProjectReviews[index].ReviewDeferralVM != null)
+    {
+        switch (@Model.ProjectReviews[index].ReviewDeferralVM.StageID)
+        {
+            case "1":
+                <span style="float: right" id="AR-PurpleBar-Deferral-Status-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID"> <i class="fa fa-hourglass-half"></i> Deferral awaiting approval  </span>
+                break;
+            case "2":
+            <span style="float: right" id="AR-PurpleBar-Deferral-Status-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+                Deferred by @if (@Model.ProjectReviews[index].ReviewDeferralVM.DeferralTimescale.Trim().Equals("1"))
+                {
+                    <text>@Model.ProjectReviews[index].ReviewDeferralVM.DeferralTimescale month</text>
+                }
+                else
+                {
+                    <text>@Model.ProjectReviews[index].ReviewDeferralVM.DeferralTimescale months</text>
+                }
+            </span>
+                            break;
+            case "3":
+            <span style="float: right" id="AR-PurpleBar-Deferral-Status-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">Deferral Rejected</span>
+                            break;
+        }
+    }
+    </p>
+        @*<div class="control-bar-Purple"> <span class="flipTitle">[+] Deferral Actions </span> </div>*@
+        <div style="display: none" class="FurtherActionHolder">
+
+            <div id="dvRequestDeferral-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="column-third">
+                <div class="report-basics">
+                    <h2>Request a Deferral</h2>
+                    <span class="form-hint"> Deferrals must be authorised at Director level</span>
+                    <button id="btnRequestDeferral-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" type="button" data-projectid="@Model.ProjectReviews[index].ProjectID" data-reviewid="@Model.ProjectReviews[index].ReviewID" class="bluelightnight btnRequestDeferralExpandForm" style="vertical-align: text-bottom"><strong> Submit / View Deferral </strong></button>
+                    <br/> <br/>
+                </div>
+                </div>
+
+           <div id="dvDelete-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="column-third">
+               <div class="report-basics">
+                   <h2>Delete Deferral</h2>
+                   <p class="form-hint">Delete will clear all data entered and delete the deferral</p>
+                   @if (@Model.ProjectReviews[index].ReviewDeferralVM != null)
+                   {
+
+
+                       using (Html.BeginForm("DeleteDeferral", "Project", FormMethod.Post, new { id = "DeferralDeleteForm-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID }))
+                       {
+                           @Html.AntiForgeryToken()
+                           @Html.ValidationSummary(true)
+                           @Html.HiddenFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.DeferralID, new { id = "Deferralid-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID })
+                           @Html.HiddenFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.ProjectID, new { id = "DeferralDeleteProjectid-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID })
+                           @Html.HiddenFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.ReviewID, new { id = "DeferralDeleteReviewid-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID })
+                           @Html.HiddenFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.Approver, new { id = "DeferralDeleteApproverid-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID })
+
+                           <button id="DeferralCreateCancelBtn-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="red" type="submit">
+                               Delete Deferral
+                           </button>
+
+                       }
+
+                   }
+                   else
+                   {
+                       <span>No deferral requested for this review</span>
+
+                   }
+
+
+                   <br />
+
+
+
+               </div>
+
+            </div>
+        
+           
+
+
+        @*Deferral Start New*@
+
+        <div class="page-container secondary">
+        <div id="DeferralSection-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="reports" style="display: none">
+      
+
+        <div class="grid-row">
+        <div class="column-full">
+            <h3>Request a Deferral</h3>
+            <span class="form-hint">
+                                                A deferral should only be used if absolutely necessary. If data is not yet available, you should consider a review which focuses on process information rather than programme activities.
+                                                If you do decide to defer you must seek approval at Director level before submitting to your Head of Department for confirmation in AMP.
+                                                Please state a clear reason for requesting a review deferral and note that this information will be recorded and made available to Senior Management
+                                            </span>
+        </div>
+
+        @{
+            //Deferall stage 
+            if (@Model.ProjectReviews[index].ReviewDeferralVM != null)
+            {
+                <input id="HasDeferallStage-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" type="hidden" value="@Model.ProjectReviews[index].ReviewDeferralVM.StageID"/>
+            }
+            else
+            {
+                <input id="HasDeferallStage-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" type="hidden" value=""/>
+
+            }
+
+        }
+
+                          <div class="column-half">
+
+            <div id="divDeferralCreateForm-@Model.ProjectReviews[index].ReviewID" class="report-basics">
+
+                @using (Html.BeginForm("SubmitDeferralForApproval", "Project", FormMethod.Post, new {id = "deferralRequestForm-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID}))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+                    <input type="hidden" name="ProjectReviews[@index].ReviewDeferralVM.ProjectID" id="ProjectReviews[@index].ReviewDeferralVM.ProjectID" value="@Model.ProjectHeader.ProjectID"/>
+                    <input type="hidden" name="ProjectReviews[@index].ReviewDeferralVM.ReviewID" id="ProjectReviews[@index].ReviewDeferralVM.ReviewID" value="@Model.ProjectReviews[index].ReviewID" />
+                    <input type="hidden" name="ProjectReviews[@index].ReviewType" id="ProjectReviews[@index].ReviewTypedeferral" value="Annual Review" />
+
+
+                    <div class="grid-row">
+                        <div class="column-full">
+                               @if (@Model.ProjectReviews[index].ReviewDeferralVM != null)
+                               {
+                                  @Html.DateBlockWithoutFieldset("originalReviewdate." + @Model.ProjectReviews[index].ProjectID + "." + @Model.ProjectReviews[index].ReviewID, "Original Annual Review Date", @Model.ProjectReviews[index].ReviewDeferralVM.PreviousReviewDate, "Original AR due date", "originalReviewdate_" + @Model.ProjectReviews[index].ProjectID + "_" + @Model.ProjectReviews[index].ReviewID)
+    
+                               }
+                               else
+                               {
+                                  @Html.DateBlockWithoutFieldset("originalReviewdate." + @Model.ProjectReviews[index].ProjectID + "." + @Model.ProjectReviews[index].ReviewID, "Original Annual Review Date", @Model.Performance.ARDueDate, "Original AR due date", "originalReviewdate_" + @Model.ProjectReviews[index].ProjectID + "_" + @Model.ProjectReviews[index].ReviewID)
+                               }
+                            
+                        
+                        </div>
+
+                        <div class="column-full">
+                            <label class="form-label-bold" for="defNewDate-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">Select Deferral Timescale</label>
+                            <span class="form-hint">Deferral can be 1, 2 or 3 months</span>
+                            @{
+                                List<SelectListItem> lstItems = new List<SelectListItem>();
+                                lstItems.Add(new SelectListItem
+                                {
+                                    Text = "1 Month",
+                                    Value = "1"
+                                });
+                                lstItems.Add(new SelectListItem
+                                {
+                                    Text = "2 Months",
+                                    Value = "2"
+
+                                });
+                                lstItems.Add(new SelectListItem
+                                {
+                                    Text = "3 Months",
+                                    Value = "3"
+                                });
+
+                                if (@Model.ProjectReviews[index].ReviewDeferralVM != null)
+                                {
+
+                                    var selectItems = new SelectList(lstItems, "Value", "Text", @Model.ProjectReviews[index].ReviewDeferralVM.DeferralTimescale);
+
+                                    @Html.DropDownListFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.DeferralTimescale, selectItems, "-- Select --", new {@class = "form-control", id = "defNewDate-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID})
+                                    @Html.ValidationMessageFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.DeferralTimescale)
+                                }
+                                else
+                                {
+                                    @Html.DropDownListFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.DeferralTimescale, lstItems, "-- Select --", new {@class = "form-control", id = "defNewDate-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID})
+                                    @Html.ValidationMessageFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.DeferralTimescale)
+
+                                }
+
+
+
+                            }
+                        </div>
+
+                        @*<div class="column-full">
+                        <label class="form-label-bold" for="defReason-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">Deferral Reason</label>
+                        <br/>
+                        @Html.TextBoxFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.DeferralReason, new { id = "defReason-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID, @class = "form-control", })
+                        @Html.ValidationMessageFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.DeferralReason)
+
+                    </div>*@
+                    </div>
+                    <div class="grid-row">
+                        <div class="column-full">
+                            <label class="form-label-bold" for="defJustificationComment-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">Deferral Justification</label>
+                            <span class="form-hint">Reason why you are requesting a Review Deferral</span>
+                            @Html.TextAreaFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.DeferralJustification, new {id = "defJustificationComment-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID, @class = "form-control", @onkeyup = "countChar(this," + "'justificationcharacters-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID + "'" + ",500 );", maxlength = "500"})
+                            <span class="form-hint" id="justificationcharacters-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID"></span>
+                            <div class="column-full SaveMessageFail" id="defJustificationComment-Error-@Model.ProjectReviews[index].ReviewID"></div>
+                        </div>
+                    </div>
+
+                    if (@Model.ProjectReviews[index].ReviewDeferralVM != null)
+                    {
+                        if (@Model.ProjectReviews[index].ReviewDeferralVM.Requester != null)
+                        {
+                            <div class="grid-row">
+                                <div class="column-full">
+                                    <div class="form-group" id="dvARDeferralRequesterName-@Model.ProjectReviews[index].ReviewID">
+                                        <label class="form-label-bold" for="deferralRequesterName-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">Requester</label>
+                                        <p class="form-hint">Name of the deferral requester</p>
+                                        @Html.TextBoxFor(model => model.ProjectReviews[index].ReviewDeferralVM.RequesterName, new { id = "deferralRequesterName-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID, disabled = "disabled", style = "width: 400px", @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+
+
+
+
+
+                    <div class="grid-row">
+                        <div class="column-two-thirds">
+                            <div class="form-group" id="dvDeferralTypeAhead-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+                                <label class="form-label-bold" for="DeferralAuthoriserBox-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">Approver</label>
+                                <span class="form-hint">Start typing the name of the person you want send the Deferral for approval</span>
+                                <div id="DeferralAuthoriser-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" class="deferralAuthoriser">
+                                    @Html.HiddenFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.Approver, new { id = "DeferralAuthoriserName-" + @Model.ProjectReviews[index].ReviewID })
+                                    <input id="DeferralAuthoriserBox-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" type="text" class="typeahead form-control" placeholder="Search for an approver" style="width: 400px" data-projectid="@Model.ProjectReviews[index].ProjectID" data-reviewid="@Model.ProjectReviews[index].ReviewID" />
+                                    <div class="column-full SaveMessageFail" id="DeferralAuthoriserName-Error-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                 
+                    <div class="grid-row">
+                        <div class="column-two-thirds">
+                            @if (Model.ProjectWFCheck.WorkFlowDescription == "Close Project")
+                            {
+                                <input id="DeferralSubmitBtn-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" type="submit" value="Submit" class="button" onclick="submitdeferral(this, @Model.ProjectReviews[index].ProjectID , @Model.ProjectReviews[index].ReviewID);" disabled="disabled" />
+                            }
+                            else
+                            {
+                                <input id="DeferralSubmitBtn-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" type="submit" value="Submit" class="button" onclick="submitdeferral(this, @Model.ProjectReviews[index].ProjectID , @Model.ProjectReviews[index].ReviewID ); " />
+
+                            }
+
+
+
+
+
+
+                                  </div>
+                    </div>
+                    
+
+                }
+            </div>
+
+                                                   
+  </div>
+                                       
+                                       <div class="column-half">
+                                            <div class="grid-row">
+                                                <div id="divApproveDeferralForm-@Model.ProjectReviews[index].ReviewID" class="report-basics">
+                                                    @using (Html.BeginForm("DeferralAuthorisation", "Project", FormMethod.Post, new {id = "DeferralApprovalForm-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID}))
+                                                    {
+                                                        @Html.AntiForgeryToken()
+                                                        @Html.ValidationSummary(true)
+                                                        @*@Html.HiddenFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.ProjectID, new {@Value = @Model.ProjectHeader.ProjectID})*@
+
+                                                        <input type="hidden" name="ProjectReviews[@index].ReviewDeferralVM.ProjectID" id="ProjectReviews[@index].ReviewDeferralVM.ProjectID.Authorisation" value="@Model.ProjectHeader.ProjectID" />
+                                                        <input type="hidden" name="ProjectReviews[@index].ReviewDeferralVM.ReviewID" id="ProjectReviews[@index].ReviewDeferralVM.ReviewID.Authorisation" value="@Model.ProjectReviews[index].ReviewID" />
+                                                        <input type="hidden" name="ProjectReviews[@index].ReviewType" id="ProjectReviews[@index].ReviewType.Authorisation" value="Annual Review" />
+
+
+
+
+
+                                                        @*<input type="hidden" value=@Model.ProjectHeader.ProjectID name="ProjectReviews[@index].ReviewDeferralVM.ProjectID" id="ProjectReviews_@index__ReviewDeferralVM_ProjectID"/>
+    <input id="ReviewOutput-ProjectID-@index" name="ReviewVm.ReviewOutputVm.ProjectID" type="hidden" value="@Model.ProjectReviews[index].ProjectID" />*@
+                                     @*<input type="hidden" value=@Model.ProjectHeader.ProjectID name="ProjectReviews[@index].ReviewDeferralVM.ReviewID" id="ProjectReviews_@index__ReviewDeferralVM_ReviewID" />*@
+                                                                            @*@Html.HiddenFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.ReviewID, new {@Value = @Model.ProjectReviews[index].ReviewID})*@
+                                                        @*@Html.HiddenFor(model => @Model.ProjectReviews[index].ReviewType)*@
+                                   
+
+
+                                                        <h2>Authorisation</h2>
+                                                        <div class="grid-row">
+                                                            <div class="column-full">
+                                                                <label class="form-label-bold" for="deferralApproverComment-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">Comments</label>
+                                                                <p class="form-hint">Approval comments/rejection justification</p>
+                                                                @Html.TextAreaFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.ApproverComment, new { @class = "form-control", id = "deferralApproverComment-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID, @onkeyup = "countChar(this," + "'deferralApproverCommentcharacter-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID + "'" + ",500 );", maxlength = "500" })
+                                                                <span class="form-hint" id="deferralApproverCommentcharacter-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID"></span> 
+                                                                <div class="column-full SaveMessageFail" id="defAuthorisationComment-Error-@Model.ProjectReviews[index].ReviewID"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="grid-row">
+                                                                    <div class="column-half">
+                                                                        <label class="block-label" style="margin-right: 20px" for="isDefApproved-Y-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+                                                                            @Html.RadioButtonFor(m => @Model.ProjectReviews[index].ReviewDeferralVM.Approved, string.Format("1"), new {id = "isDefApproved-Y-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID})
+                                                                            Approve
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="column-half">
+                                                                        <label class="block-label" style="margin-right: 20px" for="isDefApproved-N-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">
+                                                                            @Html.RadioButtonFor(m => @Model.ProjectReviews[index].ReviewDeferralVM.Approved, string.Format("0"), new { id = "isDefApproved-N-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID })
+                                                                            Reject
+                                                                        </label>
+                                                                    </div>
+                                                        </div>
+                                                        <div class="grid-row">
+                                                            <div class="column-two-thirds">
+                                                                <div id="dvARDeferralApproverName-@Model.ProjectReviews[index].ReviewID">
+                                                                    <label class="form-label-bold" for="deferralApproverName-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID">Approver</label>
+                                                                    <p class="form-hint">Name of the deferral approver</p>
+                                                                    @Html.TextBoxFor(model => @Model.ProjectReviews[index].ReviewDeferralVM.ApproverName, new {id = "deferralApproverName-" + @Model.ProjectReviews[index].ProjectID + "-" + @Model.ProjectReviews[index].ReviewID, disabled = "disabled", style = "width: 400px", @class = "form-control"})
+                                                                    
+                                                                </div>
+                                                            </div>
+                                                            <div class="column-full">
+                                                                <input id="DeferralAuthorisationBtn-@Model.ProjectReviews[index].ProjectID-@Model.ProjectReviews[index].ReviewID" type="submit" value="Submit" class="button" onclick="authoriseDeferral(this, @Model.ProjectReviews[index].ProjectID , @Model.ProjectReviews[index].ReviewID );" />
+                                                            </div>
+                                                        </div>
+
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+                                    </div>
+                                    </div>
+                            </div>
+                            @*Deferral End*@
+                      
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    }
+    }  
+    </div>
+    
+}
+
+
+
+
+    <script type="text/javascript">
+
+    // Functions to hide and show sections.
+    function ToggleFormFunction(divToToggle, buttonToToggle) {
+        $(divToToggle).toggle();
+        $(buttonToToggle).toggle();
+
+    }
+
+    function ToggleFormFunctionCancel(divToToggle, buttonToToggle) {
+        $(divToToggle).toggle();
+        $(buttonToToggle).toggle();
+
+    }
+
+    function PostReviewDocument(form, reviewId, projectId, tableSuffix, thisObj) {
+
+        var documentform = form;
+        $.ajax({
+            cache: false,
+            async: true,
+            type: "POST",
+            url: documentform.attr('action'),
+            data: documentform.serialize(),
+            success: function(result) {
+                if (result.success === true) {
+                    documentform[0].reset();
+                    $(".review-document-btn-click-action").removeAttr("disabled");
+                    var urltoRefresh;
+                    urltoRefresh = '@Html.Raw(@Url.Action("ReviewDocuments", "Project"))' + "/" + projectId + "/" + reviewId;
+                    $('#ReviewDocumentDiv-' + projectId + "-" + reviewId).load(urltoRefresh);
+
+                }
+
+                if (result.success === false) {
+                    thisObj.removeAttr("disabled");
+                }
+            },
+            error: function(result) { alert("failed"); }
+        });
+    };
+
+
+    function RemoveReviewDocument(reviewDocumentId, reviewId, projectId, tableSuffix) {
+        var confirmed = confirm("Are you sure you want to delete this document?");
+        if (confirmed) {
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: "@Url.Action("RemoveReviewDocument", "Project")",
+                data: { documentId: reviewDocumentId },
+                success: function(result) {
+
+                    if (result.success) {
+                        var urltoRefresh;
+                        urltoRefresh = '@Html.Raw(@Url.Action("ReviewDocuments", "Project"))' + "/" + projectId + "/" + reviewId;
+                            $('#ReviewDocumentDiv-' + projectId + "-" + reviewId).load(urltoRefresh);
+                     }
+
+                        if (result.success === false) {
+                            alert('Failed');
+                        }
+                    },
+                    error: function(result) { alert("failed"); }
+                });
+
+            } else {
+
+            }
+        };
+
+
+//Show hide deferral form
+        $(".btnRequestDeferralExpandForm").click(function() {
+            var reviewId = $(this).attr("data-reviewid");
+            var projectId = $(this).attr("data-projectid");
+            ToggleOutputDeferralCreateForm(projectId, reviewId);
+        });
+        function ToggleOutputDeferralCreateForm(projectId, reviewId) {
+            $("#DeferralSection-" + projectId + "-" + reviewId).slideToggle("slow");
+
+
+        };
+
+        function SetARDeferralSubmissionAndAuthorisationViewMode() {
+
+
+            for (i = 0; i <= ($('[id^=control-bar-]').length - 1); i++) //count how many accordion items are there by counting hidden elements starting with 'UserGroup-'
+            {
+                var projectId = $('#hidden-projectID-' + i).val();
+
+                //Review stage
+                switch ($('#Stage-' + i).val()) {
+
+                    case 'In Preparation':
+
+                        var deferralStageId= $('#HasDeferallStage-'+projectId +'-'+i).val();
+                        switch (deferralStageId) {
+                            //1 = Submitted for approval stage
+                            case "1":
+                                DisableDeferralRequestForm(i);
+                                if ($('#userMemberOfGroup').text() === 'Team'){
+                                //Enable cancel button so that deferral can be deleted before it gets approved.
+                                 $('#DeferralCreateCancelBtn-' + projectId +"-"+ i).show();
+                                $('#DeferralCreateCancelBtn-' + projectId +"-"+ i).removeAttr("disabled");
+                                }
+                                if ($('#userMemberOfGroup').text() !== 'Team'){
+                                    $('#DeferralCreateCancelBtn-' + projectId +"-"+ i).attr("disabled", "disabled");
+                                 }
+
+                                if ($('#userMemberOfGroup').text() !== 'Approver') {
+                                   DisableDeferralAuthorisationForm(i);
+                                }
+
+                                //Hide search approver section 
+                                $('#dvDeferralTypeAhead-' + projectId + '-' + i).hide();
+
+                                //no one will able to send for review approval while deferral is in progress.
+                                $('#CreateBtnSubmission-' + i).replaceWith("<span><i class='fa fa-hourglass-half'></i> Deferral awaiting approval. You cannot submit review for approval at this stage.</span>");
+                                //no one will able to delete AR while deferral is in progress.
+                                $('#DeleteAR-' + i).replaceWith("<span><i class='fa fa-hourglass-half'></i> Deferral awaiting approval . You cannot delete review at this stage.</span>");
+
+                                $("#btnRequestExemptionPCR").prop("disabled", true);
+                                $("#btnRequestExemptionAR").prop("disabled", true);
+                                break;
+                            //2 = Deferral approved
+                            case '2':
+                                DisableDeferralRequestForm(i);
+                                DisableDeferralAuthorisationForm(i);
+                                $('#DeferralCreateCancelBtn-' + projectId +"-"+ i).attr("disabled", "disabled");
+                                //Hide search approver section 
+                                $('#dvDeferralTypeAhead-' + projectId + '-' + i).hide();
+                                //cannot submit more than one deferral 
+                                $('#DeferralSubmitBtn-' + projectId + '-' + i).replaceWith("<span><i class='fa fa-info-circle'></i> Deferral approved. This review cannot be deffered again. </span>");
+                                //Review cannot be deleted if deferral has been approved
+                                $('#DeleteAR-'+i).replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been approved. You cannot delete review at this stage.</span>");
+              
+                                break;
+                            // 3 = Deferral Rejected stage
+                            case '3':
+                                DisableDeferralAuthorisationForm(i);
+                                DisableDeferralRequestForm(i);
+                              
+                                $('#DeferralCreateCancelBtn-' + projectId +"-"+ i).attr("disabled", "disabled");
+                                $('#dvDeferralTypeAhead-' + projectId + '-' + i).hide();
+                                //Cannot submit more than one deferral 
+                                $('#DeferralSubmitBtn-' + projectId + '-' + i).replaceWith("<span> <i class='fa fa-info-circle'></i> Deferral has been rejected. You cannot submit another deferral</span>");
+                                //Review cannot be deleted if deferral has been rejected
+                                $('#DeleteAR-' + i).replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been rejected for this review. You cannot delete review at this stage.</span>");
+
+                               break;
+                            default:
+                                HideDeferralApproverForm(i);
+                                $('#ReviewMaster_ReviewDate_Day').prop("readonly", true);
+                                $('#ReviewMaster_ReviewDate_Month').prop("readonly", true);
+                                $('#ReviewMaster_ReviewDate_Year').prop("readonly", true);
+                        }
+                        break;
+                    //Review stage
+                    case 'Awaiting Approval':
+
+                        var deferralStageId = $('#HasDeferallStage-' + projectId + '-' + i).val();
+                        switch (deferralStageId) {
+                            //1 = Submitted for approval stage
+                            case "1":
+                                DisableDeferralRequestForm(i);
+                                DisableDeferralAuthorisationForm(i);
+                                //Hide search approver section 
+                                $('#dvDeferralTypeAhead-' + projectId + '-' + i).hide();
+                               
+                                    $('#DeferralCreateCancelBtn-' + projectId + "-" + i).attr("disabled", "disabled");
+                              
+                                break;
+                            //2 = Deferral approved
+                            case '2':
+                                DisableDeferralRequestForm(i);
+                                DisableDeferralAuthorisationForm(i);
+                                $('#DeferralCreateCancelBtn-' + projectId +"-"+ i).attr("disabled", "disabled");
+                                //Hide search approver section 
+
+                                $('#dvDeferralTypeAhead-' + projectId + '-' + i).hide();
+                                $('#DeferralSubmitBtn-' + projectId + '-' + i).replaceWith("<span><i class='fa fa-info-circle'></i> Deferral approved. This review cannot be deffered again. </span>");
+
+                                //Review cannot be deleted if deferral has been approved
+                                $('#DeleteAR-' + i).replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been approved for this review. You cannot delete review at this stage.</span>");
+                                break;
+                            // 3 = Deferral Rejected stage
+                            case '3':
+                                DisableDeferralRequestForm(i);
+                                DisableDeferralAuthorisationForm(i);
+                                $('#DeferralCreateCancelBtn-' + projectId +"-"+ i).attr("disabled", "disabled");
+                                $('#dvDeferralTypeAhead-' + projectId + '-' + i).hide();
+                                //no one will able to send for review approval while deferral is in progress.
+                                $('#DeferralSubmitBtn-' + projectId + '-' + i).replaceWith("<span> <i class='fa fa-info-circle'></i> Deferral has been rejected. You cannot submit another deferral</span>");
+                                //Review cannot be deleted if deferral has been rejected
+                                $('#DeleteAR-' + i).replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been rejected for this review. You cannot delete review at this stage.</span>");
+                                break;
+                            default:
+                                DisableDeferralRequestForm(i);
+                                HideDeferralApproverForm(i);
+                        }
+
+                        break;
+
+                    case 'Approved':
+
+                        var deferralStageId = $('#HasDeferallStage-' + projectId + '-' + i).val();
+                        switch (deferralStageId) {
+                            //1 = Submitted for approval stage
+                            case '1':
+                                DisableDeferralRequestForm(i);
+                                DisableDeferralAuthorisationForm(i);
+                                //Hide search approver section 
+                                $('#dvDeferralTypeAhead-' + projectId + '-' + i).hide();
+                                $('#DeferralCreateCancelBtn-' + projectId + "-" + i).attr("disabled", "disabled");
+                                break;
+                                //2 = Deferral approved
+                            case '2':
+                                DisableDeferralRequestForm(i);
+                                DisableDeferralAuthorisationForm(i);
+                                $('#DeferralCreateCancelBtn-' + projectId +"-"+ i).attr("disabled", "disabled");
+                                //Hide search approver section 
+                                $('#dvDeferralTypeAhead-' + projectId + '-' + i).hide();
+                                $('#DeferralSubmitBtn-' + projectId + '-' + i).replaceWith("<span><i class='fa fa-info-circle'></i> Deferral approved. This review cannot be deffered again. </span>");
+                             
+                                break;
+                                // 3 = Deferral Rejected stage
+                            case '3':
+                                DisableDeferralRequestForm(i);
+                                DisableDeferralAuthorisationForm(i);
+                                $('#DeferralCreateCancelBtn-' + projectId +"-"+ i).attr("disabled", "disabled");
+                                break;
+                            default:
+                                DisableDeferralRequestForm(i);
+                                HideDeferralApproverForm(i);
+                        }
+
+                    break;
+
+                    case 'Rejected':
+
+                        var deferralStageId = $('#HasDeferallStage-' + projectId + '-' + i).val();
+                        switch (deferralStageId) {
+                            //1 = Submitted for approval stage
+                            case '1':
+
+                                DisableDeferralRequestForm(i);
+                               
+                                if ($('#userMemberOfGroup').text() !== 'Approver') {
+                                    DisableDeferralAuthorisationForm(i);
+                                  
+                                }
+                                //DisableARapprovalSubmitButton();//no one will able to send for review approval while deferral is in progress.
+                                break;
+                                //2 = Deferral approved
+                            case '2':
+                                DisableDeferralRequestForm(i);
+                                DisableDeferralAuthorisationForm(i);
+                                $('#DeferralCreateCancelBtn-' + projectId +"-"+ i).attr("disabled", "disabled");
+                                //Review cannot be deleted if deferral has been approved
+                                $('#DeleteAR-'+i).replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been approved. You cannot delete review at this stage.</span>");
+              
+                                //Enable review submit approval button
+                                break;
+                                // 3 = Deferral Rejected stage
+                            case '3':
+                                DisableDeferralRequestForm(i);
+                                DisableDeferralAuthorisationForm(i);
+                                $('#DeferralCreateCancelBtn-' + projectId +"-"+ i).attr("disabled", "disabled");
+                                //Review cannot be deleted if deferral has been rejected
+                                $('#DeleteAR-' + i).replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been rejected for this review. You cannot delete review at this stage.</span>");
+                                //DisableARapprovalSubmitButton(); //One one will able to send for review approval while deferral is in progress.
+
+                                break;
+                            default:
+                                HideDeferralApproverForm(i);
+                        }
+                    break;
+
+                default:
+                    DisableDeferralRequestForm(i);
+                    HideDeferralApproverForm(i);
+            }
+                //Set the DeleteReview button to read only for non team members
+                //SetDeleteReviewToReadOnly(i);
+            }
+        }
+
+        function SetPCRDeferralSubmissionAndAuthorisationViewMode() {
+            var projectId = $('#hidden-projectID-pcr').val();
+            var reviewId = $('#hidden-reviewID-pcr').val();
+            var pcrDeferralStageId;
+            switch ($('#PCRSubmission-Stage').val()) {
+
+                case 'In Preparation':
+                    pcrDeferralStageId = $('#HasPCRDeferallStage').val();
+                    switch (pcrDeferralStageId) {
+                        //1 = Submitted for approval stage
+                        case "1":
+                           DisablePCRDeferralRequestForm();
+                            //Enable cancel button so that deferral can be deleted before it gets approved.
+                           if ($('#userMemberOfGroup').text() === 'Team') 
+                               {
+                                    $('#PCRDeferralCreateCancelBtn').show();
+                                    $('#PCRDeferralCreateCancelBtn').removeAttr("disabled");
+                           }
+                           if ($('#userMemberOfGroup').text() !== 'Team'){
+                               $('#PCRDeferralCreateCancelBtn').attr("disabled", "disabled");
+                           }
+                            if ($('#userMemberOfGroup').text() !== 'Approver') {
+                                DisablePCRDeferralAuthorisationForm();
+                            }
+                            //Hide search approver section 
+                            $('#dvDeferralTypeAhead-' + projectId + '-' + reviewId).hide();
+                            //no one will able to send for review approval while deferral is in progress.
+                            $('#PCRCreateBtnSubmission').replaceWith("<span><i class='fa fa-hourglass-half'></i> Deferral awaiting approval. You cannot submit review for approval at this stage.</span>");
+                            //no one will able to delete PCR while deferral is in progress.
+                            $('#DeletePCR').replaceWith("<span><i class='fa fa-hourglass-half'></i> Deferral awaiting approval. You cannot delete review at this stage.</span>");
+
+                            $("#btnRequestExemptionPCR").prop("disabled", true);
+                            $("#btnRequestExemptionAR").prop("disabled", true);
+
+                         break;
+                            //2 = Deferral approved
+                        case '2':
+                           
+                            DisablePCRDeferralRequestForm();
+                            DisablePCRDeferralAuthorisationForm();
+                            //Hide search approver section 
+                            $('#dvDeferralTypeAhead-' + projectId + '-' + reviewId).hide();
+                            $('#PCRDeferralSubmitBtn').replaceWith("<span><i class='fa fa-info-circle'></i> Deferral approved. This review cannot be deffered again. </span>");
+                            $('#PCRDeferralCreateCancelBtn').attr("disabled", "disabled");
+                            //This PCR cannot be deleted once deferral has been approved
+                            $('#DeletePCR').replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been approved. You cannot delete review at this stage.</span>");
+                        break;
+                            // 3 = Deferral Rejected stage
+                        case '3':
+                          
+                            DisablePCRDeferralAuthorisationForm();
+                            DisablePCRDeferralRequestForm();
+                            $('#dvDeferralTypeAhead-' + projectId + '-' + reviewId).hide();
+                            $('#PCRDeferralCreateCancelBtn').attr("disabled", "disabled");
+                            //no one will able to send for review approval while deferral is in progress.
+                            $('#PCRDeferralSubmitBtn').replaceWith("<span> <i class='fa fa-info-circle'></i> Deferral has been rejected. You cannot submit another deferral</span>");
+                            //PCR cannot be deleted if deferral has been rejected
+                            $('#DeletePCR').replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been rejected for this review. You cannot delete review at this stage.</span>");
+
+                            break;
+                        default:
+                           
+                            HidePCRDeferralApproverForm();
+                            //$('#ReviewMaster_ReviewDate_Day').prop("readonly", true);
+                            //$('#ReviewMaster_ReviewDate_Month').prop("readonly", true);
+                            //$('#ReviewMaster_ReviewDate_Year').prop("readonly", true);
+                            $('#divPCRDeferralCreateForm').find("input,button,textarea,select").removeAttr("disabled");
+                    }
+                    break;
+
+                case 'Awaiting Approval':
+                   
+                    pcrDeferralStageId = $('#HasPCRDeferallStage').val();
+                    switch (pcrDeferralStageId) {
+                        //1 = Submitted for approval stage
+                        case "1":
+                            DisablePCRDeferralRequestForm();
+                            DisablePCRDeferralAuthorisationForm();
+                            $('#PCRDeferralCreateCancelBtn').attr("disabled", "disabled");
+                            break;
+                            //2 = Deferral approved
+                        case '2':
+                            DisablePCRDeferralRequestForm();
+                            DisablePCRDeferralAuthorisationForm();
+                            $('#PCRDeferralCreateCancelBtn').attr("disabled", "disabled");
+                            //Hide search approver section 
+                            $('#dvDeferralTypeAhead-' + projectId + '-' + reviewId).hide();
+                            $('#PCRDeferralSubmitBtn').replaceWith("<span><i class='fa fa-info-circle'></i> Deferral approved. This review cannot be deffered again. </span>");
+                            //PCR cannot be deleted if deferral has been approved
+                            $('#DeletePCR').replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been approved for this review. You cannot delete review at this stage.</span>");
+                            break;
+                            // 3 = Deferral Rejected stage
+                        case '3':
+                            DisablePCRDeferralRequestForm();
+                            DisablePCRDeferralAuthorisationForm();
+                            $('#PCRDeferralCreateCancelBtn').attr("disabled", "disabled");
+                            $('#dvDeferralTypeAhead-' + projectId + '-' + reviewId).hide();
+                            //no one will able to send for review approval while deferral is in progress.
+                            $('#PCRDeferralSubmitBtn').replaceWith("<span> <i class='fa fa-info-circle'></i> Deferral has been rejected. You cannot submit another deferral</span>");
+                            //PCR cannot be deleted if deferral has been rejected
+                            $('#DeletePCR').replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been rejected for this review. You cannot delete review at this stage.</span>");
+                            break;
+                        default:
+                            DisablePCRDeferralRequestForm();
+                            DisablePCRDeferralAuthorisationForm();
+}
+                    break;
+
+                case 'Approved':
+                    pcrDeferralStageId = $('#HasPCRDeferallStage').val();
+                    switch (pcrDeferralStageId) {
+                        //1 = Submitted for approval stage
+                        case "1":
+                           
+                            DisablePCRDeferralRequestForm();
+                            DisablePCRDeferralAuthorisationForm();
+                            $('#PCRDeferralCreateCancelBtn').attr("disabled", "disabled");
+                            break;
+                            //2 = Deferral approved
+                        case '2':
+                           
+                            DisablePCRDeferralRequestForm();
+                            DisablePCRDeferralAuthorisationForm();
+                            $('#PCRDeferralCreateCancelBtn').attr("disabled", "disabled");
+                            //Hide search approver section 
+                            $('#dvDeferralTypeAhead-' + projectId + '-' + reviewId).hide();
+                            $('#PCRDeferralSubmitBtn').replaceWith("<span><i class='fa fa-info-circle'></i> Deferral approved. This review cannot be deffered again. </span>");
+                            break;
+                        case '3':
+                          
+                            DisablePCRDeferralRequestForm();
+                            DisablePCRDeferralAuthorisationForm();
+                            $('#PCRDeferralCreateCancelBtn').attr("disabled", "disabled");
+                            $('#dvDeferralTypeAhead-' + projectId + '-' + reviewId).hide();
+                            //no one will able to send for review approval while deferral is in progress.
+                            $('#PCRDeferralSubmitBtn').replaceWith("<span> <i class='fa fa-info-circle'></i> Deferral has been rejected. You cannot submit another deferral</span>");
+                       
+                                  break;
+                        default:
+                            DisablePCRDeferralRequestForm();
+                            DisablePCRDeferralAuthorisationForm();
+                     }
+                    break;
+                case 'Rejected':
+                    pcrDeferralStageId = $('#HasPCRDeferallStage').val();
+                    switch (pcrDeferralStageId) {
+                        //1 = Submitted for approval stage
+                        case "1":
+                            DisablePCRDeferralRequestForm();
+                            //Enable cancel button so that deferral can be deleted before it gets approved.
+                            $('#PCRDeferralCreateCancelBtn').show();
+                            $('#PCRDeferralCreateCancelBtn').removeAttr("disabled");
+                            if ($('#userMemberOfGroup').text() !== 'Approver') {
+                                DisablePCRDeferralAuthorisationForm();
+                            }
+                            //Hide search approver section 
+                            $('#dvDeferralTypeAhead-' + projectId + '-' + reviewId).hide();
+                            //no one will able to send for review approval while deferral is in progress.
+                            $('#PCRCreateBtnSubmission').replaceWith("<span><i class='fa fa-hourglass-half'></i> Deferral awaiting approval. You cannot submit review for approval at this stage.</span>");
+                            break;
+                            //2 = Deferral approved
+                        case '2':
+                           
+                            DisablePCRDeferralRequestForm();
+                            DisablePCRDeferralAuthorisationForm();
+                            $('#PCRDeferralCreateCancelBtn').attr("disabled", "disabled");
+                            //Hide search approver section 
+                            $('#dvDeferralTypeAhead-' + projectId + '-' + reviewId).hide();
+                            $('#PCRDeferralSubmitBtn').replaceWith("<span><i class='fa fa-info-circle'></i> Deferral approved. This review cannot be deffered again. </span>");
+                            $('#DeletePCR').replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been approved. You cannot delete review at this stage.</span>");
+                          break;
+                            // 3 = Deferral Rejected stage
+                        case '3':
+                          
+                            DisablePCRDeferralAuthorisationForm();
+                            DisablePCRDeferralRequestForm();
+                            $('#PCRDeferralCreateCancelBtn').attr("disabled", "disabled");
+                            $('#dvDeferralTypeAhead-' + projectId + '-' + reviewId).hide();
+                            //no one will able to send for review approval while deferral is in progress.
+                            $('#PCRDeferralSubmitBtn').replaceWith("<span> <i class='fa fa-info-circle'></i> Deferral has been rejected. You cannot submit another deferral</span>");
+                            //PCR cannot be deleted if deferral has been rejected
+                            $('#DeletePCR').replaceWith("<span><i class='fa fa-info-circle'></i> Deferral has been rejected for this review. You cannot delete review at this stage.</span>");
+
+                            break;
+                        default:
+                           
+                            HidePCRDeferralApproverForm();
+                            //$('#ReviewMaster_ReviewDate_Day').prop("readonly", true);
+                            //$('#ReviewMaster_ReviewDate_Month').prop("readonly", true);
+                            //$('#ReviewMaster_ReviewDate_Year').prop("readonly", true);
+                            $('#divPCRDeferralCreateForm').find("input,button,textarea,select").removeAttr("disabled");
+                    }
+                    break;
+                default:
+                    DisablePCRDeferralAuthorisationForm();
+                    DisablePCRDeferralRequestForm();
+            }
+        }
+
+
+        function DisableDeferralAuthorisationForm(i) {
+            $("#divApproveDeferralForm-" + i).find("input,button,textarea,select").attr("disabled", "disabled");
+        }
+
+        function DisableDeferralRequestForm(i) {
+            $("#divDeferralCreateForm-" + i).find("input,button,textarea,select").attr("disabled", "disabled");
+        }
+
+        function HideDeferralApproverForm(i) {
+            $("#divApproveDeferralForm-" + i).hide();
+        }
+
+        function DisablePCRDeferralRequestForm() {
+            $("#divPCRDeferralCreateForm").find("input,button,textarea,select").attr("disabled", "disabled");
+        }
+        
+        function DisablePCRDeferralAuthorisationForm() {
+            $("#divPCRApproveDeferralForm").find("input,button,textarea,select").attr("disabled", "disabled");
+        }
+
+        function HidePCRDeferralApproverForm() {
+            $("#divPCRApproveDeferralForm").hide();
+        }
+
+        function submitdeferral(obj, projectId, reveiwId) {
+            $('#defJustificationComment-Error-' + reveiwId).html("");
+            $('#DeferralAuthoriserName-Error-' + projectId + "-" + reveiwId).html("");
+            if (($('#defJustificationComment-'+projectId + "-"+reveiwId).val().length < 20) ){
+                $('#defJustificationComment-Error-' + reveiwId).html("Comment/justification must be at least 20 characters");
+                event.preventDefault();
+                return false;
+            } 
+            else if ($('#DeferralAuthoriserName-' + reveiwId).val() === '') {
+                $('#DeferralAuthoriserName-Error-' + projectId +"-"+ reveiwId).html("Authoriser can not be empty");
+                event.preventDefault();
+                return false;
+            }
+            
+            else {
+                
+                if($(obj).closest('form').valid() === true)
+                    {
+                   
+                    $(obj).closest('form').submit();
+                    $(obj).closest('form').find("input,button,textarea,select").attr("disabled", "disabled");
+                    $(obj).replaceWith("<span><i class='fa fa-hourglass-half'></i> Submitting deferral for approval.Please wait... </span>");
+                }
+                
+            }
+            
+        }
+
+
+        function authoriseDeferral(obj, projectId, reveiwId) {
+            $('#defAuthorisationComment-Error-' + reveiwId).html("");
+            if (($('#deferralApproverComment-'+projectId + "-"+reveiwId).val().length < 20) ){
+                $('#defAuthorisationComment-Error-' + reveiwId).html("Comment must be at least 20 characters");
+                event.preventDefault();
+                return false;
+            } 
+            else if ($('#isDefApproved-Y-'+projectId + "-"+reveiwId).is(":checked") === false && $('#isDefApproved-N-'+projectId + "-"+reveiwId).is(":checked") ===false ) {
+                $('#defAuthorisationComment-Error-' + reveiwId).html("You must select Approve or Reject");
+                event.preventDefault();
+                return false;
+            }
+            
+            else {
+                
+                if($(obj).closest('form').valid() === true)
+                {
+                   
+                    $(obj).closest('form').submit();
+                    $(obj).closest('form').find("input,button,textarea,select").attr("disabled", "disabled");
+                    $(obj).replaceWith("<span><i class='fa fa-hourglass-half'></i> Submitting.Please wait... </span>");
+                }
+                
+            }
+            
+        }
+
+
+        $('.review-overallScore-btn-click-action').click(function (e) {
+            e.preventDefault();
+            
+            var reviewId = $(this).attr("data-reviewid");
+            var projectId = $(this).attr("data-projectid");
+            var thisTableSuffix = $(this).attr("data-table-suffix");
+            var overallrisk = $('#ReviewVm_ReviewOutputVm_OverAllRisk_' + reviewId).val();
+            //clear error message 
+            $("#RiskRatingValidation-"+projectId+"-"+reviewId).hide();
+
+            if (!overallrisk.length) {
+                $("#RiskRatingValidation-"+projectId+"-"+reviewId).show();
+                event.preventDefault();
+                return false;
+            }
+
+
+
+            var reviewOverallRisk =
+                {
+                    "projectId": projectId,
+                    "reviewId": reviewId,
+                    "overallRisk": overallrisk
+                };
+     
+                $(".content-loading").show();
+               $.ajax({
+                    url: '@Html.Raw(Url.Action("AddReviewOverallRisk", "Project"))',
+                   data: JSON.stringify(reviewOverallRisk),
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (result) {
+                        if (result.response === "Successful") {
+                            if (thisTableSuffix === "Pcr") {
+                           
+                                SetAggregatedRiskAndUpdateColor(projectId, reviewId, result.Risk);
+
+                            } else {
+                                SetAggregatedRiskAndUpdateColor(projectId, reviewId, result.Risk);
+                            }
+                            $('#outputOverallScoreInfoMessage-' + projectId + '-' + reviewId).hide();
+
+                            $(".content-loading").hide();
+                            $('#btnShowOverallRiskForm-'+ projectId + '-' + reviewId).show();
+                            $("#overallScoreSuccessMessage-" + projectId + "-" + reviewId).fadeOut(5000).html("Overall risk rating has been added");
+                        }
+                        else if (result.response === "UnSuccessfulM") {
+                            $(".content-loading").hide();
+                        }
+                        else {
+                            $(".content-loading").hide();
+                        }
+                    }
+                });
+
+
+            
+        });
+
+
+
+//function to hide and show Deferral Actions section
+        $(document).ready(function() {
+            $(".flip").click(function() {
+
+                $(this).next('.FurtherActionHolder').fadeToggle();
+                var txt = $("span.flipTitle").first().text();
+                var elem = $(this).find('span.flipTitle').text();
+                
+                if (elem === '[-] Deferral Actions') {
+                    $(this).find('span.flipTitle').text('[+] Deferral Actions');
+                    //$(this).next('span.flipTitle').text("aaaaaa");
+                }
+                else {
+                    $(this).find('span.flipTitle').text('[-] Deferral Actions');
+                    //$(this).next('span.flipTitle').text("bbbb");
+                }
+              
+            });
+            SetARDeferralSubmissionAndAuthorisationViewMode();
+            SetPCRDeferralSubmissionAndAuthorisationViewMode();
+        });
+
+
+    </script>

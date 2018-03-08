@@ -1,0 +1,7 @@
+﻿@model AMP.ViewModels.ProjectTeamMemberVM
+
+<div style="text-align: center">
+    <button type="button" value="Edit-@ViewBag.TeamMemberPosition" class="bluelightnight" id="@String.Format("btnEditTeamMember{0}", ViewBag.TeamMemberPosition)" onclick="EditTeamMember(@Model.ID)">Edit</button>
+    <button type="button" value="Remove-@ViewBag.TeamMemberPosition" class="red" id="@String.Format("btnRemoveTeamMember{0}", ViewBag.TeamMemberPosition)" style="margin-left: 5px;" onclick="RemoveTeamMember(@Model.ID)">Remove</button>
+</div>
+

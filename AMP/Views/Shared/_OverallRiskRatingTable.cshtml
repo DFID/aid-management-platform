@@ -1,0 +1,41 @@
+﻿
+@model AMP.ViewModels.OverallRiskRatingsVM
+
+<div class="column-full">
+    <table class="table-main" border="1" title="A data table that contains a list of overall risk ratings that apply to the project. The table contains the comments and risks at each rating.">
+        <tr>
+            <th id="LastUpdated">LastUpdated</th>
+           
+            <th id="RiskScores">RiskScore</th>
+          
+            <th id="Comments">Comments</th>
+ 
+            <th id="Action">Action</th>
+        </tr>
+        @{
+            var index = 0;
+            if (Model.OverallRiskRatings.Count > 0)
+            {
+                foreach (var item in Model.OverallRiskRatings)
+                {
+                    <tr>
+                        <td id="Risk-lastupdated-@index" headers="LastUpdated">@Html.DisplayFor(modelItem => item.LastUpdated)</td>
+
+                        <td id="Risk-RiskScore-@index" headers="RiskScores">@Html.DisplayFor(modelItem => item.RiskScore)</td>
+
+                        <td id="Risk-Comments-@index" headers="Comments">@Html.DisplayFor(modelItem => item.Comments)</td>
+
+                        <td id="Risk-Action-@index" headers="Action"><button data-url='@Url.Action("DisplayOverallRiskRating", "Project", new
+                                                                                       {
+                                                                                           id = item.OverallRiskRatingId
+
+                                                                                       })' class="load-overallrisk-Item">Details</button></td>
+                    </tr>
+                    index++;
+                }
+            }
+        }
+    </table>
+</div>
+
+

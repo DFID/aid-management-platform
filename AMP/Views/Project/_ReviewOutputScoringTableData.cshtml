@@ -1,0 +1,205 @@
+﻿@model  AMP.ViewModels.ProjectViewModel
+
+@{
+    string TypeOfTable = ViewBag.tabletype;
+}
+@{
+    @*
+        ************************************
+        Render PCR table based on Table Type
+        ************************************
+    *@
+    if (!string.IsNullOrEmpty(TypeOfTable))
+    {
+        var grid = new WebGrid(Model.ReviewVm.ReviewOutputs, canPage: false);
+        @grid.GetHtml(
+             tableStyle: "table-main",
+             htmlAttributes: new { Id = "tblOutputScores-" + @Model.ReviewVm.ProjectID + "-" + @Model.ReviewVm.ReviewID, title = String.Format("Table of Output Scores for Project Completion Review. Each row of the table contains a description of the Output, an Impact Weighting, performance score and risk rating. There is also an action column with buttons that allow you to edit, delete and save changes to the output.") },
+             mode: WebGridPagerModes.All,
+            columns:
+            grid.Columns(
+            grid.Column("Description", "Description", format: @<text><span class="display-mode"><label class="lblDescription" for="Description-@item.ProjectID-@item.ReviewID-@item.OutputID">@item.OutputDescription</label></span>
+            <textarea rows="2" cols="50" id="Description-@item.ProjectID-@item.ReviewID-@item.OutputID" class="edit-mode">@item.OutputDescription</textarea></text>, style: "col1Width",  canSort: false),
+            grid.Column("Impact Weight", "Impact Weight (%)", format: @<text><span class="display-mode"><label class="lblImpactWeight" for="ImpactWeight-@item.ProjectID-@item.ReviewID-@item.OutputID">@item.Weight</label></span> <input type="text" style="width: 30px" id="ImpactWeight-@item.ProjectID-@item.ReviewID-@item.OutputID" value="@item.Weight" class="edit-mode" /></text>, style: "col2Width",  canSort: false),
+            grid.Column("Performance", "Performance", format: @<text> <span class="display-mode" data-reviewscoreweight="@item.ReviewScore.Weight"><label class="lblPerformance" for="Performance-pcr-@item.ReviewID-@item.OutputID">@item.OutputScore</label></span>
+            <select id="Performance-pcr-@item.ReviewID-@item.OutputID" name="Performance-pcr-@item.ReviewID-@item.OutputID" class="edit-mode">
+                <option value="A++" @{ if (item.OutputScore.Equals("A++")) { <text> selected</text>}}>A++ Outputs Substantially exceeded expectation</option>
+                <option value="A+" @{ if (item.OutputScore.Equals("A+")) { <text> selected</text>}}>A+ Outputs Moderately exceeded expectation</option>
+                <option value="A" @{ if (item.OutputScore.Equals("A")) { <text> selected</text>}}>A Outputs Met expectation</option>
+                <option value="B" @{ if (item.OutputScore.Equals("B")) { <text> selected</text>}}>B Outputs Moderately did not meet expectation</option>
+                <option value="C" @{ if (item.OutputScore.Equals("C")) { <text> selected</text>}}>C Outputs Substantially did not meet expectation</option>
+            </select></text>, style: "col2Width colReviewScore",  canSort: false),
+                grid.Column("Risk", "Risk", format: @<text> <span class="display-mode"><label class="lblRisk" for="Risk-@item.ProjectID-@item.ReviewID-@item.OutputID">   
+                                                                                                                                    @{
+                                                                                                                                        if (item.Risk.Equals("R1"))
+                                                                                                                                        {
+                                                                                                                                            <text> Minor</text>
+                                                                                                                                        }
+                                                                                                                                        if (item.Risk.Equals("R2"))
+                                                                                                                                        {
+                                                                                                                                            <text> Moderate</text>
+                                                                                                                                        }
+                                                                                                                                        if (item.Risk.Equals("R3"))
+                                                                                                                                        {
+                                                                                                                                            <text> Major</text>
+                                                                                                                                        }
+                                                                                                                                        if (item.Risk.Equals("R4"))
+                                                                                                                                        {
+                                                                                                                                            <text> Severe</text>
+                                                                                                                                        }
+                                                                                                                                    }
+    </label></span>
+            <select id="Risk-@item.ProjectID-@item.ReviewID-@item.OutputID" name="Risk-@item.ProjectID-@item.ReviewID-@item.OutputID" class="edit-mode">
+                <option value="R1" @{ if (item.Risk.Equals("R1")){ <text> selected</text>}}>Minor</option>
+                <option value="R2" @{ if (item.Risk.Equals("R2")){ <text> selected</text>}}>Moderate</option>
+                <option value="R3" @{ if (item.Risk.Equals("R3")){ <text> selected</text>}}>Major</option>
+                <option value="R4" @{ if (item.Risk.Equals("R4")){ <text> selected</text>}}>Severe</option>
+            </select></text>, style: "col2Width",  canSort: false),
+            grid.Column("Action", format: @<text>
+            <button class="edit-output display-mode bluelightnight" title="Edit" id="btn-edit-@item.ProjectID-@item.ReviewID-@item.OutputID"><i class="fa fa-pencil-square-o"> </i></button>
+            <button class="Delete-output display-mode red" title="Delete" onclick="RemoveReviewOutput(@item.ProjectID, @item.ReviewID,@item.OutputID,'Pcr')" id="btn-delete-@item.ProjectID-@item.ReviewID-@item.OutputID"><i class="fa fa-trash"> </i></button>
+            <button class="save-output edit-mode" id="btn-save-@item.ProjectID-@item.ReviewID-@item.OutputID" title="Save" data-projectid="@item.ProjectID" data-reviewid="@item.ReviewID" data-outputid="@item.OutputID" data-thistableid="Pcr"><i class="fa fa-floppy-o"></i></button>
+            <button class="cancel-output edit-mode bluelightnight" id="btn-cancel-@item.ProjectID-@item.ReviewID-@item.OutputID" title="Cancel" style="margin-top:5px"><i class="fa fa-times"></i></button>
+            </text>, style: "col3Width", canSort: false)
+ ))
+    }
+
+
+    else
+    {
+        @*
+            ************************************
+            Render AR table based on Table Type
+            ************************************
+        *@
+        var grid = new WebGrid(Model.ReviewVm.ReviewOutputs, canPage: false);
+        @grid.GetHtml(
+             tableStyle: "table-main",
+             htmlAttributes: new { Id = "tblOutputScores-" + @Model.ReviewVm.ProjectID + "-" + @Model.ReviewVm.ReviewID, title = String.Format("Table of Output Scores for Annual Review number {0}. Each row of the table contains a description of the Output, an Impact Weighting, performance score and risk rating. There is also an action column with buttons that allow you to edit, delete and save changes to the output.", @Model.ReviewVm.ReviewID) },
+             mode: WebGridPagerModes.All,
+            columns:
+            grid.Columns(
+                grid.Column("Description", "Description", format: @<text><span class="display-mode"><label class="lblDescription" for="Description-@item.ProjectID-@item.ReviewID-@item.OutputID">@item.OutputDescription</label></span>
+                <textarea rows="2" cols="50" id="Description-@item.ProjectID-@item.ReviewID-@item.OutputID" class="edit-mode">@item.OutputDescription</textarea></text>, style: "col1Width",  canSort: false),
+            grid.Column("Impact Weight", "Impact Weight (%)", format: @<text><span class="display-mode"><label class="lblImpactWeight" for="ImpactWeight-@item.ProjectID-@item.ReviewID-@item.OutputID">@item.Weight</label></span> <input type="text" id="ImpactWeight-@item.ProjectID-@item.ReviewID-@item.OutputID" value="@item.Weight" class="edit-mode" /></text>, style: "col2Width",  canSort: false),
+            grid.Column("Performance", "Performance", format: @<text> <span class="display-mode" data-reviewscoreweight="@item.ReviewScore.Weight"><label class="lblPerformance" for="Performance-@item.ProjectID-@item.ReviewID-@item.OutputID">@item.OutputScore</label></span>
+            <select id="Performance-@item.ProjectID-@item.ReviewID-@item.OutputID" name="Performance" class="edit-mode">
+                <option value="A++" @{ if (item.OutputScore.Equals("A++")) { <text> selected</text>}}>A++ Outputs Substantially exceeded expectation</option>
+                <option value="A+" @{ if (item.OutputScore.Equals("A+")) { <text> selected</text>}}>A+ Outputs Moderately exceeded expectation</option>
+                <option value="A" @{ if (item.OutputScore.Equals("A")) { <text> selected</text>}}>A Outputs Met expectation</option>
+                <option value="B" @{ if (item.OutputScore.Equals("B")) { <text> selected</text>}}>B Outputs Moderately did not meet expectation</option>
+                <option value="C" @{ if (item.OutputScore.Equals("C")) { <text> selected</text>}}>C Outputs Substantially did not meet expectation</option>
+            </select></text>, style: "col2Width colReviewScore",  canSort: false),
+                grid.Column("Risk", "Risk", format: @<text> <span class="display-mode"><label class="lblRisk" for="Risk-@item.ProjectID-@item.ReviewID-@item.OutputID">  @{
+                                                                                                                                                                             if (item.Risk.Equals("R1")){<text> Minor</text>}
+                                                                                                                                                                             if (item.Risk.Equals("R2")){<text> Moderate</text>}
+                                                                                                                                                                             if (item.Risk.Equals("R3")){<text> Major</text>}
+                                                                                                                                                                             if (item.Risk.Equals("R4")){<text> Severe</text>}
+
+
+} </label></span>
+            <select id="Risk-@item.ProjectID-@item.ReviewID-@item.OutputID" name="Risk-@item.ProjectID-@item.ReviewID-@item.OutputID" class="edit-mode">
+                <option value="R1" @{ if (item.Risk.Equals("R1")){ <text> selected</text>}}>Minor</option>
+                <option value="R2" @{ if (item.Risk.Equals("R2")){ <text> selected</text>}}>Moderate</option>
+                <option value="R3" @{ if (item.Risk.Equals("R3")){ <text> selected</text>}}>Major</option>
+                <option value="R4" @{ if (item.Risk.Equals("R4")){ <text> selected</text>}}>Severe</option>
+            </select></text>, style: "col2Width",  canSort: false),
+            grid.Column("Action", format: @<text>
+            <button class="edit-output display-mode bluelightnight" title="Edit" id="btn-edit-@item.ProjectID-@item.ReviewID-@item.OutputID"><i class="fa fa-pencil-square-o"> </i></button>
+            <button class="Delete-output display-mode red"  onclick="RemoveReviewOutput(@item.ProjectID, @item.ReviewID,@item.OutputID,@Model.ReviewVm.ReviewID )" title="Delete" id="btn-delete-@item.ProjectID-@item.ReviewID-@item.OutputID"><i class="fa fa-trash"> </i></button>
+            <button class="save-output edit-mode" id="btn-save-@item.ProjectID-@item.ReviewID-@item.OutputID" data-projectid="@item.ProjectID" data-reviewid="@item.ReviewID" data-outputid="@item.OutputID" data-thistableid="@Model.ReviewVm.ReviewID" title="Save"><i class="fa fa-floppy-o"></i> </button>
+            <button class="cancel-output edit-mode bluelightnight" id="btn-cancel-@item.ProjectID-@item.ReviewID-@item.OutputID" title="Cancel" style="margin-top:5px"><i class="fa fa-times"></i></button>
+            </text>, style: "col3Width", canSort: false)
+ ))
+    }
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('.edit-mode').hide();
+        //jQuery click events firing multiple times as this script resides inside partial view. In order to unbind the event use .off()
+        $('.edit-output, .cancel-output').off().on('click', function () {
+            var tr = $(this).parents('tr:first');
+            tr.find('.edit-mode, .display-mode').toggle();
+        });
+        $(function () {
+            $('.save-output').off().on('click', function () {
+                $(".content-loading").show();
+                var tr = $(this).parents('tr:first');
+                var tableSuffix = $(this).attr('data-thistableid');
+                var projectId = $(this).attr('data-projectId');
+                var reviewId = $(this).attr('data-reviewId');
+                var outputId = $(this).attr('data-outputId');
+                var description = tr.find("[id^=Description-]").val();
+                var impactWeight = tr.find("[id^=ImpactWeight-]").val();
+                var performance = tr.find("[id^=Performance-]").val();
+                var risk = tr.find("[id^=Risk-]").val();
+                var riskTextLabel = tr.find("[id^=Risk-] option:selected").text();
+                tr.find(".lblDescription").text(description);
+                tr.find(".lblImpactWeight").text(impactWeight);
+                tr.find(".lblPerformance").text(performance);
+                tr.find(".lblRisk").text(riskTextLabel);
+                tr.find('.edit-mode, .display-mode').toggle();
+                $("#outputscoringupdateMessageFail-" + projectId + "-" + reviewId).hide();
+
+                var reviewOutputModel =
+                {
+                    "projectId": projectId,
+                    "reviewId": reviewId,
+                    "outputId": outputId,
+                    "description": description,
+                    "weight": impactWeight,
+                    "outputScore": performance,
+                    "risk": risk
+                };
+                $.ajax({
+                    url: '@Html.Raw(Url.Action("EditReviewOutputScore", "Project"))',
+                    data: JSON.stringify(reviewOutputModel),
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (result) {
+                        if (result.response === "Successful") {
+                            if (tableSuffix === "Pcr") {
+                                var PCRPQScore = result.ProjScore;
+                                document.getElementById("ProjectScore-" + projectId + "-" + reviewId).innerText = PCRPQScore;
+                                SetScoreAndUpdateColorAR(projectId, reviewId, result.OverallScore);
+                                SetAggregatedRiskAndUpdateColor(projectId, reviewId, result.Risk);
+                                 //check total output impact weight. If 100 then prompt user to select Risk
+                                CheckOutputTablesTotalPercentage(projectId, reviewId);
+
+                            } else {
+                                var PQScore = result.ProjScore;;
+                                document.getElementById("ProjectScore-" + projectId +"-"+ reviewId).innerText = PQScore;
+                                SetScoreAndUpdateColorAR(projectId, reviewId , result.OverallScore);
+                                SetAggregatedRiskAndUpdateColor(projectId, reviewId, result.Risk);
+                                //check total output impact weight. If 100 then prompt user to select Risk
+                                CheckOutputTablesTotalPercentage(projectId, reviewId);
+                            }
+                            $(".content-loading").hide();
+                            $("#outputscoringSaveMessageSuccess-" + projectId + "-" + reviewId).show();
+                            $("#outputscoringSaveMessageSuccess-" + projectId + "-" + reviewId).fadeOut(5000).html("Output was updated successfully");
+                        }
+                        else if (result.response === "UnSuccessfulM") {
+                            $(".content-loading").hide();
+                            tr.find('.edit-mode, .display-mode').toggle();
+                            $("#outputscoringupdateMessageFail-" + projectId + "-" + reviewId).show();
+                            $("#outputscoringupdateMessageFail-" + projectId + "-" + reviewId).html("Impact Weight cant be more than 100");
+
+                        }
+                        else {
+                            $(".content-loading").hide();
+                            tr.find('.edit-mode, .display-mode').toggle();
+                            $("#outputscoringupdateMessageFail-" + projectId + "-" + reviewId).show();
+                            $("#outputscoringupdateMessageFail-" + projectId + "-" + reviewId).html("Impact Weight cant be decimal value");
+
+                        }
+                    }
+                });
+
+            });
+        });
+    });
+
+</script>
+

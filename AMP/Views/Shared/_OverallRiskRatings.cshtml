@@ -1,0 +1,57 @@
+﻿@using System.Configuration
+@model AMP.ViewModels.ProjectViewModel
+@{
+    var grid = new WebGrid(Model.ReviewVm.OverallRiskRatings, canPage: false);
+
+
+    @grid.GetHtml(
+             tableStyle: "table-main",
+                      htmlAttributes: new { Id = "Risk-Overallrisk-Rating-list", title = "Overall risk ratings" },
+             mode: WebGridPagerModes.All,
+            columns:
+            grid.Columns(
+            grid.Column("LastUpdated", "LastUpdated", format: @<text><span class="display-mode">  @item.LastUpdated.ToString("dd/MM/yyyy") </span> </text>, style: "col2Width", canSort: false),
+            grid.Column("RiskScore", "RiskScore", format: @<text><span class="display-mode">
+                        @if (item.RiskScore == "R1")
+                        {
+                            <span>Minor</span>
+                        }
+                        else if (item.RiskScore == "R2")
+                        {
+                            <span>Moderate</span>
+                        }
+                        else if (item.RiskScore == "R3")
+                        {
+                            <span>Major</span>
+                        }
+                        else
+                        {
+                            <span>Severe</span>
+                        }
+                    </span></text>, style: "col2Width", canSort: false),
+            grid.Column("Comments", "Comments", format: @<text><span class="display-mode"><span class="lblComments" id="overall-riskratings-@item.ProjectID-@item.WebGrid.Rows.IndexOf(item)">@item.Comments</span></span></text>, style: "col1Width", canSort: false),
+            grid.Column("Action", format: @<text>
+                    <button class="bluelightnight" id="view-overallrisk-@item.ProjectID-@item.WebGrid.Rows.IndexOf(item)" title="View" data-docid="@item.OverallRiskRatingId" data-proejctid="@item.ProjectID" data-comments ="@item.Comments" data-RiskScore ="@item.RiskScore">View</button>
+            </text>, style: "col3Width", canSort: false)
+))
+
+
+}
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $('.bluelightnight').off().on('click', function () {
+            var projectId = $(this).attr("data-proejctid");
+            //var docID = $(this).attr("data-docid");
+            var comments = $(this).attr("data-comments");
+            var riskScore = $(this).attr("data-RiskScore");
+            ShowRiskRating(projectId, comments, riskScore);
+
+        });
+
+    });
+
+</script>
