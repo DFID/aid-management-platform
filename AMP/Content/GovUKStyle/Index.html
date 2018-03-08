@@ -1,0 +1,2329 @@
+﻿<!DOCTYPE html>
+
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>DfID Style Guide</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=11" />
+    <link href="./stylesheets/dfid-template.css" media="screen" rel="stylesheet" type="text/css"/>
+    <link href="./stylesheets/prism.css" media="screen" rel="stylesheet" type="text/css"/>
+
+    <link href="./stylesheets/dfid-template-print.css" media="print" rel="stylesheet" type="text/css"/>
+
+    <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="javascripts/jquery.cycle2.min.js" type="text/javascript"></script>
+    <script src="javascripts/jquery.cycle2.swipe.min.js" type="text/javascript"></script>
+    <script src="javascripts/dfid-template.js" type="text/javascript"></script>
+
+    <link href="./stylesheets/prism.css" media="screen" rel="stylesheet" type="text/css"/>
+    <script src="./javascripts/prism.js" type="text/javascript"></script>
+
+    <script src="./javascripts/jquery.easytabs.js"></script>
+    <script src="./javascripts/jquery.hashchange.min.js"></script>
+
+    <link rel="shortcut icon" href="./stylesheets/favicon.ico" type="image/x-icon"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+<body>
+<header role="banner" id="global-header" class="">
+    <div class="header-wrapper">
+        <div class="header-global">
+            <div class="header-logo">
+                <a href="https://www.gov.uk/" title="Go to the GOV.UK homepage" id="logo" class="content">
+                    <img src="images/DfID-logo-01.png" alt="">
+                </a>
+            </div>
+            <div class='header-proposition'>
+                <div class='content'>
+                    <nav id='proposition-menu'>
+                        <a id='proposition-name'>Aid Management Platform Style Guide</a>
+                    </nav>
+                </div>
+            </div>
+            <div class="header-search">
+                <a href="#search" class="search-toggle js-header-toggle">Search</a>
+
+                <form id="search" class="site-search" action="/service-manual/search" method="get">
+                    <div class="content">
+                        <label for="site-search-text">Search AMP</label>
+                        <input type="search" name="q" id="site-search-text" title="Search" class="js-search-focus"
+                               role="search">
+                        <input class="submit" type="submit" value="Search"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+<!--end header-->
+
+<div id="global-header-bar" class="solo"><!-- the small blue bar below the black header -->
+</div>
+
+<main id="content" role="main">
+
+    <div class="content">
+            <h1>DfID Style Guide</h1>
+
+            <ul class="simple-menu">
+                <li>
+                    <a href="#layout">Layout</a>
+                </li>
+                <li>
+                    <a href="#text">Text</a>
+                </li>
+                <li>
+                    <a href="#menus">Menus</a>
+                </li>
+                <li>
+                    <a href="#tables">Tables</a>
+                </li>
+                <li>
+                    <a href="#buttons">Buttons</a>
+                </li>
+                <li>
+                    <a href="#input">Input</a>
+                </li>
+                <li>
+                    <a href="#checkboxes">Checkboxes</a>
+                </li>
+                <li>
+                    <a href="#radios">Radios</a>
+                </li>
+                <li>
+                    <a href="#accordions">Accordions</a>
+                </li>
+                <li>
+                    <a href="#tabs">Tabs</a>
+                </li>
+                <li>
+                    <a href="#slides">Slides</a>
+                </li>
+                <li>
+                    <a href="#colours">Colours</a>
+                </li>
+            </ul>
+
+<div class="accordion-sg">
+<!----------------------------------------------------------  LAYOUT  --------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="layout">Layout</a><div class="arrow dfid-blue large"></div></h2>
+            <div class="style-section accordion-sg-content default"><br />
+                <div>
+                    <h3>Page structure</h3>
+                <p>
+                    The default maximum page width is 1020px, but go wider if the content requires it.<br />
+                    The actual page content width is 960px (1020px less 2 x 30px margins)
+                </p>
+<pre>
+    <code class="language-markup">
+&lt;header role="banner" id="global-header">
+        &lt;div class="header-wrapper">
+            ....
+        &lt;/div>
+    &lt;/header>
+
+    &lt;div id="global-header-bar">&lt;!-- the small blue bar below the black header -->
+    &lt;/div>
+
+    &lt;!-- If Breadcrumbs are relevant - print here -->
+    &lt;div id="breadcrumb-wrapper">
+        &lt;div id="global-breadcrumb" class="header-context">
+            &lt;nav role="navigation">
+                ....
+            &lt;/nav>
+            &lt;div id="login-block">
+                &lt;span class="login">
+                    ....
+                &lt;/span>
+            &lt;/div>
+        &lt;/div>
+    &lt;/div>
+
+    &lt;main id="content">
+        &lt;div class="content">&lt;!-- this section can be repeated -->
+            ....
+        &lt;/div>
+    &lt;/main>
+
+    &lt;footer class="group js-footer" id="footer">
+        &lt;div class="footer-wrapper">
+            ....
+        &lt;/div>
+    &lt;/footer>
+    </code>
+</pre>
+                    <br />
+
+                    <h3>Project Header Section</h3>
+                    <p>
+                        A full-width section to contain repeated Project Information.<br />
+                        This can be used on all pages within a project - it highlights the Project details<br />
+                        and separates the main menu from other content.
+                    </p>
+<pre>
+    <code class="language-markup">
+&lt;section id="project-detail-wrapper">
+        &lt;main id="project-content">
+            &lt;div id="global-header-bar">&lt;/div>
+            &lt;!-- If Breadcrumbs are relevant - print here -->
+            &lt;div id="breadcrumb-wrapper">
+                ...
+            &lt;/div>
+            &lt;div class="grid-row">
+                &lt;div class="column-two-thirds">
+                    &lt;div id="project-header">
+                        &lt;h1>Project: 114293&lt;/h1>
+                        &lt;h3 class="project-description">Roads in the East - United Nations Mission for the Stabilisation Plan in the Democratic Republic of Congo&lt;/h3>
+                    &lt;/div>
+                    &lt;ul class="primary-menu">
+                        ...
+                    &lt;/ul>
+                &lt;/div>
+                &lt;div class="column-third">
+                    &lt;div class="project-info-panel">
+                        ...
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+        &lt;/main>
+    &lt;/section>
+    </code>
+</pre>
+
+
+<br />
+<h3>Grid structure</h3>
+<br />
+                <a href="grid-layout.html">See an example of grid layout</a>
+                <br /><br />
+                    <h4>full width</h4>
+                    <div class="grid-row">
+                        <div class="column-full">
+                            <div class="demo-content">
+                                Full column content
+                            </div>
+                        </div>
+                    </div>
+
+<pre>
+    <code class="language-markup">
+&lt;div class="grid-row">
+        &lt;div class="column-full">
+            Full column content
+        &lt;/div>
+    &lt;/div>
+    </code>
+</pre>
+                    <br />
+                    <h4>half / half</h4>
+                    <div class="grid-row">
+                        <div class="column-half">
+                            <div class="demo-content">
+                                First column content
+                            </div>
+                        </div>
+                        <div class="column-half">
+                            <div class="demo-content">
+                                Second column content
+                            </div>
+                        </div>
+                    </div>
+
+<pre>
+    <code class="language-markup">
+&lt;div class="grid-row">
+        &lt;div class="column-half">
+            First column content
+        &lt;/div>
+        &lt;div class="column-half">
+            Second column content
+        &lt;/div>
+    &lt;/div>
+    </code>
+</pre>
+                    <br />
+<h4>third / third / third</h4>
+                <div class="grid-row">
+                    <div class="column-third">
+                        <div class="demo-content">
+                            First column content
+                        </div>
+                    </div>
+                    <div class="column-third">
+                        <div class="demo-content">
+                            Second column content
+                        </div>
+                    </div>
+                    <div class="column-third">
+                        <div class="demo-content">
+                            Third column content
+                        </div>
+                    </div>
+                </div>
+<pre>
+    <code class="language-markup">
+&lt;div class="grid-row">
+        &lt;div class="column-third">
+            First column content
+        &lt;/div>
+        &lt;div class="column-third">
+            Second column content
+        &lt;/div>
+        &lt;div class="column-third">
+            Third column content
+        &lt;/div>
+    &lt;/div>
+    </code>
+</pre>
+<br />
+<h4>third / two-thirds</h4>
+                <div class="grid-row">
+                    <div class="column-third">
+                        <div class="demo-content">
+                            First column content
+                        </div>
+                    </div>
+                    <div class="column-two-thirds">
+                        <div class="demo-content">
+                            Second column content
+                        </div>
+                    </div>
+                </div>
+<pre>
+    <code class="language-markup">
+&lt;div class="grid-row">
+        &lt;div class="column-third">
+            First column content
+        &lt;/div>
+        &lt;div class="column-two-thirds">
+            Second column content
+        &lt;/div>
+    &lt;/div>
+    </code>
+</pre>
+<br />
+<h4>quarter / quarter / quarter / quarter</h4>
+                <div class="grid-row">
+                    <div class="column-quarter">
+                        <div class="demo-content">
+                            First column content
+                        </div>
+                    </div>
+                    <div class="column-quarter">
+                        <div class="demo-content">
+                            Second column content
+                        </div>
+                    </div>
+                    <div class="column-quarter">
+                        <div class="demo-content">
+                            Third column content
+                        </div>
+                    </div>
+                    <div class="column-quarter">
+                        <div class="demo-content">
+                            Fourth column content
+                        </div>
+                    </div>
+                </div>
+<pre>
+    <code class="language-markup">
+&lt;div class="grid-row">
+        &lt;div class="column-quarter">
+            First column content
+        &lt;/div>
+        &lt;div class="column-quarter">
+            Second column content
+        &lt;/div>
+        &lt;div class="column-quarter">
+            Third column content
+        &lt;/div>
+        &lt;div class="column-quarter">
+            Fourth column content
+        &lt;/div>
+    &lt;/div>
+    </code>
+</pre>
+                </div>
+            </div>
+<!----------------------------------------------------------  TEXT  --------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="text">Text</a><div class="arrow dfid-blue large"></div></h2>
+            <div class="style-section accordion-sg-content default">
+
+                <p class="text">
+                    We will use "font-family: Arial, Helvetica, sans-serif;".<br />
+                    Default font size is 16px<br />
+                    You can find common font colours in the <a href="#colours">colour palette</a>.
+                </p>
+                <!--<p>
+                    <a href="/examples/typography/">See an example of GOV.UK typography</a>
+                </p>-->
+
+
+                <h3 class="heading-medium" id="typography-headings">
+                    Headings
+                </h3>
+
+                <ul class="list-bullet text">
+                    <li>use Arial Bold</li>
+                    <li>use sentence case for headings</li>
+                    <li>use headings consistently to create a clear hierarchy</li>
+                </ul>
+
+                <div class="example">
+                    <h1>h1 A <em class="highlight">32px Bold</em> heading</h1>
+
+                    <h2>h2 A <em class="highlight">26px Bold</em> heading</h2>
+
+                    <h3>h3 A <em class="highlight">20px Bold</em> heading</h3>
+
+                    <h4>h4 A <em class="highlight">16px Bold</em> heading</h4>
+                </div>
+<pre>
+    <code class="language-markup">
+&lt;h1>h1 A &lt;em class="highlight">32px Bold&lt;/em> heading&lt;/h1>
+
+    &lt;h2>h2 A &lt;em class="highlight">26px Bold&lt;/em> heading&lt;/h2>
+
+    &lt;h3>h3 A &lt;em class="highlight">20px Bold&lt;/em> heading&lt;/h3>
+
+    &lt;h4>h4 A &lt;em class="highlight">16px Bold&lt;/em> heading&lt;/h4>
+    </code>
+</pre>
+
+                <h3 class="heading-small">
+                    Lead paragraph and body copy
+                </h3>
+                <div class="example">
+                    <div class="text">
+                        <p class="lead">A <em class="highlight">24px</em> lead paragraph.</p>
+
+                        <p class="font-large">A <em class="highlight">19px</em> large font paragraph.</p>
+
+                        <p class="font-normal">A <em class="highlight">16px</em> normal font paragraph.</p>
+                    </div>
+                </div>
+<pre>
+    <code class="language-markup">
+&lt;div class="text">
+        &lt;p class="lead">A &lt;em class="highlight">24px&lt;/em> lead paragraph.&lt;/p>
+
+        &lt;p class="font-large">A &lt;em class="highlight">19px&lt;/em> large font paragraph.&lt;/p>
+
+        &lt;p class="font-normal">A &lt;em class="highlight">16px&lt;/em> normal font paragraph.&lt;/p>
+    &lt;/div>
+    </code>
+</pre>
+
+                <h3 class="heading-medium" id="typography-body-copy">
+                    Body copy
+                </h3>
+
+                <ul class="list-bullet text">
+                    <li>use Arial, Helvetica, sans-serif</li>
+                    <li>avoid using bold and italics</li>
+                    <li>use 16px for body copy – no need to reduce for smaller screens</li>
+                    <li>use smaller sizes only if there's a user need (eg 14px, 12px)</li>
+                    <li>make sure lines of text don't exceed 75 characters, as they become harder to read beyond that point</li>
+                    <li>for example, on this page – text blocks are two-thirds of the page width</li>
+                    <li>when the screen width is below 640px - text becomes 100% of the page width</li>
+                </ul>
+
+                <div class="example">
+                    <div class="text">
+                        <p class="font-large">
+                            A <em class="highlight">19px</em> large font paragraph. Maecenas sed diam eget risus varius blandit sit amet non magna. Donec ullamcorper nulla non metus auctor fringilla.
+                        </p>
+
+                        <p class="font-normal">
+                            A <em class="highlight">16px</em> normal paragraph. Maecenas sed diam eget risus varius blandit sit amet non magna. Donec ullamcorper nulla non metus auctor fringilla.
+                        </p>
+                    </div>
+                </div>
+
+                <h3 class="heading-medium" id="typography-links">Links</h3>
+                <ul class="list-bullet text">
+                    <li>links within body copy should be blue and underlined</li>
+                    <li>links without surrounding text should not have a full stop at the end</li>
+                    <li>link colours can be found in the <a href="#colours">colour palette</a></li>
+                </ul>
+
+                <div class="example">
+                    <div class="text">
+                        <p>
+                            <a href="#">A 16px link without surrounding text</a>
+                        </p>
+
+                        <p>
+                            <a href="#">A 16px body copy link</a>. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
+                        </p>
+
+                        <p>
+                            <a href="#" rel="external">A 16px body copy external link.</a> Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
+                        </p>
+                    </div>
+                </div>
+
+
+
+                <h3 class="heading-small">Lists</h3>
+                <div class="example">
+                    <ul class="list-bullet">
+                        <li>here is a bulleted list</li>
+                        <li>vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor</li>
+                        <li>vestibulum id ligula porta felis euismod semper</li>
+                        <li>integer posuere erat a ante venenatis dapibus posuere velit aliquet</li>
+                    </ul>
+
+                    <ol class="list-number">
+                        <li>here is a numbered list</li>
+                        <li>vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor</li>
+                        <li>vestibulum id ligula porta felis euismod semper</li>
+                        <li>integer posuere erat a ante venenatis dapibus posuere velit aliquet</li>
+                    </ol>
+                </div>
+<pre>
+    <code class="language-markup">
+&lt;ul class="list-bullet">
+        &lt;li>here is a bulleted list&lt;/li>
+        &lt;li>vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor&lt;/li>
+        &lt;li>vestibulum id ligula porta felis euismod semper&lt;/li>
+        &lt;li>integer posuere erat a ante venenatis dapibus posuere velit aliquet&lt;/li>
+    &lt;/ul>
+
+    &lt;ol class="list-number">
+        &lt;li>here is a numbered list&lt;/li>
+        &lt;li>vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor&lt;/li>
+        &lt;li>vestibulum id ligula porta felis euismod semper&lt;/li>
+        &lt;li>integer posuere erat a ante venenatis dapibus posuere velit aliquet&lt;/li>
+    &lt;/ol>
+    </code>
+</pre>
+
+                <h3 class="heading-small">Inset text</h3>
+                <div class="example">
+                    <div class="text">
+                        <div class="panel-indent">
+                            <p>
+                                It can take up to 8 weeks to register a lasting power of attorney if there are no mistakes in the application.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+<pre>
+    <code class="language-markup">
+&lt;div class="panel-indent">
+        &lt;p>
+            It can take up to 8 weeks to register a lasting power of attorney if there are no mistakes in the application.
+        &lt;/p>
+    &lt;/div>
+    </code>
+</pre>
+
+            </div>
+<!----------------------------------------------------------  MENUS  --------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="menus">Menus</a><div class="arrow dfid-blue large"></div></h2>
+            <div class="style-section menus accordion-sg-content default">
+
+                <h3 class="heading-small">Primary menu with Drop Down</h3>
+                <div class="example expanded">
+                    <ul class="primary-menu">
+                        <li>
+                            <a href="project-details-01.html">Details</a>
+                            <ul>
+                                <li>
+                                    <a href="#">Short menu item</a>
+                                </li>
+                                <li>
+                                    <a href="#">Medium menu item</a>
+                                </li>
+                                <li>
+                                    <a href="#">Long named menu item</a>
+                                </li>
+                                <li>
+                                    <a href="#">Short menu item</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="report-ar-01.html">Tasks</a>
+                        </li>
+                        <li>
+                            <a href="project-components-01.html">Components</a>
+                        </li>
+                        <li>
+                            Finance
+                        </li>
+                        <li>
+                            GeoCoding
+                        </li>
+                        <li class="active">
+                            Log Frames
+                        </li>
+                    </ul>
+                </div>
+                
+<pre>
+    <code class="language-markup">
+&lt;ul class="primary-menu">
+        &lt;li>
+            &lt;a href="project-details-01.html">Details&lt;/a>
+            &lt;ul>
+                &lt;li>
+                    &lt;a href="#">Short menu item&lt;/a>
+                &lt;/li>
+                &lt;li>
+                    &lt;a href="#">Medium menu item&lt;/a>
+                &lt;/li>
+                &lt;li>
+                    &lt;a href="#">Long named menu item&lt;/a>
+                &lt;/li>
+                &lt;li>
+                    &lt;a href="#">Short menu item&lt;/a>
+                &lt;/li>
+            &lt;/ul>
+        &lt;/li>
+        &lt;li>
+            &lt;a href="report-ar-01.html">Tasks&lt;/a>
+        &lt;/li>
+        &lt;li>
+            &lt;a href="project-components-01.html">Components&lt;/a>
+        &lt;/li>
+        &lt;li>
+            Finance
+        &lt;/li>
+        &lt;li>
+            GeoCoding
+        &lt;/li>
+        &lt;li class="active">
+            Log Frames
+        &lt;/li>
+    &lt;/ul>
+    </code>
+</pre>
+
+                <h4>This is the javascript function</h4>
+<pre>
+    <code class="language-javascript">
+
+        $(document).ready( function() {
+            $('.primary-menu > li').bind('mouseover', openSubMenu);
+            $('.primary-menu > li').bind('mouseout', closeSubMenu);
+
+            function openSubMenu() {
+                $(this).find('ul').css('visibility', 'visible');
+            }
+
+            function closeSubMenu() {
+                $(this).find('ul').css('visibility', 'hidden');
+            }
+        });
+    </code>
+</pre>
+
+                <h3 class="heading-small">Secondary menu</h3>
+                <div class="example">
+                    <ul class="secondary-menu">
+                        <li>
+                            Impact
+                        </li>
+                        <li>
+                            Outcome
+                        </li>
+                        <li class="active">
+                            Output
+                        </li>
+                    </ul>
+                </div>
+<pre>
+    <code class="language-markup">
+&lt;ul class="secondary-menu">
+        &lt;li>
+            Impact
+        &lt;/li>
+        &lt;li>
+            Outcome
+        &lt;/li>
+        &lt;li class="active">
+            Output
+        &lt;/li>
+    &lt;/ul>
+    </code>
+</pre>
+                <h3 class="heading-small">Simple menu</h3>
+                <div class="example">
+                    <ul class="simple-menu">
+                        <li>
+                            <a href="#">Layout</a>
+                        </li>
+                        <li>
+                            <a href="#">Menus</a>
+                        </li>
+                        <li class="active">
+                            <a href="#">Buttons</a>
+                        </li>
+                    </ul>
+                </div>
+<pre>
+    <code class="language-markup">
+&lt;ul class="simple-menu">
+        &lt;li>
+            Layout
+        &lt;/li>
+        &lt;li>
+            Menus
+        &lt;/li>
+        &lt;li class="active">
+            Buttons
+        &lt;/li>
+    &lt;/ul>
+    </code>
+	
+</pre>
+
+        </div>
+
+<!----------------------------------------------------------  TABLES  --------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="tables">Tables</a><div class="arrow dfid-blue large"></div></h2>
+        <div class="style-section accordion-sg-content default">
+
+            <h3 class="heading-small">Table main</h3><br />
+            <div class="example">
+
+                <table class="table-main">
+                    <tr>
+                        <th>
+                            ID
+                        </th>
+                        <th>
+                            Project Title
+                        </th>
+                        <th>
+                            Stage
+                        </th>
+                        <th>
+                            Approved Budget
+                        </th>
+                        <th>
+                            Spend
+                        </th>
+                    </tr>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5">
+                                <div class="grid-row">
+                                    <div class="column-third">
+                                        <div class="pag-01">Showing 61 to 70 of 140 projects</div>
+                                    </div>
+                                    <div class="column-third">
+                                        <div class="pag-02"><< First   < Prev  4 .. 5 .. 6 .. 7 .. 8   Next >  Last >></div>
+                                    </div>
+                                    <div class="column-third">
+                                        <div class="pag-03">Total Number of Projects [ 140 ]</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                    <tr>
+                        <td>
+                            158997
+                        </td>
+                        <td>
+                            Support to Strategic Planning for Sustainable Rural Livelihoods (SSPSRL)
+                        </td>
+                        <td class="post-completion">
+                            Post completion
+                        </td>
+                        <td class="figure">
+                            £ 9,566,274.90
+                        </td>
+                        <td class="overspend figure">
+                            £ 9,600,400.00
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            1355497
+                        </td>
+                        <td>
+                            Roads in the East - United Nations Mission for the Stabilisation Plan
+                        </td>
+                        <td class="completion">
+                            Completion
+                        </td>
+                        <td class="figure">
+                            £ 2,570,255.00
+                        </td>
+                        <td class="underspend figure">
+                            £ 2,500,400.00
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            208840
+                        </td>
+                        <td>
+                            Roads in the East - United Nations Mission
+                        </td>
+                        <td class="implementation">
+                            Implementation
+                        </td>
+                        <td class="figure">
+                            £ 26,988,255.00
+                        </td>
+                        <td class="underspend figure">
+                            £ 9,600,411.00
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            100804
+                        </td>
+                        <td>
+                            Support to Strategic Planning for Sustainable
+                        </td>
+                        <td class="approval">
+                            Approval
+                        </td>
+                        <td class="figure">
+                            £ 7,988,255.00
+                        </td>
+                        <td class="underspend figure">
+                            £ 9,400.00
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="project-details-01.html">114293</a>
+                        </td>
+                        <td>
+                            <a href="project-details-01.html">Roads in the East - United Nations Mission for the Stabilisation Plan</a>
+                        </td>
+                        <td class="appraisal">
+                            Appraisal & Design
+                        </td>
+                        <td class="figure">
+                            £ 41,570,255.00
+                        </td>
+                        <td class="underspend figure">
+                            £ 9,600,400.00
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            166497
+                        </td>
+                        <td>
+                            Poorest States Inclusive Growth Programme
+                        </td>
+                        <td class="identification">
+                            Identification
+                        </td>
+                        <td class="figure">
+                            £ 23,536,255.00
+                        </td>
+                        <td class="underspend figure">
+                            £ 9,600,400.00
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            1766428
+                        </td>
+                        <td>
+                            Poorest States Inclusive Growth Programme
+                        </td>
+                        <td class="pre-pipeline">
+                            Pre-pipeline
+                        </td>
+                        <td class="figure">
+                            £ 12,988,255.00
+                        </td>
+                        <td class="underspend figure">
+                            £ 10,400.00
+                        </td>
+                    </tr>
+                </table>
+            </div>
+<pre>
+    <code class="language-markup">
+&lt;table class="table-main">
+        &lt;tr>
+            &lt;th>
+                ID
+            &lt;/th>
+            &lt;th>
+                Project Title
+            &lt;/th>
+            &lt;th>
+                Stage
+            &lt;/th>
+            &lt;th>
+                Approved Budget
+            &lt;/th>
+            &lt;th>
+                Spend
+            &lt;/th>
+        &lt;/tr>
+        &lt;tfoot>&lt;!-- Footer content here -->
+        &lt;tr>
+            &lt;td colspan="5">
+                &lt;div class="grid-row">&lt;!-- Pagination TBA -->
+                    &lt;div class="column-third">
+                        &lt;div class="pag-01">Showing 61 to 70 of 140 projects&lt;/div>
+                    &lt;/div>
+                    &lt;div class="column-third">
+                        &lt;div class="pag-02">&lt;&lt; First   &lt; Prev  4 .. 5 .. 6 .. 7 .. 8   Next >  Last >>&lt;/div>
+                    &lt;/div>
+                    &lt;div class="column-third">
+                        &lt;div class="pag-03">Total Number of Projects [ 140 ]&lt;/div>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/td>
+        &lt;/tr>
+        &lt;/tfoot>
+        &lt;tr>
+            &lt;td>
+                158997
+            &lt;/td>
+            &lt;td>
+                Support to Strategic Planning for Sustainable Rural Livelihoods (SSPSRL)
+            &lt;/td>
+            &lt;td class="post-completion">&lt;!-- class optional *1 -->
+                Post completion
+            &lt;/td>
+            &lt;td class="figure">&lt;!-- class optional *2 -->
+                £ 9,566,274.90
+            &lt;/td>
+            &lt;td class="overspend figure">&lt;!-- class optional *3 -->
+                £ 9,600,400.00
+            &lt;/td>
+        &lt;/tr>
+    &lt;/table>
+    </code>
+</pre>
+
+            <p>
+                <h4>Optional classes</h4>
+                <ol class="list-number">
+                    <li>Depending on the class - the background image is proportionately displayed.<br />
+                    Classes available in this instance ..
+                    <br />Post completion / Completion / Implementation / Approval / Appraisal & Design / Identification / Pre-pipeline</li>
+                    <li>The 'figure' class aligns text right making figures easier to read</li>
+                    <li>Class 'overspend' displays <span class="red">RED</span> / 'underspend' displays <span class="green">GREEN</span></li>
+                </ol>
+            </p><br />
+
+
+
+            <h3 class="heading-small">Table small</h3><br />
+            <p>
+                This table should only be used within a 'half' or 'third' grid column
+            </p>
+            <div class="example">
+
+                <div class="grid-row">
+                    <div class="column-half">
+                        <table class="table-small" id="recent-places">
+                            <tr>
+                                <th colspan="3">
+                                    MY RECENT PLACES
+                                </th>
+                            </tr>
+                            <tr>
+                                <td class="proj-number">
+                                    107483
+                                </td>
+                                <td class="proj-name">
+                                    Support to strategic planning..
+                                </td>
+                                <td class="proj-time">
+                                    3 hrs ago
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    107483
+                                </td>
+                                <td>
+                                    Support to strategic planning..
+                                </td>
+                                <td>
+                                    3 hrs ago
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    107483
+                                </td>
+                                <td>
+                                    Support to strategic planning..
+                                </td>
+                                <td>
+                                    3 hrs ago
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="column-half"></div>
+                </div>
+
+            </div>
+<pre>
+    <code class="language-markup">
+&lt;table class="table-small" id="recent-places">
+        &lt;tr>
+            &lt;th colspan="3">
+                MY RECENT PLACES
+            &lt;/th>
+        &lt;/tr>
+        &lt;tr>
+            &lt;td class="proj-number">
+                107483
+            &lt;/td>
+            &lt;td class="proj-name">
+                Support to strategic planning..
+            &lt;/td>
+            &lt;td class="proj-time">
+                3 hrs ago
+            &lt;/td>
+        &lt;/tr>
+        &lt;tr>
+            &lt;td>
+                107483
+            &lt;/td>
+            &lt;td>
+                Support to strategic planning..
+            &lt;/td>
+            &lt;td>
+                3 hrs ago
+            &lt;/td>
+        &lt;/tr>
+        &lt;tr>
+            &lt;td>
+                107483
+            &lt;/td>
+            &lt;td>
+                Support to strategic planning..
+            &lt;/td>
+            &lt;td>
+                3 hrs ago
+            &lt;/td>
+        &lt;/tr>
+    &lt;/table>
+    </code>
+</pre>
+            <br />
+            <h3 class="heading-small">Table with opening Edit details</h3><br />
+            <p>
+                The table rows here can be expanded to display more information (Instant Edit / More Info / Links)<br />
+                This requires a javascript function to run - and the &lt;/tr&gt;'s to be coded relatively.
+            </p>
+            <div class="example">
+                <table class="table-main">
+                    <tr>
+                        <th>
+                            &nbsp;
+                        </th>
+                        <th>
+                            ID
+                        </th>
+                        <th>
+                            Title
+                        </th>
+                        <th>
+                            Funding type
+                        </th>
+                        <th>
+                            Operational status
+                        </th>
+                        <th>
+                            Benefiting country
+                        </th>
+                        <th>
+                            Budget centre
+                        </th>
+                    </tr>
+                    <tfoot>
+                        <tr>
+                            <td colspan="7">
+                                <div class="grid-row">
+                                    <div class="column-third">
+                                        <div class="pag-01">Showing 61 to 70 of 140 projects</div>
+                                    </div>
+                                    <div class="column-third">
+                                        <div class="pag-02"><< First   < Prev  4 .. 5 .. 6 .. 7 .. 8   Next >  Last >></div>
+                                    </div>
+                                    <div class="column-third">
+                                        <div class="pag-03">Total Number of Projects [ 140 ]</div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                    <tr class="parent" id="11429-104">
+                        <td>
+                            <span class="btn">+</span>
+                        </td>
+                        <td>
+                            11429-104
+                        </td>
+                        <td>
+                            PROCOFSERVICES and P0053 for Poorest States Inclusive Growth Programme
+                        </td>
+                        <td>
+                            PROCOFSERVICES
+                        </td>
+                        <td>
+                            A
+                        </td>
+                        <td>
+                            IN
+                        </td>
+                        <td>
+                            India - Programme
+                        </td>
+                    </tr>
+                    <tr class="child child-11429-104">
+                        <td colspan="7">
+                            <div class="grid-row inner-edit">
+                                <div class="column-third">
+                                    <!-- Component Title -->
+                                    <fieldset>
+                                        <label class="form-label-bold" for="project-description">Component Title</label>
+                                        <textarea id="project-description" rows="3">Poorest State Inclusive Growth - Sanridhi Fund - Returnable Capital for Impact Investment
+                                        </textarea>
+                                    </fieldset>
+                                    <!-- Funding Type -->
+                                    <fieldset>
+                                        <label class="form-label-bold">Funding type</label>
+                                        <input value="OTHER" class="form-control duration" width="50%">
+                                    </fieldset>
+                                </div>
+                                <div class="column-third">
+                                    <!-- Budget Centre -->
+                                    <fieldset>
+                                        <label class="form-label-bold" for="budget-centre">Budget Centre</label>
+                                        <input value="India - Programme" type="text" class="form-control" id="budget-centre">
+                                    </fieldset>
+                                    <!-- Budget Centre ID -->
+                                    <fieldset>
+                                        <label class="form-label-bold">Budget Centre ID</label>
+                                        <input value="P0053" class="form-control duration" width="50%">
+                                    </fieldset>
+                                    <!-- Benefiting country  -->
+                                    <fieldset>
+                                        <label class="form-label-bold">Benefiting country </label>
+                                        <input value="India" class="form-control duration" width="50%">
+                                    </fieldset>
+                                </div>
+                                <div class="column-third">
+                                    <!-- Operational status  -->
+                                    <fieldset>
+                                        <label class="form-label-bold">Operational status </label>
+                                        <input value="A" class="form-control duration" width="50%">
+                                    </fieldset>
+                                    <!-- Start Date -->
+                                    <fieldset>
+                                        <label class="form-label-bold">Start date</label>
+                                        <div class="form-date">
+
+                                            <div class="form-group form-group-day">
+                                                <label for="ed-day">Day</label>
+                                                <input value="17" class="form-control" id="ed-day" type="number" pattern="[0-9]*" min="0" max="31">
+                                            </div>
+
+                                            <div class="form-group form-group-month">
+                                                <label for="ed-month">Month</label>
+                                                <input value="01" class="form-control" id="ed-month" type="number" pattern="[0-9]*" min="0" max="12">
+                                            </div>
+
+                                            <div class="form-group form-group-year">
+                                                <label for="ed-year">Year</label>
+                                                <input value="2013" class="form-control" id="ed-year" type="number" pattern="[0-9]*" min="0" max="2014">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <!-- End Date -->
+                                    <fieldset>
+                                        <label class="form-label-bold">End date</label>
+                                        <div class="form-date">
+
+                                            <div class="form-group form-group-day">
+                                                <label for="ed-daya">Day</label>
+                                                <input value="14" class="form-control" id="ed-daya" type="number" pattern="[0-9]*" min="0" max="31">
+                                            </div>
+
+                                            <div class="form-group form-group-month">
+                                                <label for="ed-montha">Month</label>
+                                                <input value="10" class="form-control" id="ed-montha" type="number" pattern="[0-9]*" min="0" max="12">
+                                            </div>
+
+                                            <div class="form-group form-group-year">
+                                                <label for="ed-yeara">Year</label>
+                                                <input value="2013" class="form-control" id="ed-yeara" type="number" pattern="[0-9]*" min="0" max="2014">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <button class="button">
+                                Save
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+<pre>
+    <code class="language-markup">
+&lt;tr class="parent" id="11429-104">&lt;!-- IMPORTANT - ID is referenced in 'child' -->
+        &lt;td>
+            &lt;span class="btn">+&lt;/span>&lt;!-- IMPORTANT - this is the trigger -->
+        &lt;/td>
+        &lt;td>
+            11429-104
+        &lt;/td>
+        &lt;td>
+            PROCOFSERVICES and P0053 for Poorest States Inclusive Growth Programme
+        &lt;/td>
+        &lt;td>
+            PROCOFSERVICES
+        &lt;/td>
+        &lt;td>
+            A
+        &lt;/td>
+        &lt;td>
+            IN
+        &lt;/td>
+        &lt;td>
+            India - Programme
+        &lt;/td>
+    &lt;/tr>
+    &lt;tr class="child child-11429-104">&lt;!-- IMPORTANT - this row is hidden until required -->
+        &lt;td colspan="7">&lt;!-- IMPORTANT This must span all available columns -->
+            &lt;div class="grid-row inner-edit">
+                &lt;div class="column-third">
+                    &lt;fieldset>
+                        ....
+                    &lt;/fieldset>
+                    &lt;fieldset>
+                        ....
+                    &lt;/fieldset>
+                    &lt;fieldset>
+                        ....
+                    &lt;/fieldset>
+                &lt;/div>
+                &lt;div class="column-third">
+                    &lt;fieldset>
+                        ....
+                    &lt;/fieldset>
+                    &lt;fieldset>
+                        ....
+                    &lt;/fieldset>
+                    &lt;fieldset>
+                        ....
+                    &lt;/fieldset>
+                &lt;/div>
+                &lt;div class="column-third">
+                    &lt;fieldset>
+                        ....
+                    &lt;/fieldset>
+                    &lt;fieldset>
+                        ....
+                    &lt;/fieldset>
+                    &lt;fieldset>
+                        ....
+                    &lt;/fieldset>
+                &lt;/div>
+            &lt;/div>
+            &lt;button class="button">
+                Save
+            &lt;/button>
+        &lt;/td>
+    &lt;/tr>
+    </code>
+</pre>
+            
+            <h4>This is the javascript function</h4>
+<pre>
+    <code class="language-javascript">
+$(function() {
+    $('tr.parent td')
+        .on("click","span.btn", function(){
+        var idOfParent = $(this).parents('tr').attr('id');
+        $('tr.child-'+idOfParent).toggle('slow');
+        });
+    });
+    </code>
+</pre><br />
+    <h3 class="heading-small">Table with inline CRUD</h3><br />
+    <p>
+        This is an alternative updateable table<br />
+        The CRUD (Create, Read, Update, Delete) functions are in the table row.<br />
+        This requires a javascript function to run - and the &lt;/tr&gt;'s to be coded relatively.
+    </p>
+    <div class="example">
+
+
+        <table id="tblOutputDesc" class="table-main">
+            <thead>
+            <tr>
+                <th>Output Description</th>
+                <th>Impact Weight %</th>
+                <th>Output Performance</th>
+                <th>Risk</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tfoot>
+            <tr>
+                <td colspan="5">
+                    <button id="btnAdd_row">Add row</button>
+                </td>
+            </tr>
+            </tfoot>
+            <tbody>
+            <tr>
+                <td>Number of school kids</td>
+                <td>50</td>
+                <td>A+</td>
+                <td>M</td>
+                <td><img src="images/delete.png" class="btnDelete_row" /><img src="images/pencil.png" class="btnEdit_row" /></td>
+            </tr>
+            <tr>
+                <td>Number of kids staying at school</td>
+                <td>50</td>
+                <td>A</td>
+                <td>M</td>
+                <td><img src="images/delete.png" class="btnDelete_row" /><img src="images/pencil.png" class="btnEdit_row" /></td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+            
+            <pre>
+    <code class="language-markup">
+        &lt;table id="tblOutputDesc" class="table-main">
+            &lt;thead>
+            &lt;tr>
+                &lt;th>Output Description&lt;/th>
+                &lt;th>Impact Weight %&lt;/th>
+                &lt;th>Output Performance&lt;/th>
+                &lt;th>Risk&lt;/th>
+                &lt;th>&lt;/th>
+            &lt;/tr>
+            &lt;/thead>
+            &lt;tfoot>
+            &lt;tr>
+                &lt;td colspan="5">
+                    &lt;button id="btnAdd_row">Add row&lt;/button>
+                &lt;/td>
+            &lt;/tr>
+            &lt;/tfoot>
+            &lt;tbody>
+            &lt;tr>
+                &lt;td>Appraisal and Design - Poorest&lt;/td>
+                &lt;td>60&lt;/td>
+                &lt;td>OP&lt;/td>
+                &lt;td>A&lt;/td>
+                &lt;td>&lt;img src="images/delete.png" class="btnDelete_row" />&lt;img src="images/pencil.png" class="btnEdit_row" />&lt;/td>
+            &lt;/tr>
+            &lt;/tbody>
+        &lt;/table>
+    </code>
+</pre>
+
+            <h4>This is the javascript function</h4>
+<pre>
+    <code class="language-javascript">
+        $(function(){
+
+        function Add_row(){
+        $("#tblOutputDesc tbody").append(
+        "<tr>"+
+        "<td><input type='text'/></td>"+
+        "<td><input type='text'/></td>"+
+        "<td><input type='text'/></td>"+
+        "<td><input type='text'/></td>"+
+        "<td><img src='images/disk.png' class='btnSave_row'><img src='images/delete.png' class='btnDelete_row'/></td>"+
+        "</tr>");
+
+        $(".btnSave_row").bind("click", Save_row);
+        $(".btnDelete_row").bind("click", Delete_row);
+        };
+
+        function Edit_row(){
+        var wrap = $(this).parent().parent(); //tr
+        var td_Out_Desc = wrap.children("td:nth-child(1)");
+        var td_Imp_Wgt = wrap.children("td:nth-child(2)");
+        var td_Out_Per = wrap.children("td:nth-child(3)");
+        var td_Risk = wrap.children("td:nth-child(4)");
+        var td_Ctrl = wrap.children("td:nth-child(5)");
+
+        td_Out_Desc.html("<input type='text' id='Out_Desc' value='"+td_Out_Desc.html()+"'/>");
+        td_Imp_Wgt.html("<input type='text' id='Imp_Wgt' value='"+td_Imp_Wgt.html()+"'/>");
+        td_Out_Per.html("<input type='text' id='Out_Per' value='"+td_Out_Per.html()+"'/>");
+        td_Risk.html("<input type='text' id='Risk' value='"+td_Risk.html()+"'/>");
+        td_Ctrl.html("<img src='images/disk.png' class='btnSave_row'/>");
+
+        $(".btnSave_row").bind("click", Save_row);
+        $(".btnEdit_row").bind("click", Edit_row);
+        $(".btnDelete_row").bind("click", Delete_row);
+        };
+
+        function Save_row(){
+        var wrap = $(this).parent().parent(); //tr
+        var td_Out_Desc = wrap.children("td:nth-child(1)");
+        var td_Imp_Wgt = wrap.children("td:nth-child(2)");
+        var td_Out_Per = wrap.children("td:nth-child(3)");
+        var td_Risk = wrap.children("td:nth-child(4)");
+        var td_Ctrl = wrap.children("td:nth-child(5)");
+
+        td_Out_Desc.html(td_Out_Desc.children("input[type=text]").val());
+        td_Imp_Wgt.html(td_Imp_Wgt.children("input[type=text]").val());
+        td_Out_Per.html(td_Out_Per.children("input[type=text]").val());
+        td_Risk.html(td_Risk.children("input[type=text]").val());
+        td_Ctrl.html("<img src='images/delete.png' class='btnDelete_row'/><img src='images/pencil.png' class='btnEdit_row'/>");
+
+        $(".btnEdit_row").bind("click", Edit_row);
+        $(".btnDelete_row").bind("click", Delete_row);
+        };
+
+        function Delete_row(){
+        var wrap = $(this).parent().parent(); //tr
+        wrap.remove();
+        };
+
+        $(".btnEdit_row").bind("click", Edit_row);
+        $(".btnDelete_row").bind("click", Delete_row);
+        $("#btnAdd_row").bind("click", Add_row);
+
+        });
+    </code>
+</pre>
+            
+            
+            
+            
+            
+            
+    </div>
+
+<!----------------------------------------------------------  BUTTONS  --------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="buttons">Buttons</a><div class="arrow dfid-blue large"></div></h2>
+        <div class="style-section accordion-sg-content default">
+            <p>
+                The default button colour background is '$dfid-green' as declared in the SASS '_colours' file<br />
+                Alternative colours can be used as shown below<br />
+                The pseudo states (hover / active / visited) are automatically rendered
+            </p>
+
+            <div class="example">
+                <button>Save</button>
+                <button class="red">Reject</button>
+                <button class="bluelightnight">Interact</button>
+                <button class="punchoutgrey">Leave System</button>
+            </div>
+<pre>
+    <code class="language-markup">
+&lt;button>Save&lt;/button>
+    &lt;button class="red">Reject&lt;/button>
+    &lt;button class="bluelightnight">Interact&lt;/button>
+    &lt;button class="punchoutgrey">Leave System&lt;/button>
+    </code>
+</pre>
+            <h4>The SASS to show the different coloured buttons</h4>
+<pre>
+    <code class="language-css">
+
+.button{
+  @include button;
+}
+button {
+  @include button($dfid-green);
+  &.blue {
+    @include button($dfid-blue);
+  }
+  &.red {
+    @include button($dfid-red);
+  }
+  &.purple {
+    @include button($dfid-purple);
+  }
+   &.bluelightnight {
+    @include button($light-blue);
+  }
+ &.punchoutgrey {
+    @include button($dfid-grey-4);
+  }
+}
+
+    </code>
+</pre>
+
+        </div>
+
+<!----------------------------------------------------------  INPUT  --------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="input">Input</a><div class="arrow dfid-blue large"></div></h2>
+        <div class="style-section accordion-sg-content default">
+            <h4>Text input</h4>
+            <div class="example">
+                <label class="form-label-bold" for="budget-centre">Budget Centre</label>
+                <p class="form-hint">The Budget Centre of the project.</p>
+                <input type="text" class="form-control" id="budget-centre1">
+            </div>
+<pre>
+    <code class="language-markup">
+&lt;label class="form-label-bold" for="budget-centre">Budget Centre&lt;/label>
+    &lt;p class="form-hint">The Budget Centre of the project.&lt;/p>
+    &lt;input type="text" class="form-control" id="budget-centre">
+    </code>
+</pre>
+
+            <br />
+            <h4>Text area input</h4>
+            <div class="example">
+                <label class="form-label-bold" for="project-description">Project description</label>
+                <p class="form-hint">The full DESCRIPTION of the project.</p>
+                <textarea id="project-description1" rows="3">To enhance economic value generated for the poor as producers, consumers and employees by investing in impact enterprises.
+                </textarea>
+            </div>
+<pre>
+    <code class="language-markup">
+&lt;label class="form-label-bold" for="project-description">Project description&lt;/label>
+    &lt;p class="form-hint">The full DESCRIPTION of the project.&lt;/p>
+    &lt;textarea id="project-description" rows="3">To enhance economic value generated for the poor as producers, consumers and employees by investing in impact enterprises.
+    &lt;/textarea>
+    </code>
+</pre>
+
+            <br />
+            <h4>Date input</h4>
+
+            <div class="example">
+                <fieldset>
+                    <legend class="form-label-bold">Created date</legend>
+
+                    <div class="form-date">
+
+                        <p class="form-hint">For example, 31 3 2014</p>
+
+                        <div class="form-group form-group-day">
+                            <label for="cd-day">Day</label>
+                            <input class="form-control" id="cd-day" type="number" pattern="[0-9]*" min="0" max="31">
+                        </div>
+
+                        <div class="form-group form-group-month">
+                            <label for="cd-month">Month</label>
+                            <input class="form-control" id="cd-month" type="number" pattern="[0-9]*" min="0" max="12">
+                        </div>
+
+                        <div class="form-group form-group-year">
+                            <label for="cd-year">Year</label>
+                            <input class="form-control" id="cd-year" type="number" pattern="[0-9]*" min="0" max="2015">
+                        </div>
+                    </div>
+
+                </fieldset>
+            </div>
+            
+<pre>
+    <code class="language-markup">
+&lt;fieldset>
+        &lt;legend class="form-label-bold">Created date&lt;/legend>
+        &lt;div class="form-date">
+            &lt;p class="form-hint">For example, 31 3 2014&lt;/p>
+            &lt;div class="form-group form-group-day">
+                &lt;label for="cd-day">Day&lt;/label>
+                &lt;input class="form-control" id="cd-day" type="number" pattern="[0-9]*" min="0" max="31">&lt;!-- Form will show error if not number below 31 -->
+            &lt;/div>
+            &lt;div class="form-group form-group-month">
+                &lt;label for="cd-month">Month&lt;/label>
+                &lt;input class="form-control" id="cd-month" type="number" pattern="[0-9]*" min="0" max="12">&lt;!-- Form will show error if not number below 12 -->
+            &lt;/div>
+            &lt;div class="form-group form-group-year">
+                &lt;label for="cd-year">Year&lt;/label>
+                &lt;input class="form-control" id="cd-year" type="number" pattern="[0-9]*" min="0" max="2015">&lt;!-- Form will error on incorrect year -->
+            &lt;/div>
+        &lt;/div>
+    &lt;/fieldset>
+    </code>
+</pre>
+
+        </div>
+
+<!----------------------------------------------------------  CHECKBOXES  --------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="checkboxes">Checkboxes</a><div class="arrow dfid-blue large"></div></h2>
+        <div class="style-section accordion-sg-content default">
+            <div class="example">
+                <fieldset>
+                    <legend class="form-label-bold">Who should be informed about the changes here?</legend>
+                    <p>Select all that apply</p>
+                    <label class="block-label" for="checkbox-1">
+                        <input id="checkbox-1" value="Senior management" type="checkbox">
+                        Senior management
+                    </label>
+                    <label class="block-label" for="checkbox-2">
+                        <input id="checkbox-2" value="Middle management" type="checkbox">
+                        Middle management
+                    </label>
+                    <label class="block-label" for="checkbox-3">
+                        <input id="checkbox-3" value="Junior management" type="checkbox">
+                        Junior management
+                    </label>
+                </fieldset>
+            </div>
+<pre>
+    <code class="language-markup">
+&lt;fieldset>
+        &lt;legend class="form-label-bold">Who should be informed about the changes here?&lt;/legend>
+        &lt;p>Select all that apply&lt;/p>
+        &lt;label class="block-label selected" for="checkbox-1">
+            &lt;input id="checkbox-1" value="Senior management" type="checkbox">
+            Senior management
+        &lt;/label>
+        &lt;label class="block-label selected" for="checkbox-2">
+            &lt;input id="checkbox-2" value="Middle management" type="checkbox">
+            Middle management
+        &lt;/label>
+        &lt;label class="block-label" for="checkbox-3">
+            &lt;input id="checkbox-3" value="Junior management" type="checkbox">
+            Junior management
+        &lt;/label>
+    &lt;/fieldset>
+    </code>
+</pre>
+
+        </div>
+
+<!----------------------------------------------------------  RADIOS  --------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="radios">Radios</a><div class="arrow dfid-blue large"></div></h2>
+        <div class="style-section accordion-sg-content default">
+            <div class="example">
+                <fieldset>
+                    <h2>Operational status</h2>
+                    <label class="block-label" for="radio-1">
+                        <input id="radio-1" type="radio" name="radio-group" value="Pre-pipeline">
+                        Pre-pipeline
+                    </label>
+                    <label class="block-label" for="radio-2">
+                        <input id="radio-2" type="radio" name="radio-group" value="Identification">
+                        Identification
+                    </label>
+                    <label class="block-label" for="radio-3">
+                        <input id="radio-3" type="radio" name="radio-group" value="Appraisal & Design">
+                        Appraisal & Design
+                    </label>
+                </fieldset>
+            </div>
+<pre>
+    <code class="language-markup">
+&lt;fieldset>
+        &lt;h2>Operational status&lt;/h2>
+        &lt;label class="block-label" for="radio-1">
+            &lt;input id="radio-1" type="radio" name="radio-group" value="Pre-pipeline">
+            Pre-pipeline
+        &lt;/label>
+        &lt;label class="block-label" for="radio-2">
+            &lt;input id="radio-2" type="radio" name="radio-group" value="Identification">
+            Identification
+        &lt;/label>
+        &lt;label class="block-label" for="radio-3">
+            &lt;input id="radio-3" type="radio" name="radio-group" value="Appraisal & Design">
+            Appraisal & Design
+        &lt;/label>
+    &lt;/fieldset>
+    </code>
+</pre>
+
+        </div>
+
+<!----------------------------------------------------------  ACCORDIONS  --------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="accordions">Accordions</a><div class="arrow dfid-blue large"></div></h2>
+        <div class="style-section accordion-sg-content default">
+
+            <div class="example">
+                <div id="accordion-1">
+                    <div class="grid-row">
+                        <div class="column-half">
+                            <h4 class="accordion-1-toggle">
+                                <div class="title-bar">
+                                    <div class="control-bar">
+                                        Accordion 1 - section 1<div class="arrow white medium"></div>
+                                    </div>
+                                    <p>Title of accordion-1 section 1</p>
+                                </div>
+                            </h4>
+                            <div class="accordion-1-content default">
+                                Accordion content goes here.<br />
+                                You can have any kind of content here - including accordions.<br />
+                                If you are using multiple accordions on a page - you must give them a unique name.<br />
+                                <div class="accordion-2 inner">
+                                    <h4 class="accordion-2-toggle">
+                                        <div class="title-bar">
+                                            <div class="control-bar">
+                                                Accordion-2 (inner)<div class="arrow white medium"></div>
+                                            </div>
+                                            <p>Title of Accordion 2</p>
+                                        </div>
+                                    </h4>
+                                    <div class="accordion-2-content default">
+                                        Accordion content goes here.<br />
+                                        You can have any kind of content here - including accordions.<br />
+                                        If you are using multiple accordions on a page - you must give them a unique name.<br />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column-half">
+                            <h4 class="accordion-1-toggle">
+                                <div class="title-bar">
+                                    <div class="control-bar">
+                                        Accordion 1 - section 2<div class="arrow white medium"></div>
+                                    </div>
+                                    <p>Title of accordion-1 section 2</p>
+                                </div>
+                            </h4>
+                            <div class="accordion-1-content default">
+                                Accordion content goes here.<br />
+                                You can have any kind of content here - including accordions.<br />
+                                If you are using multiple accordions on a page - you must give them a unique name.<br />
+                                <div class="accordion-2 inner">
+                                    <h4 class="accordion-2-toggle">
+                                        <div class="title-bar">
+                                            <div class="control-bar">
+                                                Accordion-2 (inner)<div class="arrow white medium"></div>
+                                            </div>
+                                            <p>Title of Accordion 2</p>
+                                        </div>
+                                    </h4>
+                                    <div class="accordion-2-content default">
+                                        Accordion content goes here.<br />
+                                        You can have any kind of content here - including accordions.<br />
+                                        If you are using multiple accordions on a page - you must give them a unique name.<br />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+<pre>
+    <code class="language-markup">
+&lt;div id="accordion-1">
+        &lt;div class="grid-row">
+            &lt;div class="column-half">
+                &lt;h4 class="accordion-1-toggle">
+                    &lt;div class="title-bar">
+                        &lt;div class="control-bar">
+                            Accordion 1 - section 1&lt;div class="arrow white medium">&lt;/div>
+                        &lt;/div>
+                        &lt;p>Title of accordion-1 section 1&lt;/p>
+                    &lt;/div>
+                &lt;/h4>
+                &lt;div class="accordion-1-content default">
+                    Accordion content goes here.&lt;br />
+                    You can have any kind of content here - including accordions.&lt;br />
+                    If you are using multiple accordions on a page - you must give them a unique name.&lt;br />
+                    &lt;div class="accordion-2 inner">
+                        &lt;h4 class="accordion-2-toggle">
+                            &lt;div class="title-bar">
+                                &lt;div class="control-bar">
+                                    Accordion-2 (inner)&lt;div class="arrow white medium">&lt;/div>
+                                &lt;/div>
+                                &lt;p>Title of Accordion 2&lt;/p>
+                            &lt;/div>
+                        &lt;/h4>
+                        &lt;div class="accordion-2-content default">
+                            Accordion content goes here.&lt;br />
+                            You can have any kind of content here - including accordions.&lt;br />
+                            If you are using multiple accordions on a page - you must give them a unique name.&lt;br />
+                        &lt;/div>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+            &lt;div class="column-half">
+                &lt;h4 class="accordion-1-toggle">
+                    &lt;div class="title-bar">
+                        &lt;div class="control-bar">
+                            Accordion 1 - section 2&lt;div class="arrow white medium">&lt;/div>
+                        &lt;/div>
+                        &lt;p>Title of accordion-1 section 2&lt;/p>
+                    &lt;/div>
+                &lt;/h4>
+                &lt;div class="accordion-1-content default">
+                    Accordion content goes here.&lt;br />
+                    You can have any kind of content here - including accordions.&lt;br />
+                    If you are using multiple accordions on a page - you must give them a unique name.&lt;br />
+                    &lt;div class="accordion-2 inner">
+                        &lt;h4 class="accordion-2-toggle">
+                            &lt;div class="title-bar">
+                                &lt;div class="control-bar">
+                                    Accordion-2 (inner)&lt;div class="arrow white medium">&lt;/div>
+                                &lt;/div>
+                                &lt;p>Title of Accordion 2&lt;/p>
+                            &lt;/div>
+                        &lt;/h4>
+                        &lt;div class="accordion-2-content default">
+                            Accordion content goes here.&lt;br />
+                            You can have any kind of content here - including accordions.&lt;br />
+                            If you are using multiple accordions on a page - you must give them a unique name.&lt;br />
+                        &lt;/div>
+                    &lt;/div>
+                &lt;/div>
+            &lt;/div>
+        &lt;/div>
+    &lt;/div>
+    </code>
+</pre>
+            <p>the Javascript for Accordions..</p>
+<pre>
+    <code class="language-javascript">
+// Simple Accordion script
+    $(document).ready(function($) {
+        $(".accordion-content").slideUp('fast');
+        $('#accordion').find('.accordion-toggle').click(function(){
+
+        //Expand or collapse this panel
+        $(this).next().slideToggle('medium');
+        $(this).toggleClass('visible');
+        $(".accordion-toggle").not(this).removeClass('visible');
+
+        //Hide the other panels
+        $(".accordion-content").not($(this).next()).slideUp('medium');
+
+        });
+    });
+    // Simple Accordion script 1 - copied for quickness to allow multi-accordions on page
+    $(document).ready(function($) {
+        $(".accordion-1-content").slideUp('fast');
+        $('#accordion-1').find('.accordion-1-toggle').click(function(){
+
+        //Expand or collapse this panel
+        $(this).next().slideToggle('medium');
+        $(this).toggleClass('visible');
+        $(".accordion-1-toggle").not(this).removeClass('visible');
+
+        //Hide the other panels
+        $(".accordion-1-content").not($(this).next()).slideUp('slow');
+
+        });
+    });
+    </code>
+</pre>
+
+            <h4>Arrows.</h4>
+            <p>Arrow style is defined within the tag placed beside the title.</p>
+
+<pre>
+    <code class="language-markup">
+&lt;div class="control-bar">
+        Accordion 1 - section 2&lt;div class="arrow white medium">&lt;/div>
+    &lt;/div>
+</code>
+</pre>
+            <p>There are 3 colours : white, dfid-blue, dfid-purple</p>
+            <p>There are 3 sizes : large, medium, small</p>
+            <p>There is Javascript running to automatically change the direction when clicked.</p>
+
+        </div>
+
+
+<!----------------------------------------------------------  TABS  --------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="tabs">Tabs</a><div class="arrow dfid-blue large"></div></h2>
+    <div class="style-section accordion-sg-content default">
+        <div class="example">
+            <div id="tab-container" class="tab-container">
+                <ul class='etabs'>
+                    <li class='tab'><a href="#tabs1-1"><h3>View</h3></a></li>
+                    <li class='tab'><a href="#tabs1-2"><h3>Edit</h3></a></li>
+                </ul>
+                <div class="panel-container">
+                    <div id="tabs1-1">
+                        All Tabs1-1 content here<br />
+                        Multiple lines will expand to suit.
+                        <br />More
+                        <br />More
+                        <br />More
+                        <br />More
+                    </div>
+                    <div id="tabs1-2">
+                        All Tabs1-2 content here<br />
+                        Multiple lines will expand to suit.
+                        <br />More
+                        <br />More
+                        <br />More
+                        <br />More
+                        <br />More
+                        <br />More
+                        <br />More
+                        <br />More
+                    </div>
+                </div>
+            </div>
+        </div>
+<pre>
+    <code class="language-markup">
+&lt;div id="tab-container" class="tab-container">
+        &lt;ul class='etabs'>
+            &lt;li class='tab'>&lt;a href="#tabs1-1">&lt;h3>View&lt;/h3>&lt;/a>&lt;/li>
+            &lt;li class='tab'>&lt;a href="#tabs1-2">&lt;h3>Edit&lt;/h3>&lt;/a>&lt;/li>
+        &lt;/ul>
+        &lt;div class="panel-container">
+            &lt;div id="tabs1-1">
+                All Tabs1-1 content here&lt;br />
+                Multiple lines will expand to suit.
+                &lt;br />More
+                &lt;br />More
+                &lt;br />More
+                &lt;br />More
+            &lt;/div>
+            &lt;div id="tabs1-2">
+                All Tabs1-2 content here&lt;br />
+                Multiple lines will expand to suit.
+                &lt;br />More
+                &lt;br />More
+                &lt;br />More
+                &lt;br />More
+                &lt;br />More
+                &lt;br />More
+                &lt;br />More
+                &lt;br />More
+            &lt;/div>
+        &lt;/div>
+    &lt;/div>
+    </code>
+</pre>
+    </div>
+
+    <!----------------------------------------------------------  SLIDESHOW  ------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="slides">Slides</a><div class="arrow dfid-blue large"></div></h2>
+    <div class="style-section accordion-sg-content default">
+        <p>
+            The Slideshow uses a jQuery plugin called Cycle2.<br />
+            The example here uses the very basic settings.<br />
+            There are lots of configuration options which can be found <a href="http://jquery.malsup.com/cycle2/demo/" target="_blank">here</a><br />
+            You can also add a class tag within the slideshow wrapper tag to be able to control dimensions, drop shadows, background colours etc.
+        </p>
+        <div class="example">
+            <div class="cycle-slideshow project-header"
+                 data-cycle-swipe=true
+                 data-cycle-swipe-fx=scrollHorz>
+                <img src="images/Congo-road.png" alt="A typical road in need of upgrading" title="A typical road in need of upgrading">
+                <img src="images/Banalia-road.png" alt="Some big machinery is required" title="Some big machinery is required">
+                <img src="images/Ghana-bridge.png" alt="Let's build bridges" title="Let's build bridges">
+                <img src="images/Happy-children.png" alt="- because I'm happy .." title="- because I'm happy ..">
+            </div>
+        </div>
+
+    <p>
+        Make sure you include the following Javascript files in your page header ..<br />
+        The 'Swipe' plugin is for touch devices - allowing the user to swipe forward and backward through the slides.
+    </p>
+<pre>
+    <code class="language-markup">
+This pulls in the current jQuery code if required.
+    &lt;script src="http://code.jquery.com/jquery-1.11.2.min.js">&lt;/script>
+
+    These need to be linked to within the site.
+    &lt;script src="javascripts/jquery.cycle2.min.js" type="text/javascript">&lt;/script>
+    &lt;script src="javascripts/jquery.cycle2.swipe.min.js" type="text/javascript">&lt;/script>
+    </code>
+</pre>  
+
+    <p>
+        This is all the code that's required for a basic slideshow.<br />
+    </p>
+<pre>
+    <code class="language-markup">
+&lt;div class="cycle-slideshow project-header"
+        data-cycle-swipe=true
+        data-cycle-swipe-fx=scrollHorz>
+        &lt;img src="images/Congo-road.png" alt="A typical road in need of upgrading" title="A typical road in need of upgrading">
+        &lt;img src="images/Banalia-road.png" alt="Some big machinery is required" title="Some big machinery is required">
+        &lt;img src="images/Ghana-bridge.png" alt="Let's build bridges" title="Let's build bridges">
+        &lt;img src="images/Happy-children.png" alt="- because I'm happy .." title="- because I'm happy ..">
+    &lt;/div>
+    </code>
+</pre>
+</div>
+    <!----------------------------------------------------------  COLOURS  --------------------------------------->
+    <h2 class="accordion-sg-toggle"><a name="colours">Colours</a><div class="arrow dfid-blue large"></div></h2>
+        <div class="style-section accordion-sg-content default">
+
+            <h3 class="heading-medium" id="colour-sass-variables">Sass variables</h3>
+            <p class="text">
+                Use Sass variables in case colour values need to be updated – find these in the _colours.scss file.
+            </p>
+
+            <h3>DfID Custom colours</h3>
+
+            <div class="example">
+
+                <div class="swatch-wrapper">
+                    <h4 class="heading-small">Text</h4>
+
+                    <div class="swatch swatch-dfid-text-black"></div>
+                    <ul>
+                        <li><b>#0B0C0C</b></li>
+                        <li>$dfid-text-black</li>
+                    </ul>
+
+                    <div class="swatch swatch-dfid-text-mid"></div>
+                    <ul>
+                        <li><b>#6F777B</b></li>
+                        <li>$dfid-text-mid</li>
+                    </ul>
+
+                    <div class="swatch swatch-dfid-text-white"></div>
+
+                    <ul>
+                        <li><b>#FFFFFF</b></li>
+                        <li>$dfid-text-white</li>
+                    </ul>
+                </div>
+
+                <div class="swatch-wrapper">
+                    <h4 class="heading-small">Links</h4>
+
+                    <div class="swatch swatch-dfid-link"></div>
+                    <ul>
+                        <li><b>#002878</b></li>
+                        <li>$dfid-link</li>
+                    </ul>
+
+                    <div class="swatch swatch-dfid-link-hover"></div>
+                    <ul>
+                        <li><b>#1D4491</b></li>
+                        <li>$dfid-link-hover</li>
+                    </ul>
+
+                    <div class="swatch swatch-dfid-link-visited"></div>
+                    <ul>
+                        <li><b>#640078</b></li>
+                        <li>$dfid-link-visited</li>
+                    </ul>
+                </div>
+
+                <div class="swatch-wrapper">
+                    <h4 class="heading-small">Colours</h4>
+
+                    <div class="swatch swatch-dfid-brown"></div>
+                    <ul>
+                        <li><b>#785000</b></li>
+                        <li>$dfid-brown</li>
+                    </ul>
+
+                    <div class="swatch swatch-dfid-red"></div>
+                    <ul>
+                        <li><b>#b10e1e</b></li>
+                        <li>$dfid-red</li>
+                    </ul>
+
+                    <div class="swatch swatch-dfid-orange"></div>
+                    <ul>
+                        <li><b>#FF8C00</b></li>
+                        <li>$dfid-orange</li>
+                    </ul>
+                </div>
+
+                <div class="swatch-wrapper">
+                    <h4 class="heading-small">Colours</h4>
+
+                    <div class="swatch swatch-dfid-turquoise-1"></div>
+                    <ul>
+                        <li><b>#05D0CB</b></li>
+                        <li>$dfid-turquoise-1</li>
+                    </ul>
+
+                    <div class="swatch swatch-dfid-turquoise"></div>
+                    <ul>
+                        <li><b>#28A197</b></li>
+                        <li>$dfid-turquoise</li>
+                    </ul>
+
+                    <div class="swatch swatch-dfid-green"></div>
+                    <ul>
+                        <li><b>#007850</b></li>
+                        <li>$dfid-green</li>
+                    </ul>
+
+                </div>
+
+                <div class="swatch-wrapper">
+                    <h4 class="heading-small">Colours</h4>
+
+                    <div class="swatch swatch-dfid-blue-1"></div>
+                    <ul>
+                        <li><b>#1D4491</b></li>
+                        <li>$dfid-blue-1</li>
+                    </ul>
+
+                    <div class="swatch swatch-dfid-blue"></div>
+                    <ul>
+                        <li><b>#002878</b></li>
+                        <li>$dfid-blue</li>
+                    </ul>
+
+                    <div class="swatch swatch-dfid-purple"></div>
+                    <ul>
+                        <li><b>#640078</b></li>
+                        <li>$dfid-purple</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="heading-medium" id="colour-status-colours">Status colours</h3>
+            <div class="example">
+
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-dfid-red"></div>
+                    <ul>
+                        <li><b>#B10E1E</b></li>
+                        <li>$dfid-red</li>
+                    </ul>
+                </div>
+
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-dfid-orange"></div>
+                    <ul>
+                        <li><b>#FF8C00</b></li>
+                        <li>$dfid-orange</li>
+                    </ul>
+                </div>
+
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-dfid-green"></div>
+                    <ul>
+                        <li><b>#007850</b></li>
+                        <li>$dfid-green</li>
+                    </ul>
+                </div>
+
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-dfid-brown"></div>
+                    <ul>
+                        <li><b>#785000</b></li>
+                        <li>$dfid-brown</li>
+                    </ul>
+                </div>
+
+                <div class="swatch-wrapper">
+                    <!--<h4 class="heading-small">Focus</h4>-->
+                    <div class="swatch swatch-yellow"></div>
+                    <ul>
+                        <li><b>#FFBF47</b></li>
+                        <li>$yellow</li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <h3 class="heading-medium" id="colour-greyscale-palette">Greyscale palette</h3>
+            <div class="example">
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-black"></div>
+                    <ul>
+                        <li><b>#0B0C0C</b></li>
+                        <li>$black</li>
+                    </ul>
+                </div>
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-dfid-grey-2"></div>
+                    <ul>
+                        <li><b>#333333</b></li>
+                        <li>$dfid-grey-2</li>
+                    </ul>
+                </div>
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-dfid-grey-4"></div>
+                    <ul>
+                        <li><b>#6F777B</b></li>
+                        <li>$dfid-grey-4</li>
+                    </ul>
+                </div>
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-dfid-grey-5"></div>
+                    <ul>
+                        <li><b>#AAAAAA</b></li>
+                        <li>$dfid-grey-5</li>
+                    </ul>
+                </div>
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-dfid-grey-7"></div>
+                    <ul>
+                        <li><b>#C4C6C8</b></li>
+                        <li>$dfid-grey-7</li>
+                    </ul>
+                </div>
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-dfid-grey-9"></div>
+                    <ul>
+                        <li><b>#DEE0E2</b></li>
+                        <li>$dfid-grey-9</li>
+                    </ul>
+                </div>
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-dfid-grey-10"></div>
+                    <ul>
+                        <li><b>#F8F8F8</b></li>
+                        <li>$dfid-grey-10</li>
+                    </ul>
+                </div>
+                <div class="swatch-wrapper">
+                    <div class="swatch swatch-white"></div>
+                    <ul>
+                        <li><b>#FFFFFF</b></li>
+                        <li>$white</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="heading-medium" id="colour-extended-palette">Extended palette</h3>
+            <ul class="list-bullet text">
+                <li>used for graphs and supporting material</li>
+                <li>for tints of the extended palette use 50% or 25%</li>
+                <li>for complete colour palette – refer to the _colours.scss file</li>
+            </ul>
+
+            <div class="example">
+
+                <div class="swatch-wrapper">
+                    <h4 class="heading-small">Purple</h4>
+
+                    <div class="swatch swatch-purple"></div>
+                    <ul>
+                        <li><b>#2e358b</b></li>
+                        <li>$purple</li>
+                    </ul>
+
+                    <h4 class="heading-small">Mauve</h4>
+
+                    <div class="swatch swatch-mauve"></div>
+                    <ul>
+                        <li><b>#6f72af</b></li>
+                        <li>$mauve</li>
+                    </ul>
+
+                    <h4 class="heading-small">Fuschia</h4>
+
+                    <div class="swatch swatch-fuschia"></div>
+                    <ul>
+                        <li><b>#912b88</b></li>
+                        <li>$fuschia</li>
+                    </ul>
+                </div>
+
+                <div class="swatch-wrapper">
+                    <h4 class="heading-small">Pink</h4>
+
+                    <div class="swatch swatch-pink"></div>
+                    <ul>
+                        <li><b>#d53880</b></li>
+                        <li>$pink</li>
+                    </ul>
+
+                    <h4 class="heading-small">Baby pink</h4>
+
+                    <div class="swatch swatch-baby-pink"></div>
+                    <ul>
+                        <li><b>#f499be</b></li>
+                        <li>$baby-pink</li>
+                    </ul>
+
+                    <h4 class="heading-small">Red</h4>
+
+                    <div class="swatch swatch-red"></div>
+                    <ul>
+                        <li><b>#b10e1e</b></li>
+                        <li>$red</li>
+                    </ul>
+                </div>
+
+                <div class="swatch-wrapper">
+                    <h4 class="heading-small">Mellow red</h4>
+
+                    <div class="swatch swatch-mellow-red"></div>
+                    <ul>
+                        <li><b>#df3034</b></li>
+                        <li>$mellow-red</li>
+                    </ul>
+
+                    <h4 class="heading-small">Orange</h4>
+
+                    <div class="swatch swatch-orange"></div>
+                    <ul>
+                        <li><b>#f47738</b></li>
+                        <li>$orange</li>
+                    </ul>
+
+                    <h4 class="heading-small">Brown</h4>
+
+                    <div class="swatch swatch-brown"></div>
+                    <ul>
+                        <li><b>#b58840</b></li>
+                        <li>$brown</li>
+                    </ul>
+                </div>
+
+                <div class="swatch-wrapper">
+                    <h4 class="heading-small">Yellow</h4>
+
+                    <div class="swatch swatch-yellow"></div>
+                    <ul>
+                        <li><b>#ffbf47</b></li>
+                        <li>$yellow</li>
+                    </ul>
+
+                    <h4 class="heading-small">Green</h4>
+
+                    <div class="swatch swatch-green"></div>
+                    <ul>
+                        <li><b>#006435</b></li>
+                        <li>$green</li>
+                    </ul>
+
+                    <h4 class="heading-small">Grass green</h4>
+
+                    <div class="swatch swatch-grass-green"></div>
+                    <ul>
+                        <li><b>#85994b</b></li>
+                        <li>$grass-green</li>
+                    </ul>
+                </div>
+
+                <div class="swatch-wrapper">
+                    <h4 class="heading-small">Turquoise</h4>
+
+                    <div class="swatch swatch-turquoise"></div>
+                    <ul>
+                        <li><b>#28a197</b></li>
+                        <li>$turquoise</li>
+                    </ul>
+
+                    <h4 class="heading-small">Light blue</h4>
+
+                    <div class="swatch swatch-light-blue"></div>
+                    <ul>
+                        <li><b>#2b8cc4</b></li>
+                        <li>$light-blue</li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+            <!--</div>-->
+    </div>
+</div>
+
+</main><!-- / #content -->
+
+
+
+
+</body>
+</html>
