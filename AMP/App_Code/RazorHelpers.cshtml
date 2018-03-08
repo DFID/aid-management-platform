@@ -1,0 +1,48 @@
+﻿@using AMP.Models
+@using AMP.ViewModels
+
+@*-------Global Razor helper functions--------------*@
+
+@helper CalculatePqScore(IEnumerable<ReviewOutputVM> reviewOutputVms)
+{
+    double outputPqScoreTotal = 0.0;
+
+    if (reviewOutputVms.Any())
+    {
+        foreach (var reviewOutputVm in reviewOutputVms)
+        {
+            if (reviewOutputVm.Weight != null)
+            {
+                double impactWeightingPercentage = (double)reviewOutputVm.Weight / 100;
+                outputPqScoreTotal += reviewOutputVm.ReviewScore.Weight * impactWeightingPercentage;
+            }
+        }
+        <span> @String.Format("{0:0.0}", Math.Round(outputPqScoreTotal, 1)) </span>
+    }
+    else
+    {
+        <span>@String.Format("{0:0.0}", Math.Round(outputPqScoreTotal, 1))</span>
+    }
+}
+
+@helper CalculatePqScore(ICollection<ReviewOutput> reviewOutputVms)
+{
+    double outputPqScoreTotal = 0.0;
+
+    if (reviewOutputVms.Any())
+    {
+        foreach (var reviewOutputVm in reviewOutputVms)
+        {
+            if (reviewOutputVm.Weight != null)
+            {
+                double impactWeightingPercentage = (double)reviewOutputVm.Weight / 100;
+                outputPqScoreTotal += reviewOutputVm.ReviewScore.Weight * impactWeightingPercentage;
+            }
+        }
+        <span> @String.Format("{0:0.0}", Math.Round(outputPqScoreTotal, 1)) </span>
+    }
+    else
+    {
+        <span>@String.Format("{0:0.0}", Math.Round(outputPqScoreTotal, 1))</span>
+    }
+}
