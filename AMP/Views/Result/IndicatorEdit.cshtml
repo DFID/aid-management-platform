@@ -1,0 +1,101 @@
+﻿@model AMP.Models.OutputIndicator
+@{
+    ViewBag.Title = "IndicatorEdit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>IndicatorEdit</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Output Indicator</h4>
+        <hr />
+        @Html.ValidationSummary(true)
+        @Html.HiddenFor(model => model.ID)
+        <div class="form-group">
+            @Html.LabelFor(model => model.ProjectOutputID, "Project Output ID", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.ProjectOutputID)
+                @Html.ValidationMessageFor(model => model.ProjectOutputID)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.OutputIndicatorID, "Output Indicator ID", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.OutputIndicatorID)
+                @Html.ValidationMessageFor(model => model.OutputIndicatorID)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.IndicatorDescription, "Indicator Description", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.IndicatorDescription, new { cols = 100, @rows = 10 })
+                @Html.ValidationMessageFor(model => model.IndicatorDescription)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Source, "Source", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Source)
+                @Html.ValidationMessageFor(model => model.Source)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Units, "Units", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Units)
+                @Html.ValidationMessageFor(model => model.Units)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Baseline, "Baseline", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Baseline, new { cols = 100, @rows = 10 })
+                @Html.ValidationMessageFor(model => model.Baseline)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Target, "Target", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Target, new { cols = 100, @rows = 10 })
+                @Html.ValidationMessageFor(model => model.Target)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.TargetAchieved, "Target Achieved", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.TargetAchieved, new { cols = 100, @rows = 10 })
+                @Html.ValidationMessageFor(model => model.TargetAchieved)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Status, "Status", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Status)
+                @Html.ValidationMessageFor(model => model.Status)
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" value="Save" class="btn btn-default" />
+        </div>
+    </div>
+
+}
+        
+  
+

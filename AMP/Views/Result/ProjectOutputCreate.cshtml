@@ -1,0 +1,138 @@
+﻿@model  AMP.ViewModels.ProjectViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml")
+
+<style type="text/css">
+    .SaveMessageSuccess {
+        color: green;
+        font-weight: bold;
+        visibility: visible;
+        display: inline;
+    }
+</style>
+
+
+
+<div class="page-container">
+    <h1>Output details</h1>
+
+    @using (Html.BeginForm(FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        <div class="FullWidthContainer">
+
+
+            <div class="form-group">
+                @Html.HiddenFor(model => model.ResultVM.ProjectOutput.ProjectID, new { @Value = @Model.ProjectMaster.ProjectID })
+            </div>
+            <div class="form-group">
+                <label class="form-label-bold" for="project-title">Description</label>
+                <p class="form-hint">Description for new project output</p>
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.ResultVM.ProjectOutput.ProjectOutputDescription, new { @rows = 3, style = "width: 60%" })
+                    @Html.ValidationMessageFor(model => model.ResultVM.ProjectOutput.ProjectOutputDescription)
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label-bold" for="project-title">Assumption</label>
+                <p class="form-hint">Assumptions for output</p>
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.ResultVM.ProjectOutput.Assumption, new { @rows = 3, style = "width: 60%",  id = "project-description" })
+                    @Html.ValidationMessageFor(model => model.ResultVM.ProjectOutput.Assumption)
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label-bold" for="project-title">Output weighting</label>
+                <p class="form-hint">Percentage value of output weighting. For example, 50 </p>
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.ResultVM.ProjectOutput.ImpactWeightingPercentage, new { style = "width: 60px" ,@class="form-control" })
+                    @Html.ValidationMessageFor(model => model.ResultVM.ProjectOutput.ImpactWeightingPercentage)
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="column-third">
+                    <!-- Risks -->
+                    <div class="status-select">
+                        <h2>Risk</h2>
+                        <label>
+                            @Html.RadioButtonFor(m => m.ResultVM.ProjectOutput.Risk,string.Format("High"), new { id = "High" })
+                            High
+                        </label>
+                        <label>
+                            @Html.RadioButtonFor(m => m.ResultVM.ProjectOutput.Risk, string.Format("Medium"), new { id = "Medium" })
+                            Medium
+                        </label>
+                        <label>
+                            @Html.RadioButtonFor(m => m.ResultVM.ProjectOutput.Risk, string.Format("Low"), new { id = "Low" })
+                            Low
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Save" class="button" id="CreateBtn" onclick="checkPercentageRange();" />
+                    </div>
+                </div>
+            </div>
+        <div class="PushDown">
+            <div id="ResultMessage" class="Hidden">@ViewBag.ResultMessage.ToString()</div>
+            <input type="hidden" id="ResultMessageSuccess" value="@(ViewBag.IsSuccess.ToString())" />
+            <br />
+        </div>
+    }
+    <div class="PushDown">
+        @Html.ActionLink("Back to List", "Index/", new { id = ViewBag.ProjectId })
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script type="text/javascript">
+
+        //var x = document.getElementById("NavBoxResults");
+        //x.className = "NavBoxSelected";
+
+        var resultMessageSuccess = document.getElementById("ResultMessageSuccess");
+        var resultMessage = document.getElementById("ResultMessage");
+
+        if (resultMessageSuccess.value == "1") {
+            resultMessage.className = "SaveMessageSuccess";
+        }
+
+        if (resultMessageSuccess.value == "0") {
+            resultMessage.className = "SaveMessageFail";
+            document.getElementById("CreateBtn").disabled = false;
+        }
+
+        if (resultMessageSuccess.value == 1) {
+            ProjectCreationSuccessful();
+        }
+
+        function ProjectCreationSuccessful() {
+            document.getElementById("ResultVM_ProjectOutput_ProjectOutputDescription").disabled = true;
+            document.getElementById("ResultVM_ProjectOutput_Assumption").disabled = true;
+            document.getElementById("ResultVM_ProjectOutput_ImpactWeightingPercentage").disabled = true;
+            document.getElementById("CreateBtn").disabled = true;
+        }
+
+        function checkPercentageRange() {
+            //document.getElementById("CreateBtn").disabled = true;
+            var value = $("#ResultVM_ProjectOutput_ImpactWeightingPercentage").val();
+            if (value > 100 || value < 1) {
+                document.getElementById("CreateBtn").disabled = false;
+            }
+        }
+
+
+    </script>
+}
+
+

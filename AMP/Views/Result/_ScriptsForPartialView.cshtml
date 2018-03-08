@@ -1,0 +1,232 @@
+﻿@{
+    Layout = null;
+}
+<style type="text/css">
+    .edit-mode {
+    }
+
+    .edit-user {
+    }
+
+        .edit-user display-mode {
+        }
+
+    .save-user edit-mode {
+    }
+
+    .display-mode {
+    }
+
+    .cancel-user {
+    }
+
+    .webgrid-table {
+        font-family: Arial,Helvetica,sans-serif;
+        font-size: 14px;
+        font-weight: normal;
+        width: 650px;
+        display: table;
+        border-collapse: collapse;
+        border: solid px #C5C5C5;
+        background-color: white;
+    }
+
+        .webgrid-table td, th {
+            border: 1px solid #C5C5C5;
+            padding: 3px 7px 2px;
+        }
+
+    .webgrid-header, .webgrid-header a {
+        background-color: #E3E3E3;
+        color: black;
+        text-align: left;
+        text-decoration: none;
+    }
+
+    .webgrid-footer {
+    }
+
+    .webgrid-row-style {
+        padding: 3px 7px 2px;
+    }
+
+    .webgrid-alternating-row {
+        background-color: #F5F5F5;
+        padding: 3px 7px 2px;
+    }
+
+    .col1Width {
+        width: 50px;
+    }
+
+    .col2Width {
+        width: 200px;
+    }
+</style>
+
+<script type="text/javascript">
+    function sumOfColumns(tableClass, columnIndex, hasHeader) {
+        var tot = 0;
+        $("." + tableClass + " tr" + (hasHeader ? ":gt(0)" : ""))
+        .find("#lblAchieved")
+        .each(function () {
+            if ($(this).html() != '') {
+                tot += parseInt($(this).html());
+            }
+        });
+        return tot;
+    }
+    $(function () {
+        //GenerateMilestoneTimeseriesGraph("webgrid-table", true);
+        $('.edit-mode').hide();
+        $('.edit-user, .cancel-user').on('click', function () {
+            var tr = $(this).parents('tr:first');
+            tr.find('.edit-mode, .display-mode').toggle();
+            $('#resultmessageMilestoneGrid').hide();
+        });
+
+        $("#opeMilestoneForm").on('click', function () {
+            $('#dvCreateMilestone').show();
+            $('#resultmessageMilestone').hide();
+            $('#resultmessageMilestoneGrid').hide();
+            $("#achievedSoFar").val(sumOfColumns("webgrid-table", 3, true));
+
+        });
+
+        $('.save-user').on('click', function () {
+            var tr = $(this).parents('tr:first');            
+            var Achieved = tr.find("#Achieved").val();           
+            var ID = $(this).attr('data-MilestoneID');           
+            tr.find("#lblAchieved").text(Achieved);           
+            tr.find('.edit-mode, .display-mode').toggle();
+            var OutputIndicatorMilestone =
+            {
+                "ID": ID,                
+                "Achieved": Achieved
+            };
+            $.ajax({
+                url: '@Url.Action("ChangeMilestone", "Result")',
+                data: JSON.stringify(OutputIndicatorMilestone),
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {                    
+                    $('#resultmessageMilestoneGrid').addClass("SaveMessageSuccess");
+                    $('#resultmessageMilestoneGrid').text('Milestone saved');
+                    $('#resultmessageMilestoneGrid').show();
+                }
+            });
+          //  GenerateMilestoneTimeseriesGraph("webgrid-table", true);
+
+        });
+        
+        //Delete Milestone 
+
+
+        $('.delete-Milestone').on('click', function () {
+            var tr = $(this).parents('tr:first');
+            var Achieved = tr.find("#Achieved").val();
+            var ID = $(this).attr('data-MilestoneID');
+            var MileStoneID = tr.find("#MileStoneID").val();
+            var ProjectID = $("#ProjectID").val();
+            var OutputID = $("#output-indicator-outputID").val();
+            var IndicatorID = $("#output-indicator-indicatorID").val();
+
+            tr.find("#lblAchieved").text(Achieved);
+            tr.find('.edit-mode, .display-mode').toggle();
+            var OutputIndicatorMilestone =
+            {
+                "ID": ID,
+                "Achieved": Achieved,
+                "MileStoneID": MileStoneID,
+                "ProjectID": ProjectID,
+                "OutputID": OutputID,
+                "IndicatorID": IndicatorID
+            };
+            $.ajax({
+                
+                url: '@Url.Action("DeleteMilestone", "Result")',
+                data: JSON.stringify(OutputIndicatorMilestone),
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    $('#resultmessageMilestoneGrid').addClass("SaveMessageSuccess");
+                    $('#resultmessageMilestoneGrid').text('Milestone deleted');
+                    $('#resultmessageMilestoneGrid').show();
+                    var urltoRefresh = '@Html.Raw(@Url.Action("ShowMilestones"))';
+                    $('#dvShowMileStones').load(urltoRefresh);
+                }
+            });
+            //  GenerateMilestoneTimeseriesGraph("webgrid-table", true);
+
+        });
+
+
+    })
+    //function GenerateMilestoneTimeseriesGraph(tableClass,hasHeader) {       
+    //    var from = [];
+    //    var plan = [];
+    //    var achieve = [];
+    //    var milestoneDate = "";
+    //    var planned = "";
+    //    var achieved = "";
+    //    from.push('x');        
+    //    plan.push(['Planned']);
+    //    achieve.push(['Achieved']);
+
+
+    //    $("." + tableClass + " tr" + (hasHeader ? ":gt(0)" : ""))
+    //   .find("#From")
+    //   .each(function () {
+    //       if ($(this).html() != '') {              
+    //           from.push($(this).html());
+    //       }
+    //    });          
+
+    //    $("." + tableClass + " tr" + (hasHeader ? ":gt(0)" : ""))
+    //  .find("#Planned")
+    //  .each(function () {
+    //      if ($(this).html() != '') {              
+    //          plan.push([parseInt($(this).html())]);
+    //      }
+    //  });
+    //      $("." + tableClass + " tr" + (hasHeader ? ":gt(0)" : ""))
+    //  .find("#lblAchieved")
+    //  .each(function () {
+    //      if ($(this).html() != '') {              
+    //          achieve.push([parseInt($(this).html())]);
+    //      }
+    //      else
+    //          achieve.push([0]);
+    //  });          
+    //      var chart = c3.generate({
+    //          data: {
+    //              x: 'x',
+    //             //        xFormat: '%Y-%m-%d', // 'xFormat' can be used as custom format of 'x'
+    //              columns: [
+    //                  from,
+    //                  plan,
+    //                  achieve
+
+    //              ]
+    //          },
+    //          axis: {
+    //              x: {
+    //                  type: 'timeseries',
+    //                  tick: {
+    //                      format: '%Y-%m-%d'
+    //                  }
+    //              }
+    //          }
+    //      });
+
+        
+    //}
+</script>
+
+
+@*</head>
+    <body>
+        <div>
+        </div>
+    </body>
+    </html>*@

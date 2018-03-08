@@ -1,0 +1,121 @@
+﻿@model  AMP.ViewModels.ProjectViewModel
+
+@{
+    ViewBag.Title = "Edit Output";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml")
+
+<style type="text/css">
+    .SaveMessageSuccess {
+        color: green;
+        font-weight: bold;
+        visibility: visible;
+        display: inline;
+    }
+</style>
+
+<div class="page-container">
+    <h1>Edit output: @Model.ResultVM.ProjectOutput.OutputID  </h1>
+
+    @using (Html.BeginForm())
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-horizontal">
+
+            @Html.ValidationSummary(true)
+            @Html.HiddenFor(model => model.ResultVM.ProjectOutput.ID)
+            @Html.HiddenFor(model => model.ResultVM.ProjectOutput.ProjectID)
+            @Html.HiddenFor(model => model.ResultVM.ProjectOutput.OutputID)
+            <div class="form-group">
+              @Html.HiddenFor(model => model.ResultVM.ProjectOutput.OutputID)
+            </div>
+
+            <div class="form-group">
+                <label class="form-label-bold" for="project-title">Description</label>
+                <p class="form-hint">Description for project output</p>
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.ResultVM.ProjectOutput.ProjectOutputDescription, new { @rows = 5, style = "width: 60%" })
+                    @Html.ValidationMessageFor(model => model.ResultVM.ProjectOutput.ProjectOutputDescription)
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label-bold" for="project-title">Assumption</label>
+                <p class="form-hint">Assumptions for output</p>
+                <div class="col-md-10">
+                    @Html.TextAreaFor(model => model.ResultVM.ProjectOutput.Assumption, new { @rows = 8, style = "width: 60%" })
+                    @Html.ValidationMessageFor(model => model.ResultVM.ProjectOutput.Assumption)
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label-bold" for="project-title">Weighting</label>
+                <p class="form-hint">Output weighting percentage. For example, 50 </p>
+                <div class="col-md-10">
+                    @Html.TextBoxFor(model => model.ResultVM.ProjectOutput.ImpactWeightingPercentage, new { style = "width: 40px" }) 
+                    @Html.ValidationMessageFor(model => model.ResultVM.ProjectOutput.ImpactWeightingPercentage)
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10">
+                    <input type="submit" value="Save" class="button" id="SaveBtn" onclick="checkPercentageRange();" />
+                </div>
+            </div>
+        </div>
+
+        <div class="PushDown">
+            <div id="ResultMessage" class="Hidden">@ViewBag.ResultMessage.ToString()</div>
+            <input type="hidden" id="ResultMessageSuccess" value="@(ViewBag.IsSuccess.ToString())" />
+            <br />
+        </div>
+    }
+    <div class="PushDown">
+        @Html.ActionLink("Back to List", "Index/", new { id = @Model.ResultVM.ProjectOutput.ProjectID })
+    </div>
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+
+    <script type="text/javascript">
+
+        //var x = document.getElementById("NavBoxResults");
+        //x.className = "NavBoxSelected";
+
+        var resultMessageSuccess = document.getElementById("ResultMessageSuccess");
+        var resultMessage = document.getElementById("ResultMessage");
+
+        if (resultMessageSuccess.value == "1") {
+            resultMessage.className = "SaveMessageSuccess";
+        }
+
+        if (resultMessageSuccess.value == "0") {
+            resultMessage.className = "SaveMessageFail";
+            document.getElementById("CreateBtn").disabled = false;
+        }
+
+        if (resultMessageSuccess.value == 1) {
+            ProjectCreationSuccessful();
+        }
+
+        function ProjectCreationSuccessful() {
+            document.getElementById("ResultVM_ProjectOutput_ProjectOutputDescription").disabled = true;
+            document.getElementById("ResultVM_ProjectOutput_Assumption").disabled = true;
+            document.getElementById("ResultVM_ProjectOutput_ImpactWeightingPercentage").disabled = true;
+            document.getElementById("SaveBtn").disabled = true;
+        }
+        function checkPercentageRange() {
+            //document.getElementById("SaveBtn").disabled = true;
+            //var value = $("#ResultVM_ProjectOutput_ImpactWeightingPercentage").val();
+            //if (value > 100 || value < 1) {
+            //    document.getElementById("SaveBtn").disabled = false;
+            //}
+        }
+    </script>
+}
+
+

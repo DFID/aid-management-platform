@@ -1,0 +1,206 @@
+﻿@model  AMP.ViewModels.ResultVM
+
+@{
+    ViewBag.Title = "Project outputs";
+}
+
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml",Model.ProjectHeader)
+
+<style type="text/css">
+    .btnHighlighted {
+        background-color: #002878;
+        color: white;
+        display: inline-block;
+        margin: 0 0 4px;
+        padding: 5px 15px;
+        border: 0;
+        font-size: 14px;
+    }
+</style>
+
+
+<div class="page-container">
+    <input type="Button" class="btnHighlighted" value="Impact" id="btnImpact" onclick="ShowImpact()" />
+    <input type="Button" class="btnHighlighted" value="Outcome" id="btnOutcome" onclick="ShowOutcome()" />
+    <input type="Button" class="btnHighlighted" value="Output" id="btnOutput" onclick="ShowOutput()" />
+
+    <div id="Output">
+        <div style="float: right">
+            <button id="openOutputForm" class="button">Add new output</button>
+        </div>
+        <br />
+        <div id="OutputCreateForm" style="display:none">
+            <div class="report-basics">
+
+                @using (Html.BeginForm("ProjectOutputCreate", "Result", FormMethod.Post, new { id = "OutputForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+
+                    @Html.HiddenFor(model => model.ProjectOutput.ProjectID, new { @Value = @Model.ProjectHeader.ProjectID, id = "Output-ProjectID" })
+                    <div class="grid-row">
+                        <div class="column-two-thirds">
+                            <label for="Output-description" class="form-label-bold">Output</label>
+                            <p class="form-hint">Description of the output. Outputs are the specific, direct deliverables of the project</p>
+                            @Html.TextAreaFor(model => model.ProjectOutput.ProjectOutputDescription, new { id = "Output-description", rows = 3, style = "width: 100%" })
+                            @Html.ValidationMessageFor(model => model.ProjectOutput.ProjectOutputDescription)
+                        </div>
+                    </div>
+
+                    <div class="grid-row">
+                        <div class="column-two-thirds">
+                            <label for="Output-assumption" class="form-label-bold">Assumptions</label>
+                            <p class="form-hint">Output to achieve Outcome assumptions. IF we deliver the outputs AND the assumptions hold true, THEN we will achieve the outcome</p>
+                            @Html.TextAreaFor(model => model.ProjectOutput.Assumption, new { @rows = 3, id = "Output-assumption", style = "width: 100%" })
+                            @Html.ValidationMessageFor(model => model.ProjectOutput.Assumption)
+                        </div>
+                    </div>
+
+                    <div class="grid-row">
+                        <div class="column-two-thirds">
+                            <label for="Output-weighting" class="form-label-bold">Risk</label>
+                            <p class="form-hint">Select the risk rating for this output.</p>
+                            <div class="status-select">
+                                <label style="margin-right: 20px">
+                                    @Html.RadioButtonFor(m => m.ProjectOutput.Risk, string.Format("High"), new { id = "High" })
+                                    High
+                                </label>
+                                <label style="margin-right: 20px">
+                                    @Html.RadioButtonFor(m => m.ProjectOutput.Risk, string.Format("Medium"), new { id = "Medium" })
+                                    Medium
+                                </label>
+                                <label>
+                                    @Html.RadioButtonFor(m => m.ProjectOutput.Risk, string.Format("Low"), new { id = "Low" })
+                                    Low
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-row">
+                        <div class="column-two-thirds">
+                            <label for="Output-weighting" class="form-label-bold">Weighting (%)</label>
+                            <p class="form-hint">Assign a value for the percentage contribution this output is likely to make towards the achievement of the overall Outcome. Eg 25.</p>
+                            <div class="col-md-10">
+                                @Html.TextBoxFor(model => model.ProjectOutput.ImpactWeightingPercentage, new { style = "width: 20%", @class = "form-control", maxlength = "3" })
+                                @Html.ValidationMessageFor(model => model.ProjectOutput.ImpactWeightingPercentage)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-row">
+                        <div class="column-two-thirds">
+                            <label for="Output-weighting" class="form-label-bold">DFID attribution (%)</label>
+                            <p class="form-hint">Assign a value for the percentage attributed by DFID for this output Eg 25.</p>
+                            <div class="col-md-10">
+                                @Html.TextBoxFor(model => model.ProjectOutput.Attribution, new { style = "width: 20%", @class = "form-control", maxlength = "3" })
+                                @Html.ValidationMessageFor(model => model.ProjectOutput.Attribution)
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr style="height: 3px; background-color: #2e358b; " />
+                    <div class="grid-row">
+                        <div class="column-quarter">
+                            <input type="submit" value="Submit" class="button" id="btnOutputSumbit" />
+                        </div>
+                        <div id="errorDiv" class=" column-two-thirds SaveMessageFail"> </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <h1>Outputs</h1>
+
+        <div id="successDiv" class="SaveMessageSuccess"></div>
+
+        <p class="instruction">Click on each Output to expand information.</p>
+
+        <div id="PartialOutputAccordionDiv">
+            @Html.Action("ShowProjectOutputs", new { projectId = @Model.ProjectHeader.ProjectID })
+        </div>
+    </div>
+
+</div>
+<br /><br />
+
+@section Scripts {
+
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js" type="text/javascript"></script>
+
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $("#openOutputForm").click(function () {
+                ToggleOutputCreateForm();
+            });
+        });
+
+
+        $(document).ready(function () {
+            $('#btnOutputSumbit').click(function (e) {
+                e.preventDefault();
+                //client side validation check
+                if ($('#OutputForm').valid()) {
+                    this.disabled = true;
+                    PostOutputData();
+                }
+            });
+        });
+
+        function PostOutputData() {
+            var form = $("#OutputForm");
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (result) {
+
+                    if (result.success === true) {
+                        //Reset the form if successful
+                        form[0].reset();
+                        $("#btnOutputSumbit").removeAttr("disabled");
+                        var projectId = $("#Output-ProjectID").val();
+                        var urltoRefresh = '@Html.Raw(@Url.Action("ShowProjectOutputs"))' + "/" + projectId;
+                                              
+                        $("#PartialOutputAccordionDiv").load(urltoRefresh);
+                        //clear any error messages
+                        $("#errorDiv").html("");
+                        ToggleOutputCreateForm();
+                        $("#successDiv").fadeOut(10000).html("Output was created successfully");
+                    }
+
+                    if (result.success === false) {
+                        $("#errorDiv").html(result.response);
+                        $("#btnOutputSumbit").removeAttr("disabled");
+                    }
+                },
+
+                error: function (result) { alert("failed"); }
+            });
+        };
+
+        function ToggleOutputCreateForm() {
+            if ($("#openOutputForm").html() == "Add new output") {
+                $("#openOutputForm").html("Cancel new output");
+            } else {
+                $("#openOutputForm").html("Add new output");
+            }
+            $("#OutputCreateForm").toggle("slow");
+        };
+
+    </script>
+    <script type="text/javascript">
+   
+        $(document).ready(function(){
+            if($("#Mytable").find("tr:last td:eq(0)").text().indexOf('td1')!= -1)
+                alert('Good Morining,You got td1');
+        });
+   
+    </script>
+}

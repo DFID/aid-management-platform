@@ -1,0 +1,97 @@
+﻿@model AMP.ViewModels.ResultVM
+
+@{
+    ViewBag.Title = "New Milestone";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>New Milestone</h2>
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Indicator Milestone</h4>
+        <hr />
+        @Html.ValidationSummary(true )
+        <div class="form-group">
+            @Html.LabelFor(model => model.Milestone.OutputIndicatorID, "Output Indicator ID", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Milestone.OutputIndicatorID)
+                @Html.ValidationMessageFor(model => model.Milestone.OutputIndicatorID)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Milestone.MilestoneID, "Milestone ID", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Milestone.MilestoneID )
+                @Html.ValidationMessageFor(model => model.Milestone.MilestoneID )
+            </div>
+        </div>
+
+        @*<div class="PushDown">
+            <br />
+            <!--Label-->
+            <div class="LeftColumnTwentyFive">
+                <label>From Date</label>
+            </div>
+            <!--Field-->
+            <div id="From" class="RightColumnTwoThirds">
+                <input type='text' class="form-control" id="Milestone_From" name="Milestone.From" data-date-format="DD/MM/YYYY" value="@Model.Milestone.From" />
+            </div>
+        </div>*@
+        
+        
+        <div class="form-group">
+            @Html.LabelFor(model => model.Milestone.From, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Milestone.From )
+                @Html.ValidationMessageFor(model => model.Milestone.From )
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Milestone.To, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Milestone.To )
+                @Html.ValidationMessageFor(model => model.Milestone.To )
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Milestone.Planned, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Milestone.Planned, new { cols = 100, @rows = 10 })
+                @Html.ValidationMessageFor(model => model.Milestone.Planned)
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Milestone.Achieved, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextAreaFor(model => model.Milestone.Achieved, new { cols = 100, @rows = 10 })
+                @Html.ValidationMessageFor(model => model.Milestone.Achieved)
+        </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Milestone.Status, new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Milestone.Status )
+                @Html.ValidationMessageFor(model => model.Milestone.Status )
+            </div>
+        </div>       
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index/200173")
+</div>

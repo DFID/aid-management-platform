@@ -1,0 +1,412 @@
+﻿@model  AMP.ViewModels.ResultVM
+@using System.Collections.Concurrent
+@using AMP.Helpers
+
+@{
+    ViewBag.Title = "Indicators and Milestones";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Html.Partial("~/Views/Shared/_ProjectHeader.cshtml", Model.ProjectHeader)
+
+<style type="text/css">
+    .SaveMessageSuccess {
+        color: green;
+        font-weight: bold;
+        visibility: visible;
+        display: inline;
+    }
+</style>
+
+<div class="page-container">
+    <h1>Create Indicator </h1>
+
+    @using (Html.BeginForm("CreateIndicator", "Result", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        <div class="FullWidthContainer">
+
+            <div class="form-group">
+                @Html.HiddenFor(model => model.OutputIndicator.ProjectID, new { @Value = @Model.OutputIndicator.ProjectID })
+            </div>
+
+            <div class="form-group">
+                @Html.HiddenFor(model => model.OutputIndicator.OutputID, new { @Value = @Model.ProjectOutput.OutputID })
+            </div>
+
+            <div class="grid-row">
+                <div class="column-half">
+                    <label class="form-label-bold">Reporting</label>
+                    <p class="form-hint">Select which reports this indicator will contribute towards</p>
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="column-half">
+                    <label for="Output-weighting" class="form-label-bold">DFID Results Framework</label>
+                    <p class="form-hint">Does this contribute towards a DRF indicator</p>
+                    <div>
+                        <div class="column-quarter">
+                            <label class="block-label" style="margin-right: 20px">
+                                @Html.RadioButtonFor(m => m.OutputIndicator.IsDRF, string.Format("Y"), new { id = "isDRF-Y" })
+                                Yes
+                            </label>
+                        </div>
+                        <div class="column-quarter">
+                            <label class="block-label" style="margin-right: 20px">
+                                @Html.RadioButtonFor(m => m.OutputIndicator.IsDRF, string.Format("N"), new { id = "isDRF-N" })
+                                No
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="column-half">
+                    <label for="Output-weighting" class="form-label-bold">Country Headline Result</label>
+                    <p class="form-hint">Does this contribute towards CHR indicator</p>
+                    <div>
+                        <div class="column-quarter">
+                            <label class="block-label" style="margin-right: 20px">
+                                @Html.RadioButtonFor(m => m.OutputIndicator.IsCHR, string.Format("Y"), new { id = "isCHR-Y" })
+                                Yes
+                            </label>
+                        </div>
+                        <div class="column-quarter">
+                            <label class="block-label" style="margin-right: 20px">
+                                @Html.RadioButtonFor(m => m.OutputIndicator.IsCHR, string.Format("N"), new { id = "isCHR-N" })
+                                No
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="column-two-thirds">
+                    <label class="form-label-bold" for="Indicator-description">Name</label>
+                    <p class="form-hint">Specify usable and clearly measurable performance measure to be used to assess progress in delivery of output - what we are going to measure not what is to be achieved.</p>
+                    @Html.TextAreaFor(model => model.OutputIndicator.IndicatorDescription, new { id = "Indicator-description", rows = 3, style = "width: 100%" })
+                    @Html.ValidationMessageFor(model => model.OutputIndicator.IndicatorDescription)
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="column-two-thirds">
+                    <label class="form-label-bold" for="Indicator-source">Source</label>
+                    <p class="form-hint">Who will collect and report the data? – Ensure it is based on robust data sources, which will be available in the appropriate time frame.</p>
+                    @Html.TextAreaFor(model => model.OutputIndicator.Source, new { id = "Indicator-source", rows = 3, style = "width: 100%" })
+                    @Html.ValidationMessageFor(model => model.OutputIndicator.Source)
+
+                </div>
+            </div>
+
+            <div class="grid-row">
+                <div class="column-half">
+                    <label class="form-label-bold" for="Indicator-baseline">Baseline</label>
+                    <p class="form-hint">What value did the indicator have before the project? - if no baseline available, must be clear how and when it will be collected.</p>
+                    @Html.TextBoxFor(model => model.OutputIndicator.Baseline, new { id = "Indicator-baseline", @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.OutputIndicator.Baseline)
+                </div>
+
+                <div class="column-half">
+
+                    @Html.DateBlock("OutputIndicator.BaselineDate", "Baseline Date", @Model.OutputIndicator.BaselineDate.Value, "Baseline date for baseline")
+                    @Html.HiddenFor(model => model.OutputIndicator.BaselineDate)
+                    @Html.ValidationMessageFor(model => model.OutputIndicator.BaselineDate)
+
+
+
+
+
+                </div>
+            </div>
+            <div class="grid-row">
+                <div class="column-half">
+                    <label class="form-label-bold" for="Indicator-Target">Target</label>
+                    <p class="form-hint">What is the desired value for the indicator at the end of the project? – ensure realistic and achievable.</p>
+
+                    @Html.TextBoxFor(model => model.OutputIndicator.Target, new { id = "Indicator-Target", @class = "form-control" })
+                    @Html.ValidationMessageFor(model => model.OutputIndicator.Target)
+
+
+                </div>
+
+                <div class="column-half">
+                    @Html.DateBlock("OutputIndicator.TargetDate", "Target Date", @Model.OutputIndicator.TargetDate.Value, "Target date for target")
+                    @Html.HiddenFor(model => model.OutputIndicator.TargetDate)
+                    @Html.ValidationMessageFor(model => model.OutputIndicator.TargetDate)
+                </div>
+            </div>
+
+
+
+            <div class="grid-row">
+                <div class="column-quarter">
+                    <label class="form-label-bold" for="project-title">Unit</label>
+                    <p class="form-hint">Unit of indicator</p>
+                    <div class="col-md-10">
+                        @{
+        List<SelectListItem> listItems = new List<SelectListItem>();
+        listItems.Add(new SelectListItem
+        {
+            Text = "Households",
+            Value = "Households"
+        });
+        listItems.Add(new SelectListItem
+        {
+            Text = "People",
+            Value = "People",
+            Selected = true
+        });
+        listItems.Add(new SelectListItem
+        {
+            Text = "Schools",
+            Value = "Schools"
+        });
+        listItems.Add(new SelectListItem
+        {
+            Text = "Others",
+            Value = "Others"
+        });
+                        }
+
+                        @Html.DropDownListFor(model => model.OutputIndicator.Units, listItems, "-- Select Unit --", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+            <div id="ResultMessage" class="Hidden">@ViewBag.ResultMessage.ToString()</div>
+            <div class="form-group">
+                <div class="grid-row">
+                    <div class="column-third">
+                        <input type="submit" value="Save" class="button" id="CreateBtn" />
+                    </div>
+                    <div style="float: right">
+                        <button id="btnCreateNewMilestoneOnIndicatorCreated" type="button" style="display:none">Add a milestone</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="PushDown">
+            <input type="hidden" id="ResultMessageSuccess" value="@(ViewBag.IsSuccess.ToString())" />
+            <input type="hidden" id="ExistingIndicator" value="@(ViewBag.ExistingIndicator.ToString())" />
+            <br />
+        </div>
+    }
+
+    <div id="dvCreateMilestone" style="display:none">
+        <span class="project-details-section"></span>
+        <h1>Create Milestone</h1>
+        <div id="errorDiv" class="SaveMessageFail"> </div>
+        @using (Html.BeginForm("MilestoneNew", "Result", FormMethod.Post, new { id = "MilestoneForm" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="form-horizontal">
+                @Html.ValidationSummary(true)
+                <div class="form-group">
+
+                    @*@Html.HiddenFor(model => model.Milestone.OutputID, new {@Value = @Model.OutputIndicator.OutputID}  )
+                        @Html.HiddenFor(model => model.Milestone.IndicatorID, new { @Value = @Model.OutputIndicator.IndicatorID })*@
+
+                    @Html.Hidden("ResultVM.Milestone.OutputID", @Model.OutputIndicator.OutputID, new { id = "output-indicator-outputID" })
+                    @Html.Hidden("ResultVM.Milestone.ProjectID", @Model.OutputIndicator.ProjectID, new { id = "output-indicator-projectID" })
+                    @Html.Hidden("ResultVM.Milestone.IndicatorID", @Model.OutputIndicator.IndicatorID, new { id = "output-indicator-indicatorID" })
+                </div>
+                <div class="grid-row">
+                    <div class="column-third">
+                        @Html.DateBlock("ResultVM.Milestone.From", "Date", @Model.Milestone.From.Value, "This date is automatically defaulted as 1 year after the project start date to fall inline with Annual Review process")
+                        @Html.HiddenFor(model => model.Milestone.From, new { id = "milestone-date" })
+                        @Html.ValidationMessageFor(model => model.Milestone.From)
+                    </div>
+                    <div class="column-two-thirds">
+                        <label for="Indicator-description" class="form-label-bold">Planned Value</label>
+                        <p class="form-hint">What is the desired value at the milestone date</p>
+                        @*@Html.TextBoxFor(model => model.Milestone.Planned, new
+                            {
+                                id = "milestone-planned",
+                                name = "ResultVM.Milestone.Planned"
+                            })*@
+
+                        @Html.TextArea("ResultVM.Milestone.Planned", new {id = "milestone-planned",  rows="8"})
+                        @Html.ValidationMessageFor(model => model.Milestone.Planned)
+                    </div>
+
+                    </div>
+                    <div class="grid-row">
+                        <div class="column-third">
+                            <label class="form-label-bold" for="Indicator-baseline">Achieved to Date</label>
+                            <p class="form-hint">Sum total of achievements to date</p>
+                            <input disabled="disabled" type="text" id="achievedSoFar" class="form-control" />
+                        </div>
+                    </div>
+                <br />
+                <div class="column-third">
+                    <input type="button" value="Save" class="button" id="btnMilestoneSave" />
+                </div>
+                <br />
+            </div>
+        }
+
+    </div>
+    <div id="resultmessageMilestone" class="SaveMessageSuccess"> </div>
+    
+    <div id="dvMilestonesGrid" style="display:none">
+        <br />
+        <span class="project-details-section"></span>
+        <h1>Milestones:</h1>
+        <div id="resultmessageMilestoneGrid" class="SaveMessageSuccess"> </div>
+
+        <div id="dvShowMileStones">
+            @if(@Model.OutputIndicator.IndicatorID != null)
+            {
+              @Html.Action("ShowMilestones", new {projectID = @Model.ProjectHeader.ProjectID, outputID = @Model.ProjectOutput.OutputID, indicatorID = @Model.OutputIndicator.IndicatorID})
+             }
+
+            @*@Html.Action("ShowMilestones", new { projectID = @Model.ProjectHeader.ProjectID, outputID = @Model.ProjectOutput.OutputID })*@
+
+
+        </div>
+        
+    </div>
+    <div class="PushDown">
+        @Html.ActionLink("Back to Outputs", "Index/" + Model.ProjectHeader.ProjectID)
+    </div>
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/jquery.validate.unobtrusive.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+        //var x = document.getElementById("project-menu-results");
+        //x.className = "active";
+
+        $(document).ready(function () {
+
+            var isExistingIndicator = document.getElementById("ExistingIndicator");
+            if (isExistingIndicator.value == "1") {
+
+                document.getElementById("isDRF-Y").disabled = true;
+                document.getElementById("isDRF-N").disabled = true;
+                document.getElementById("isCHR-Y").disabled = true;
+                document.getElementById("isCHR-N").disabled = true;
+                document.getElementById("Indicator-description").disabled = true;
+                document.getElementById("Indicator-source").disabled = true;
+                document.getElementById("Indicator-baseline").disabled = true;
+                document.getElementById("Indicator-Target").disabled = true;
+                document.getElementById("OutputIndicator_Units").disabled = true;
+                document.getElementById("OutputIndicator_BaselineDate_Day").disabled = true;
+                document.getElementById("OutputIndicator_BaselineDate_Month").disabled = true;
+                document.getElementById("OutputIndicator_BaselineDate_Year").disabled = true;
+                document.getElementById("OutputIndicator_TargetDate_Day").disabled = true;
+                document.getElementById("OutputIndicator_TargetDate_Month").disabled = true;
+                document.getElementById("OutputIndicator_TargetDate_Year").disabled = true;
+                document.getElementById("CreateBtn").disabled = true;
+
+                $("#dvMilestonesGrid").show();
+            }
+
+        });
+
+        //GenerateMilestoneTimeseriesGraph("webgrid-table",true);
+     
+        var resultMessageSuccess = document.getElementById("ResultMessageSuccess");
+        var resultMessage = document.getElementById("ResultMessage");
+
+        if (resultMessageSuccess.value == "1") {
+            resultMessage.className = "SaveMessageSuccess";
+        }
+
+        if (resultMessageSuccess.value == "0") {
+            resultMessage.className = "SaveMessageFail";
+            document.getElementById("CreateBtn").disabled = false;
+        }
+
+        if (resultMessageSuccess.value == 1) {
+            IndicatorCreateSuccessful();
+        }
+
+        function IndicatorCreateSuccessful() {
+            $("#Indicator-description").attr("disabled", "disabled");
+            $("#Indicator-source").attr("disabled", "disabled");
+            $("#Indicator-baseline").attr("disabled", "disabled");
+            $("#Indicator-Target").attr("disabled", "disabled");
+            $("#OutputIndicator_Units").attr("disabled", "disabled");
+            $("#isDRF-Y").attr("disabled", "disabled");
+            $("#isDRF-N").attr("disabled", "disabled");
+            $("#isCHR-Y").attr("disabled", "disabled");
+            $("#isCHR-N").attr("disabled", "disabled");
+            $("#OutputIndicator_BaselineDate_Day").attr("disabled", "disabled");
+            $("#OutputIndicator_BaselineDate_Month").attr("disabled", "disabled");
+            $("#OutputIndicator_BaselineDate_Year").attr("disabled", "disabled");
+            $("#OutputIndicator_TargetDate_Day").attr("disabled", "disabled");
+            $("#OutputIndicator_TargetDate_Month").attr("disabled", "disabled");
+            $("#OutputIndicator_TargetDate_Year").attr("disabled", "disabled");
+            $("#CreateBtn").attr("disabled", "disabled");
+            document.getElementById("btnCreateNewMilestoneOnIndicatorCreated").style.display = "block";
+            $('#btnCreateNewMilestoneOnIndicatorCreated').focus();
+
+        }
+
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#btnMilestoneSave').click(function (e) {
+                e.preventDefault();
+                if ($('#MilestoneForm').valid()) {
+                    PostMilestone();
+                }
+            });
+
+            $("#btnCreateNewMilestoneOnIndicatorCreated").on('click', function () {
+                $('#dvCreateMilestone').show();
+                $('#ResultMessage').hide();
+                $('#btnCreateNewMilestoneOnIndicatorCreated').hide();
+            });
+        });
+
+        function PostMilestone() {
+
+            var form = $('#MilestoneForm');
+            $.ajax({
+                cache: false,
+                async: true,
+                type: "POST",
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function (result) {
+
+                    if (result.success === true) {
+                        var projectID = $("#output-indicator-projectID").val();
+                        var outputID = $("#output-indicator-outputID").val();
+                        var indicatorID = $("#output-indicator-indicatorID").val();
+
+                        $('#resultmessageMilestone').addClass("SaveMessageSuccess");
+                        $('#resultmessageMilestone').text('New milestone created successfully');
+                        $("#dvShowMileStones").show();
+                        $('#dvMilestonesGrid').show();
+                        $("#dvCreateMilestone").hide();
+                        $('#resultmessageMilestone').show();
+                        $("#errorDiv").hide();
+                        $("#milestone-planned").val('');
+                        var urltoRefresh = '@Html.Raw(@Url.Action("ShowMilestones"))';
+                        $('#dvShowMileStones').load(urltoRefresh);
+                    }
+                    if (result.success === false) {
+                        $("#errorDiv").html(result.response);
+                    }
+                },
+                error: function (result) { alert("Error creating new milestone"); }
+            });
+        };
+
+ 
+
+    </script>
+}

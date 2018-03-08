@@ -1,0 +1,68 @@
+﻿@using PagedList.Mvc;
+@using AMP.Models;
+@model AMP.ViewModels.ResultVM
+
+@{
+    ViewBag.Title = "Indicator Milestones";
+}
+
+
+
+<div class="container">
+    <h2>Indicator Milestones</h2>
+
+    <div>
+        <table class="table" style="width:600px">
+            <thead> <h4> Indicator details </h4> </thead>
+            <tr> <td>ID</td> <td>  </td></tr>           
+            <tr> <td>Description</td> <td> </td></tr>
+
+        </table>
+
+    </div>
+
+    <h3>Milestones:</h3>
+    <div class="panel panel-info">
+
+        <div class="panel-body">
+
+
+            <button class="btn btn-primary" type="button" style="float:right" onclick="location.href='../MilestoneNew'"> <span class="glyphicon glyphicon-plus"></span> Add milestone</button>
+
+
+
+
+
+            <br /><br />
+            <table class="table">
+
+                <tr>                   
+                    <th style="width:10%">From</th>
+                    <th style="width:10%">To</th>
+                    <th style="width:30%">Planned</th>
+                    <th style="width:30%">Achieved</th>
+                    <th style="width:5%">Status</th>                    
+                    <th style="width:15%">Actions</th>
+
+                </tr>
+               
+                @foreach (OutputIndicatorMilestone milestone in Model.Milestones)
+                {
+                    <tr>
+                        <td> @milestone.From</td>
+                        <td> @milestone.To</td>
+                        <td> @milestone.Planned</td>
+                        <td> @milestone.Achieved </td>
+                        <td> @milestone.Status</td>                        
+                        <td><span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> @Html.ActionLink("Edit", "MilestoneEdit", new { id = milestone.ID })</td>
+                    </tr>                   
+                }
+
+            </table>
+        </div>
+    </div>
+
+
+
+
+</div>

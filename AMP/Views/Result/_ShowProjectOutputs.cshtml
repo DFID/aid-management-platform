@@ -1,0 +1,38 @@
+﻿@model  AMP.ViewModels.ProjectViewModel
+@using AMP.Models;
+
+<script src="~/Scripts/govuk-template.js" type="text/javascript"></script>
+
+<div id="accordion-1">
+
+    @foreach (ProjectOutput projectoutput in Model.ResultVM.ProjectOutputs)
+    {
+        <div class="accordion-1-toggle">
+            <div class="title-bar">
+                <div class="control-bar" style="max-width:inherit" id="HRG-flexi-control-bar">
+                    <div><b> Output @projectoutput.OutputID <span style="float: right">@projectoutput.ImpactWeightingPercentage%  @projectoutput.Risk </span> </b> </div>
+               </div>
+                <!-- Put the content of the Accordion Header here.-->
+                 <p> @projectoutput.ProjectOutputDescription </p>
+            </div>
+        </div>
+        
+        <div class="accordion-1-content">
+            <br/>
+            <div class="accordion-2 assumptions">
+                <h4 class="accordion-2-toggle">Assumption</h4>
+                <p>@projectoutput.Assumption</p>
+            </div>
+            
+            <div style="float: right">  @Html.ActionLink("Add Indicator", "Indicator", new { projectID = projectoutput.ProjectID, outputID = projectoutput.OutputID }, new { @class = "button" }) </div>
+            <br/><br/>
+            <div id="PartialDiv-@projectoutput.OutputID">
+                @Html.Action("Showindicators", new { ProjectId = projectoutput.ProjectID,OutputId = projectoutput.OutputID })
+            </div>
+        </div>
+    }
+</div>
+
+
+
+

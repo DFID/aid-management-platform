@@ -1,0 +1,71 @@
+﻿@using AMP.ViewModels
+@model  AMP.ViewModels.ProjectViewModel
+@Html.Partial("_ScriptsForPartialView")
+
+@{
+    var grid = new WebGrid(Model.ResultVM.Milestones);
+}
+
+<style type="text/css">
+ .webgrid-table td:nth-child(1),th:nth-child(1){
+            display:none
+        }  
+  .webgrid-table td:nth-child(2),th:nth-child(2){
+                width:auto;
+        }  
+    .webgrid-table td:nth-child(3),th:nth-child(3){
+                width:auto;
+        }  
+      .webgrid-table td:nth-child(4),th:nth-child(4){
+                width:auto;
+        }  
+.webgrid-table td:last-child{
+    width:auto;
+}
+ .webgrid-table {
+     width: auto;
+     overflow: auto;
+     padding: 0px;
+     margin: 0px;
+    
+ }    
+</style>
+<div id="gridContent" style="padding: 20px">
+
+    @grid.GetHtml(
+        tableStyle: "webgrid-table",
+        htmlAttributes: new { id = "tblMileStone" },
+        headerStyle: "webgrid-header",
+        footerStyle: "webgrid-footer",
+        alternatingRowStyle: "webgrid-alternating-row",
+        selectedRowStyle: "webgrid-selected-row",
+        rowStyle: "webgrid-row-style",
+        mode: WebGridPagerModes.All,
+        columns:
+            grid.Columns(
+
+                grid.Column("MileStoneID", "MileStoneID", format: @<text> <span class="display-mode" > <label id="lblMileStoneID">@item.MilestoneID</label> </span> <input type="text" id="MileStoneID" value="@item.MilestoneID" class="edit-mode"/></text>, style: "col2Width", canSort: false),
+                grid.Column("Date", format: @<text> <span class="display-mode">@item.From.ToString("yyyy-MM-dd") </span> <label id="From" class="edit-mode">@item.From.ToString("yyyy-MM-dd")</label> </text>, style: "col2Width", canSort: false),
+                grid.Column("Planned", format: @<text> <span class="display-mode">@item.Planned </span> <label id="Planned" class="edit-mode">@item.Planned</label> </text>, style: "col1Width", canSort: false),
+                grid.Column("Achieved", "Achieved", format: @<text> <span class="display-mode"> <label id="lblAchieved">@item.Achieved</label> </span> <input type="text" id="Achieved" value="@item.Achieved" class="edit-mode"/></text>, style: "col2Width", canSort: false),
+                grid.Column("Action", format: @<text>
+                                                  <button class="edit-user display-mode" type="button">Edit</button>
+                                                  <button class="save-user edit-mode" type="button" data-MilestoneID=@item.MilestoneID>Save</button>
+                                                  <button class="cancel-user edit-mode" type="button">Cancel</button>
+
+                                                  <button class="delete-Milestone display-mode" type="button">Delete</button>
+
+                                               </text>, style: "col3Width", canSort: false)
+                ))
+</div>
+
+<div>
+    <button id="opeMilestoneForm" type="button">Add a milestone</button>
+</div>
+<br/>
+<br/>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+}

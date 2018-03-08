@@ -1,0 +1,54 @@
+﻿@using AMP.Models
+@model  AMP.ViewModels.ProjectViewModel
+
+
+@if (Model.ResultVM.OutputIndicators.Any())
+{
+    <table class="table-main" border="1">
+
+        <tr>
+            <th>ID</th>
+            <th>Description</th>
+            <th>Action</th>
+          
+        </tr>
+
+        @foreach (OutputIndicator outputIndicator in Model.ResultVM.OutputIndicators)
+        {
+            <tr>
+                <td>Indicator- @outputIndicator.IndicatorID</td>
+                <td> @outputIndicator.IndicatorDescription</td>
+                <td width="14%">
+                    @Html.ActionLink("Details", "Indicator", new { outputId = outputIndicator.OutputID, indicatorId = outputIndicator.IndicatorID }, new { @class = "button", id = outputIndicator.OutputID + "" + outputIndicator.IndicatorID })
+
+                    @{
+            if (outputIndicator.OutputID + "" + outputIndicator.IndicatorID == Model.ResultVM.LastIndicator)
+            {
+                @Html.ActionLink("Delete", "DeleteIndicator", new { projectid = outputIndicator.ProjectID, outputId = outputIndicator.OutputID, indicatorId = outputIndicator.IndicatorID }, new { @class = "button"})
+
+            }
+            else
+            {
+                @Html.ActionLink("Delete", "DeleteIndicator", new { projectid = outputIndicator.ProjectID, outputId = outputIndicator.OutputID, indicatorId = outputIndicator.IndicatorID }, new { @class = "button", disabled = "disabled" })
+            }
+                    }
+                </td>
+                 
+                 
+                
+                
+                @*<td>@Model.ResultVM.LastIndicator </td>*@           
+            </tr>
+        }
+
+    </table>
+}
+
+else
+{
+    <table id="project-list" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <th>No indicators found </th>
+        </tr>
+    </table>
+}
